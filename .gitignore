@@ -8,16 +8,23 @@ mysql/
 *.sql
 *.sql.gz
 
-# WordPress uploads (médias volumineux)
-wordpress/wp-content/uploads/
+# WordPress Core (sera réinstallé via Docker)
+wordpress/*
+!wordpress/wp-content/
 
-# WordPress cache et fichiers temporaires
+# WordPress uploads et cache
+wordpress/wp-content/uploads/
 wordpress/wp-content/cache/
 wordpress/wp-content/upgrade/
 wordpress/wp-content/backup-db/
 wordpress/wp-content/backups/
 wordpress/wp-content/blogs.dir/
 wordpress/wp-content/w3tc-config/
+
+# WordPress plugins et thèmes par défaut (garder seulement notre thème)
+wordpress/wp-content/plugins/
+wordpress/wp-content/themes/*
+!wordpress/wp-content/themes/altra-theme/
 
 # Configuration WordPress sensible
 wordpress/wp-config.php

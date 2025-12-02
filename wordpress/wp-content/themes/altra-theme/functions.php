@@ -347,7 +347,37 @@ function altra_enqueue_admin_scripts($hook) {
     if ('post.php' !== $hook && 'post-new.php' !== $hook) {
         return;
     }
-    
+
     wp_enqueue_media();
 }
 add_action('admin_enqueue_scripts', 'altra_enqueue_admin_scripts');
+
+/**
+ * Remove unnecessary admin menu items
+ *
+ * Hides default WordPress menus that aren't needed for this project:
+ * - Articles (Posts) - We only use Projects custom post type
+ * - Commentaires (Comments) - Comments are disabled for this site
+ */
+function altra_remove_admin_menus() {
+    // Remove Posts menu (Articles)
+    remove_menu_page('edit.php');
+
+    // Remove Comments menu (Commentaires)
+    remove_menu_page('edit-comments.php');
+}
+add_action('admin_menu', 'altra_remove_admin_menus', 999);
+
+/**
+ * Remove unnecessary admin bar links
+ *
+ * Removes the "New Post" link from the admin bar since we don't use
+ * the default Posts functionality (only Projects custom post type)
+ */
+function altra_remove_admin_bar_links() {
+    global $wp_admin_bar;
+
+    // Remove "New Post" link from admin bar
+    $wp_admin_bar->remove_menu('new-post');
+}
+add_action('wp_before_admin_bar_render', 'altra_remove_admin_bar_links');
