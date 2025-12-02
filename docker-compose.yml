@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Base de données MySQL
+  db:
+    image: mysql:8.0
+    container_name: altra_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: altra_wordpress
+      MYSQL_USER: altra_user
+      MYSQL_PASSWORD: altra_password
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - altra_network
+
+  # WordPress
+  wordpress:
+    image: wordpress:latest
+    container_name: altra_wordpress
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8083:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: altra_wordpress
+      WORDPRESS_DB_USER: altra_user
+      WORDPRESS_DB_PASSWORD: altra_password
+    volumes:
+      # Monte tout le dossier wordpress en local
+      - ./wordpress:/var/www/html
+    networks:
+      - altra_network
+
+networks:
+  altra_network:
+    driver: bridge

@@ -1,0 +1,45 @@
+# Fichiers sensibles avec credentials
+credentials-wordpress-altra.txt
+credentials-ovh.jpeg
+Altra2025.pdf
+
+# Base de données MySQL (volumes Docker)
+mysql/
+*.sql
+*.sql.gz
+
+# WordPress uploads (médias volumineux)
+wordpress/wp-content/uploads/
+
+# WordPress cache et fichiers temporaires
+wordpress/wp-content/cache/
+wordpress/wp-content/upgrade/
+wordpress/wp-content/backup-db/
+wordpress/wp-content/backups/
+wordpress/wp-content/blogs.dir/
+wordpress/wp-content/w3tc-config/
+
+# Configuration WordPress sensible
+wordpress/wp-config.php
+wordpress/.htaccess
+
+# Logs
+*.log
+wordpress/debug.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node modules (si vous ajoutez du JS personnalisé)
+node_modules/
+package-lock.json
+yarn.lock
