@@ -113,7 +113,7 @@ function altra_register_project_post_type() {
         'exclude_from_search'  => false,
         'publicly_queryable'   => true,
         'capability_type'      => 'post',
-        'show_in_rest'         => true,
+        'show_in_rest'         => false, // Désactive Gutenberg pour éviter les conflits avec les meta boxes
         'rewrite'              => array('slug' => 'projects'),
     );
 
@@ -202,11 +202,14 @@ function altra_project_details_callback($post) {
  * Project Gallery Meta Box Callback
  */
 function altra_project_gallery_callback($post) {
+    // Add nonce for security (même si déjà dans Project Details, c'est une bonne pratique)
+    wp_nonce_field('altra_save_project_meta', 'altra_project_gallery_nonce');
+
     $gallery_ids = get_post_meta($post->ID, '_altra_project_gallery', true);
-    
+
     ?>
     <div class="altra-gallery-container">
-        <input type="hidden" id="altra_project_gallery" name="altra_project_gallery" value="<?php echo esc_attr($gallery_ids); ?>">
+        <input type="hidden" id="altra_project_gallery" name="altra_project_gallery" value="<?php echo esc_attr($gallery_ids); ?>" />
         <button type="button" class="button altra-add-gallery"><?php _e('Add Images to Gallery', 'altra'); ?></button>
         <div class="altra-gallery-preview" style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
             <?php
@@ -262,26 +265,29 @@ function altra_project_gallery_callback($post) {
                         '</div>'
                     );
                 });
-                
+
                 $('#altra_project_gallery').val(idsArray.join(','));
+                console.log('Altra Gallery: Updated hidden field value to:', idsArray.join(','));
             });
-            
+
             frame.open();
         });
-        
+
         // Remove image
         $(document).on('click', '.remove-gallery-image', function(e) {
             e.preventDefault();
             var $image = $(this).closest('.gallery-image');
             var id = $image.data('id');
             var ids = $('#altra_project_gallery').val().split(',');
-            
+
             ids = ids.filter(function(item) {
                 return item != id;
             });
-            
-            $('#altra_project_gallery').val(ids.join(','));
+
+            var newValue = ids.join(',');
+            $('#altra_project_gallery').val(newValue);
             $image.remove();
+            console.log('Altra Gallery: Removed image, new value:', newValue);
         });
     });
     </script>
@@ -333,9 +339,24 @@ function altra_save_project_meta($post_id) {
         update_post_meta($post_id, '_altra_project_team', sanitize_textarea_field($_POST['altra_project_team']));
     }
 
-    // Save Gallery
+    // Save Gallery (liste d'IDs séparés par des virgules)
     if (isset($_POST['altra_project_gallery'])) {
-        update_post_meta($post_id, '_altra_project_gallery', sanitize_text_field($_POST['altra_project_gallery']));
+        $gallery_value = sanitize_text_field($_POST['altra_project_gallery']);
+
+        // Debug log (à retirer après résolution du problème)
+        error_log('Altra Gallery Debug - Post ID: ' . $post_id . ' | Value: ' . $gallery_value);
+
+        // Si la valeur est vide, on supprime la meta pour nettoyer
+        if (empty($gallery_value)) {
+            delete_post_meta($post_id, '_altra_project_gallery');
+            error_log('Altra Gallery Debug - Deleted empty gallery for post ' . $post_id);
+        } else {
+            update_post_meta($post_id, '_altra_project_gallery', $gallery_value);
+            error_log('Altra Gallery Debug - Saved gallery for post ' . $post_id);
+        }
+    } else {
+        // Le champ n'est pas présent dans $_POST - on ne fait rien pour ne pas supprimer la galerie existante
+        error_log('Altra Gallery Debug - Field not in POST for post ' . $post_id . ' - keeping existing value');
     }
 }
 add_action('save_post_project', 'altra_save_project_meta');
