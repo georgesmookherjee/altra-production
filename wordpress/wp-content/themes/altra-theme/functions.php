@@ -49,7 +49,15 @@ function altra_enqueue_assets() {
         array(),
         '1.0.0'
     );
-    
+
+    // Flexible Layout CSS
+    wp_enqueue_style(
+        'altra-flexible-layout',
+        get_template_directory_uri() . '/assets/css/flexible-layout.css',
+        array('altra-style'),
+        '1.0.0'
+    );
+
     // Main JavaScript
     wp_enqueue_script(
         'altra-script',
@@ -402,3 +410,220 @@ function altra_remove_admin_bar_links() {
     $wp_admin_bar->remove_menu('new-post');
 }
 add_action('wp_before_admin_bar_render', 'altra_remove_admin_bar_links');
+
+/**
+ * ==========================================================================
+ * FLEXIBLE LAYOUT SYSTEM
+ * Permet de contrôler la largeur de chaque projet individuellement
+ * Inspiré par Sheriff Projects
+ * ==========================================================================
+ */
+
+/**
+ * Add Project Width meta box
+ */
+function altra_add_project_width_metabox() {
+    add_meta_box(
+        'altra_project_width',
+        __('Project Display Width', 'altra'),
+        'altra_project_width_callback',
+        'project',
+        'side',  // Display in the right sidebar
+        'high'   // High priority
+    );
+}
+add_action('add_meta_boxes', 'altra_add_project_width_metabox');
+
+/**
+ * Project Width meta box callback
+ */
+function altra_project_width_callback($post) {
+    // Nonce for security
+    wp_nonce_field('altra_save_project_width', 'altra_project_width_nonce');
+
+    // Get current value
+    $width = get_post_meta($post->ID, '_altra_project_width', true);
+    if (empty($width)) {
+        $width = 'medium'; // Default value
+    }
+
+    ?>
+    <div class="altra-width-selector">
+        <p><strong><?php _e('Choose how wide this project should display on the homepage:', 'altra'); ?></strong></p>
+
+        <div style="margin: 15px 0;">
+            <label style="display: block; margin-bottom: 10px;">
+                <input type="radio" name="altra_project_width" value="small" <?php checked($width, 'small'); ?>>
+                <strong><?php _e('Small', 'altra'); ?></strong> - <?php _e('1/3 width (3 projects per row)', 'altra'); ?>
+            </label>
+
+            <label style="display: block; margin-bottom: 10px;">
+                <input type="radio" name="altra_project_width" value="medium" <?php checked($width, 'medium'); ?>>
+                <strong><?php _e('Medium', 'altra'); ?></strong> - <?php _e('1/2 width (2 projects per row)', 'altra'); ?>
+            </label>
+
+            <label style="display: block; margin-bottom: 10px;">
+                <input type="radio" name="altra_project_width" value="large" <?php checked($width, 'large'); ?>>
+                <strong><?php _e('Large', 'altra'); ?></strong> - <?php _e('Full width (1 project per row)', 'altra'); ?>
+            </label>
+        </div>
+
+        <div style="padding: 10px; background: #f0f0f1; border-left: 4px solid #2271b1; margin-top: 15px;">
+            <p style="margin: 0; font-size: 12px;">
+                <strong><?php _e('Tip:', 'altra'); ?></strong>
+                <?php _e('Mix different widths to create an interesting visual rhythm!', 'altra'); ?>
+            </p>
+        </div>
+
+        <!-- Visual preview -->
+        <div style="margin-top: 20px; padding: 10px; background: white; border: 1px solid #ddd;">
+            <p style="margin: 0 0 10px 0; font-weight: bold;"><?php _e('Visual Preview:', 'altra'); ?></p>
+            <div id="width-preview" style="height: 60px; background: #2271b1; transition: width 0.3s;"></div>
+        </div>
+    </div>
+
+    <script>
+    jQuery(document).ready(function($) {
+        // Real-time preview update
+        $('input[name="altra_project_width"]').on('change', function() {
+            var width = $(this).val();
+            var preview = $('#width-preview');
+
+            switch(width) {
+                case 'small':
+                    preview.css('width', '33.33%');
+                    break;
+                case 'medium':
+                    preview.css('width', '50%');
+                    break;
+                case 'large':
+                    preview.css('width', '100%');
+                    break;
+            }
+        });
+
+        // Initialize preview
+        $('input[name="altra_project_width"]:checked').trigger('change');
+    });
+    </script>
+
+    <style>
+    .altra-width-selector label {
+        cursor: pointer;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+    .altra-width-selector label:hover {
+        background: #f0f0f1;
+        border-color: #2271b1;
+    }
+    .altra-width-selector input[type="radio"] {
+        margin-right: 8px;
+    }
+    </style>
+    <?php
+}
+
+/**
+ * Save project width
+ */
+function altra_save_project_width($post_id) {
+    // Security checks
+    if (!isset($_POST['altra_project_width_nonce'])) {
+        return;
+    }
+
+    if (!wp_verify_nonce($_POST['altra_project_width_nonce'], 'altra_save_project_width')) {
+        return;
+    }
+
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+
+    // Save the value
+    if (isset($_POST['altra_project_width'])) {
+        $width = sanitize_text_field($_POST['altra_project_width']);
+
+        // Validate that it's an accepted value
+        if (in_array($width, array('small', 'medium', 'large'))) {
+            update_post_meta($post_id, '_altra_project_width', $width);
+        }
+    }
+}
+add_action('save_post_project', 'altra_save_project_width');
+
+/**
+ * Add width column in projects list
+ */
+function altra_add_width_column($columns) {
+    $new_columns = array();
+
+    foreach ($columns as $key => $value) {
+        $new_columns[$key] = $value;
+
+        // Add column after title
+        if ($key === 'title') {
+            $new_columns['project_width'] = __('Display Width', 'altra');
+        }
+    }
+
+    return $new_columns;
+}
+add_filter('manage_project_posts_columns', 'altra_add_width_column');
+
+/**
+ * Display value in the column
+ */
+function altra_display_width_column($column, $post_id) {
+    if ($column === 'project_width') {
+        $width = get_post_meta($post_id, '_altra_project_width', true);
+
+        if (empty($width)) {
+            $width = 'medium';
+        }
+
+        $labels = array(
+            'small'  => 'Small (1/3)',
+            'medium' => 'Medium (1/2)',
+            'large'  => 'Large (Full)'
+        );
+
+        echo '<strong>' . esc_html($labels[$width]) . '</strong>';
+    }
+}
+add_action('manage_project_posts_custom_column', 'altra_display_width_column', 10, 2);
+
+/**
+ * Make width column sortable
+ */
+function altra_make_width_column_sortable($columns) {
+    $columns['project_width'] = 'project_width';
+    return $columns;
+}
+add_filter('manage_edit-project_sortable_columns', 'altra_make_width_column_sortable');
+
+/**
+ * Helper function to get CSS class based on width
+ */
+function altra_get_project_width_class($post_id) {
+    $width = get_post_meta($post_id, '_altra_project_width', true);
+
+    if (empty($width)) {
+        $width = 'medium';
+    }
+
+    $classes = array(
+        'small'  => 'project-width-small',   // 1/3 width
+        'medium' => 'project-width-medium',  // 1/2 width
+        'large'  => 'project-width-large'    // Full width
+    );
+
+    return $classes[$width];
+}

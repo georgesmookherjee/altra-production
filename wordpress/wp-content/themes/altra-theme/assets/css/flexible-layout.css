@@ -1,0 +1,203 @@
+/* ==========================================================================
+   ALTRA FLEXIBLE LAYOUT SYSTEM CSS
+   Système de grille flexible inspiré de Sheriff Projects
+   ========================================================================== */
+
+/* RESET de la grille actuelle */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr); /* Grille de 12 colonnes pour plus de flexibilité */
+    gap: var(--spacing-md, 30px);
+    padding: var(--spacing-xl, 60px) 0;
+    margin-top: 100px;
+}
+
+/* CLASSES DE LARGEUR */
+
+/* Small : 1/3 de la largeur (4 colonnes sur 12) */
+.project-card.project-width-small {
+    grid-column: span 4;
+}
+
+/* Medium : 1/2 de la largeur (6 colonnes sur 12) */
+.project-card.project-width-medium {
+    grid-column: span 6;
+}
+
+/* Large : Pleine largeur (12 colonnes) */
+.project-card.project-width-large {
+    grid-column: span 12;
+}
+
+/* AJUSTEMENTS VISUELS selon la largeur */
+
+/* Les projets large ont une hauteur différente */
+.project-card.project-width-large {
+    aspect-ratio: 16/9; /* Plus panoramique */
+}
+
+.project-card.project-width-medium {
+    aspect-ratio: 4/3; /* Format standard */
+}
+
+.project-card.project-width-small {
+    aspect-ratio: 3/4; /* Plus vertical */
+}
+
+/* Style de la carte projet (garde le style existant) */
+.project-card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.project-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.project-card:hover img {
+    transform: scale(1.05);
+}
+
+.project-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--spacing-md, 30px);
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: var(--color-white, #ffffff);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.project-card:hover .project-info {
+    transform: translateY(0);
+}
+
+/* Ajustement de la taille du texte selon la largeur */
+.project-card.project-width-large .project-title {
+    font-size: 2rem; /* Plus grand pour les projets larges */
+}
+
+.project-card.project-width-medium .project-title {
+    font-size: 1.5rem;
+}
+
+.project-card.project-width-small .project-title {
+    font-size: 1.2rem;
+}
+
+/* ==========================================================================
+   RESPONSIVE : TABLETTE
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+    .projects-grid {
+        grid-template-columns: repeat(6, 1fr); /* 6 colonnes sur tablette */
+    }
+
+    /* Small devient 1/2 sur tablette */
+    .project-card.project-width-small {
+        grid-column: span 3; /* 3/6 = 1/2 */
+    }
+
+    /* Medium reste 1/2 */
+    .project-card.project-width-medium {
+        grid-column: span 3; /* 3/6 = 1/2 */
+    }
+
+    /* Large reste pleine largeur */
+    .project-card.project-width-large {
+        grid-column: span 6; /* 6/6 = pleine largeur */
+    }
+}
+
+/* ==========================================================================
+   RESPONSIVE : MOBILE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .projects-grid {
+        grid-template-columns: 1fr; /* Une seule colonne sur mobile */
+        gap: var(--spacing-sm, 20px);
+    }
+
+    /* Toutes les largeurs deviennent pleine largeur sur mobile */
+    .project-card.project-width-small,
+    .project-card.project-width-medium,
+    .project-card.project-width-large {
+        grid-column: span 1;
+        aspect-ratio: 4/3; /* Ratio uniforme sur mobile */
+    }
+
+    /* Tailles de texte uniformes sur mobile */
+    .project-card .project-title {
+        font-size: 1.2rem;
+    }
+}
+
+/* ==========================================================================
+   ANIMATIONS ET TRANSITIONS
+   ========================================================================== */
+
+/* Animation d'apparition au scroll */
+.project-card {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Délai progressif pour chaque carte */
+.project-card:nth-child(1) { animation-delay: 0.1s; }
+.project-card:nth-child(2) { animation-delay: 0.2s; }
+.project-card:nth-child(3) { animation-delay: 0.3s; }
+.project-card:nth-child(4) { animation-delay: 0.4s; }
+.project-card:nth-child(5) { animation-delay: 0.5s; }
+.project-card:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   ÉTATS SPÉCIAUX
+   ========================================================================== */
+
+/* État de chargement */
+.project-card.loading {
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    );
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Hover state amélioré pour les grands projets */
+.project-card.project-width-large:hover {
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+/* ==========================================================================
+   UTILITAIRES
+   ========================================================================== */
+
+/* Classe pour forcer un saut de ligne */
+.project-card.force-new-row {
+    grid-column: 1 / -1; /* Occupe toute la largeur */
+    margin-top: var(--spacing-md, 30px);
+}

@@ -143,7 +143,7 @@ p {
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: var(--spacing-md);
     padding: var(--spacing-xl) 0;
-    margin-top: 100px;
+    margin-top: 25px;
 }
 
 .project-card {
@@ -196,12 +196,12 @@ p {
    ========================================================================== */
 
 .single-project {
-    padding: var(--spacing-xl) 0;
-    margin-top: 100px;
+    padding: var(--spacing-sm) 0;
+    margin-top: 25px;
 }
 
 .project-header {
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
 }
 
 .project-header h1 {
