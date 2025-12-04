@@ -9,7 +9,7 @@
     grid-template-columns: repeat(12, 1fr); /* Grille de 12 colonnes pour plus de flexibilité */
     gap: var(--spacing-md, 30px);
     padding: var(--spacing-xl, 60px) 0;
-    margin-top: 100px;
+    margin-top: 10px; /* Réduit de 100px à 40px pour moins d'espace blanc */
 }
 
 /* CLASSES DE LARGEUR */

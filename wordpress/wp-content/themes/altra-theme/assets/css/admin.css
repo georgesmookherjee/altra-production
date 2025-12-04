@@ -1,0 +1,114 @@
+/**
+ * Altra Admin CSS
+ * Styles for WordPress admin area
+ */
+
+/* ==========================================================================
+   PROJECT GALLERY META BOX
+   ========================================================================== */
+
+.altra-gallery-container {
+    padding: 10px 0;
+}
+
+.altra-gallery-preview {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.gallery-image {
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.gallery-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.remove-gallery-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.7) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 3px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.remove-gallery-image:hover {
+    background: rgba(220, 38, 38, 0.9) !important;
+}
+
+/* ==========================================================================
+   PROJECT WIDTH META BOX
+   ========================================================================== */
+
+.altra-width-selector {
+    padding: 10px 0;
+}
+
+.altra-width-selector label {
+    cursor: pointer;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.altra-width-selector label:hover {
+    background: #f0f0f1;
+    border-color: #2271b1;
+}
+
+.altra-width-selector input[type="radio"] {
+    margin-right: 8px;
+}
+
+.altra-width-selector .tip-box {
+    padding: 10px;
+    background: #f0f0f1;
+    border-left: 4px solid #2271b1;
+    margin-top: 15px;
+}
+
+.altra-width-selector .tip-box p {
+    margin: 0;
+    font-size: 12px;
+}
+
+.altra-width-selector .preview-box {
+    margin-top: 20px;
+    padding: 10px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.altra-width-selector .preview-box p {
+    margin: 0 0 10px 0;
+    font-weight: bold;
+}
+
+#width-preview {
+    height: 60px;
+    background: #2271b1;
+    transition: width 0.3s;
+    border-radius: 3px;
+}

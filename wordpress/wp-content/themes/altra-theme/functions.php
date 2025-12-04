@@ -133,6 +133,7 @@ add_action('init', 'altra_register_project_post_type', 0);
  * Add Custom Meta Boxes for Projects
  */
 function altra_add_project_meta_boxes() {
+    // Project Details meta box
     add_meta_box(
         'altra_project_details',
         __('Project Details', 'altra'),
@@ -141,13 +142,24 @@ function altra_add_project_meta_boxes() {
         'normal',
         'high'
     );
-    
+
+    // Project Gallery meta box
     add_meta_box(
         'altra_project_gallery',
         __('Project Gallery', 'altra'),
         'altra_project_gallery_callback',
         'project',
         'normal',
+        'high'
+    );
+
+    // Project Width meta box
+    add_meta_box(
+        'altra_project_width',
+        __('Project Display Width', 'altra'),
+        'altra_project_width_callback',
+        'project',
+        'side',
         'high'
     );
 }
@@ -219,15 +231,15 @@ function altra_project_gallery_callback($post) {
     <div class="altra-gallery-container">
         <input type="hidden" id="altra_project_gallery" name="altra_project_gallery" value="<?php echo esc_attr($gallery_ids); ?>" />
         <button type="button" class="button altra-add-gallery"><?php _e('Add Images to Gallery', 'altra'); ?></button>
-        <div class="altra-gallery-preview" style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
+        <div class="altra-gallery-preview">
             <?php
             if ($gallery_ids) {
                 $ids = explode(',', $gallery_ids);
                 foreach ($ids as $id) {
                     if ($id) {
-                        echo '<div class="gallery-image" data-id="' . esc_attr($id) . '" style="position: relative;">';
+                        echo '<div class="gallery-image" data-id="' . esc_attr($id) . '">';
                         echo wp_get_attachment_image($id, 'thumbnail');
-                        echo '<button type="button" class="button button-small remove-gallery-image" style="position: absolute; top: 5px; right: 5px;">×</button>';
+                        echo '<button type="button" class="button button-small remove-gallery-image">×</button>';
                         echo '</div>';
                     }
                 }
@@ -235,70 +247,6 @@ function altra_project_gallery_callback($post) {
             ?>
         </div>
     </div>
-    
-    <script>
-    jQuery(document).ready(function($) {
-        var frame;
-        
-        // Add images
-        $('.altra-add-gallery').on('click', function(e) {
-            e.preventDefault();
-            
-            if (frame) {
-                frame.open();
-                return;
-            }
-            
-            frame = wp.media({
-                title: '<?php _e('Select Gallery Images', 'altra'); ?>',
-                button: {
-                    text: '<?php _e('Add to Gallery', 'altra'); ?>'
-                },
-                multiple: true
-            });
-            
-            frame.on('select', function() {
-                var selection = frame.state().get('selection');
-                var ids = $('#altra_project_gallery').val();
-                var idsArray = ids ? ids.split(',') : [];
-                
-                selection.each(function(attachment) {
-                    attachment = attachment.toJSON();
-                    idsArray.push(attachment.id);
-                    
-                    $('.altra-gallery-preview').append(
-                        '<div class="gallery-image" data-id="' + attachment.id + '" style="position: relative;">' +
-                        '<img src="' + attachment.sizes.thumbnail.url + '">' +
-                        '<button type="button" class="button button-small remove-gallery-image" style="position: absolute; top: 5px; right: 5px;">×</button>' +
-                        '</div>'
-                    );
-                });
-
-                $('#altra_project_gallery').val(idsArray.join(','));
-                console.log('Altra Gallery: Updated hidden field value to:', idsArray.join(','));
-            });
-
-            frame.open();
-        });
-
-        // Remove image
-        $(document).on('click', '.remove-gallery-image', function(e) {
-            e.preventDefault();
-            var $image = $(this).closest('.gallery-image');
-            var id = $image.data('id');
-            var ids = $('#altra_project_gallery').val().split(',');
-
-            ids = ids.filter(function(item) {
-                return item != id;
-            });
-
-            var newValue = ids.join(',');
-            $('#altra_project_gallery').val(newValue);
-            $image.remove();
-            console.log('Altra Gallery: Removed image, new value:', newValue);
-        });
-    });
-    </script>
     <?php
 }
 
@@ -351,33 +299,49 @@ function altra_save_project_meta($post_id) {
     if (isset($_POST['altra_project_gallery'])) {
         $gallery_value = sanitize_text_field($_POST['altra_project_gallery']);
 
-        // Debug log (à retirer après résolution du problème)
-        error_log('Altra Gallery Debug - Post ID: ' . $post_id . ' | Value: ' . $gallery_value);
-
         // Si la valeur est vide, on supprime la meta pour nettoyer
         if (empty($gallery_value)) {
             delete_post_meta($post_id, '_altra_project_gallery');
-            error_log('Altra Gallery Debug - Deleted empty gallery for post ' . $post_id);
         } else {
             update_post_meta($post_id, '_altra_project_gallery', $gallery_value);
-            error_log('Altra Gallery Debug - Saved gallery for post ' . $post_id);
         }
-    } else {
-        // Le champ n'est pas présent dans $_POST - on ne fait rien pour ne pas supprimer la galerie existante
-        error_log('Altra Gallery Debug - Field not in POST for post ' . $post_id . ' - keeping existing value');
     }
 }
 add_action('save_post_project', 'altra_save_project_meta');
 
 /**
- * Enqueue admin scripts
+ * Enqueue admin scripts and styles
  */
 function altra_enqueue_admin_scripts($hook) {
     if ('post.php' !== $hook && 'post-new.php' !== $hook) {
         return;
     }
 
+    // Enqueue media library
     wp_enqueue_media();
+
+    // Enqueue admin CSS
+    wp_enqueue_style(
+        'altra-admin-style',
+        get_template_directory_uri() . '/assets/css/admin.css',
+        array(),
+        '1.0.0'
+    );
+
+    // Enqueue admin JavaScript
+    wp_enqueue_script(
+        'altra-admin-script',
+        get_template_directory_uri() . '/assets/js/admin.js',
+        array('jquery'),
+        '1.0.0',
+        true
+    );
+
+    // Localize script for translations
+    wp_localize_script('altra-admin-script', 'altraAdminData', array(
+        'selectImages' => __('Select Gallery Images', 'altra'),
+        'addToGallery' => __('Add to Gallery', 'altra'),
+    ));
 }
 add_action('admin_enqueue_scripts', 'altra_enqueue_admin_scripts');
 
@@ -420,21 +384,6 @@ add_action('wp_before_admin_bar_render', 'altra_remove_admin_bar_links');
  */
 
 /**
- * Add Project Width meta box
- */
-function altra_add_project_width_metabox() {
-    add_meta_box(
-        'altra_project_width',
-        __('Project Display Width', 'altra'),
-        'altra_project_width_callback',
-        'project',
-        'side',  // Display in the right sidebar
-        'high'   // High priority
-    );
-}
-add_action('add_meta_boxes', 'altra_add_project_width_metabox');
-
-/**
  * Project Width meta box callback
  */
 function altra_project_width_callback($post) {
@@ -451,78 +400,33 @@ function altra_project_width_callback($post) {
     <div class="altra-width-selector">
         <p><strong><?php _e('Choose how wide this project should display on the homepage:', 'altra'); ?></strong></p>
 
-        <div style="margin: 15px 0;">
-            <label style="display: block; margin-bottom: 10px;">
-                <input type="radio" name="altra_project_width" value="small" <?php checked($width, 'small'); ?>>
-                <strong><?php _e('Small', 'altra'); ?></strong> - <?php _e('1/3 width (3 projects per row)', 'altra'); ?>
-            </label>
+        <label>
+            <input type="radio" name="altra_project_width" value="small" <?php checked($width, 'small'); ?>>
+            <strong><?php _e('Small', 'altra'); ?></strong> - <?php _e('1/3 width (3 projects per row)', 'altra'); ?>
+        </label>
 
-            <label style="display: block; margin-bottom: 10px;">
-                <input type="radio" name="altra_project_width" value="medium" <?php checked($width, 'medium'); ?>>
-                <strong><?php _e('Medium', 'altra'); ?></strong> - <?php _e('1/2 width (2 projects per row)', 'altra'); ?>
-            </label>
+        <label>
+            <input type="radio" name="altra_project_width" value="medium" <?php checked($width, 'medium'); ?>>
+            <strong><?php _e('Medium', 'altra'); ?></strong> - <?php _e('1/2 width (2 projects per row)', 'altra'); ?>
+        </label>
 
-            <label style="display: block; margin-bottom: 10px;">
-                <input type="radio" name="altra_project_width" value="large" <?php checked($width, 'large'); ?>>
-                <strong><?php _e('Large', 'altra'); ?></strong> - <?php _e('Full width (1 project per row)', 'altra'); ?>
-            </label>
-        </div>
+        <label>
+            <input type="radio" name="altra_project_width" value="large" <?php checked($width, 'large'); ?>>
+            <strong><?php _e('Large', 'altra'); ?></strong> - <?php _e('Full width (1 project per row)', 'altra'); ?>
+        </label>
 
-        <div style="padding: 10px; background: #f0f0f1; border-left: 4px solid #2271b1; margin-top: 15px;">
-            <p style="margin: 0; font-size: 12px;">
+        <div class="tip-box">
+            <p>
                 <strong><?php _e('Tip:', 'altra'); ?></strong>
                 <?php _e('Mix different widths to create an interesting visual rhythm!', 'altra'); ?>
             </p>
         </div>
 
-        <!-- Visual preview -->
-        <div style="margin-top: 20px; padding: 10px; background: white; border: 1px solid #ddd;">
-            <p style="margin: 0 0 10px 0; font-weight: bold;"><?php _e('Visual Preview:', 'altra'); ?></p>
-            <div id="width-preview" style="height: 60px; background: #2271b1; transition: width 0.3s;"></div>
+        <div class="preview-box">
+            <p><?php _e('Visual Preview:', 'altra'); ?></p>
+            <div id="width-preview"></div>
         </div>
     </div>
-
-    <script>
-    jQuery(document).ready(function($) {
-        // Real-time preview update
-        $('input[name="altra_project_width"]').on('change', function() {
-            var width = $(this).val();
-            var preview = $('#width-preview');
-
-            switch(width) {
-                case 'small':
-                    preview.css('width', '33.33%');
-                    break;
-                case 'medium':
-                    preview.css('width', '50%');
-                    break;
-                case 'large':
-                    preview.css('width', '100%');
-                    break;
-            }
-        });
-
-        // Initialize preview
-        $('input[name="altra_project_width"]:checked').trigger('change');
-    });
-    </script>
-
-    <style>
-    .altra-width-selector label {
-        cursor: pointer;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        transition: all 0.2s;
-    }
-    .altra-width-selector label:hover {
-        background: #f0f0f1;
-        border-color: #2271b1;
-    }
-    .altra-width-selector input[type="radio"] {
-        margin-right: 8px;
-    }
-    </style>
     <?php
 }
 
