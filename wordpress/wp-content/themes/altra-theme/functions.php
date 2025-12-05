@@ -149,7 +149,7 @@ function altra_add_project_meta_boxes() {
         __('Project Gallery', 'altra'),
         'altra_project_gallery_callback',
         'project',
-        'normal',
+        'advanced',
         'high'
     );
 
@@ -222,14 +222,19 @@ function altra_project_details_callback($post) {
  * Project Gallery Meta Box Callback
  */
 function altra_project_gallery_callback($post) {
-    // Add nonce for security (même si déjà dans Project Details, c'est une bonne pratique)
-    wp_nonce_field('altra_save_project_meta', 'altra_project_gallery_nonce');
-
+    // Note: Nonce is already added in Project Details meta box
     $gallery_ids = get_post_meta($post->ID, '_altra_project_gallery', true);
 
     ?>
     <div class="altra-gallery-container">
-        <input type="hidden" id="altra_project_gallery" name="altra_project_gallery" value="<?php echo esc_attr($gallery_ids); ?>" />
+        <!-- Hidden field that will be submitted with the form -->
+        <input type="hidden" id="altra_project_gallery_hidden" name="altra_project_gallery" value="<?php echo esc_attr($gallery_ids); ?>" />
+
+        <p style="margin-bottom: 10px;">
+            <label for="altra_project_gallery_display" style="display: block; margin-bottom: 5px;"><?php _e('Gallery IDs (comma separated):', 'altra'); ?></label>
+            <input type="text" id="altra_project_gallery_display" value="<?php echo esc_attr($gallery_ids); ?>" class="widefat" readonly style="background-color: #f0f0f0;" />
+            <span class="description"><?php _e('This field is automatically updated when you add/remove images below', 'altra'); ?></span>
+        </p>
         <button type="button" class="button altra-add-gallery"><?php _e('Add Images to Gallery', 'altra'); ?></button>
         <div class="altra-gallery-preview">
             <?php
@@ -252,28 +257,43 @@ function altra_project_gallery_callback($post) {
 
 /**
  * Save ALL Project Meta Data (unified function)
+ * Handles: Project Details, Gallery, and Width
  */
 function altra_save_project_meta($post_id) {
+    // DEBUG: Log all POST data
+    error_log('ALTRA DEBUG - Post ID: ' . $post_id);
+    error_log('ALTRA DEBUG - Nonce present: ' . (isset($_POST['altra_project_meta_nonce']) ? 'YES' : 'NO'));
+    error_log('ALTRA DEBUG - Gallery field present: ' . (isset($_POST['altra_project_gallery']) ? 'YES' : 'NO'));
+    if (isset($_POST['altra_project_gallery'])) {
+        error_log('ALTRA DEBUG - Gallery value: ' . $_POST['altra_project_gallery']);
+    }
+
     // Check if nonce is set
     if (!isset($_POST['altra_project_meta_nonce'])) {
+        error_log('ALTRA DEBUG - EXIT: No nonce');
         return;
     }
-    
+
     // Verify nonce
     if (!wp_verify_nonce($_POST['altra_project_meta_nonce'], 'altra_save_project_meta')) {
+        error_log('ALTRA DEBUG - EXIT: Nonce verification failed');
         return;
     }
-    
+
     // Check for autosave
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        error_log('ALTRA DEBUG - EXIT: Autosave');
         return;
     }
-    
+
     // Check user permissions
     if (!current_user_can('edit_post', $post_id)) {
+        error_log('ALTRA DEBUG - EXIT: No permissions');
         return;
     }
-    
+
+    error_log('ALTRA DEBUG - All checks passed, saving data...');
+
     // Save Project Details
     $text_fields = array(
         'altra_project_client',
@@ -298,12 +318,27 @@ function altra_save_project_meta($post_id) {
     // Save Gallery (liste d'IDs séparés par des virgules)
     if (isset($_POST['altra_project_gallery'])) {
         $gallery_value = sanitize_text_field($_POST['altra_project_gallery']);
+        error_log('ALTRA DEBUG - Saving gallery: ' . $gallery_value);
 
         // Si la valeur est vide, on supprime la meta pour nettoyer
         if (empty($gallery_value)) {
             delete_post_meta($post_id, '_altra_project_gallery');
+            error_log('ALTRA DEBUG - Deleted empty gallery');
         } else {
             update_post_meta($post_id, '_altra_project_gallery', $gallery_value);
+            error_log('ALTRA DEBUG - Saved gallery successfully');
+        }
+    } else {
+        error_log('ALTRA DEBUG - Gallery field NOT in POST data');
+    }
+
+    // Save Project Width
+    if (isset($_POST['altra_project_width'])) {
+        $width = sanitize_text_field($_POST['altra_project_width']);
+
+        // Validate that it's an accepted value
+        if (in_array($width, array('small', 'medium', 'large'))) {
+            update_post_meta($post_id, '_altra_project_width', $width);
         }
     }
 }
@@ -387,8 +422,7 @@ add_action('wp_before_admin_bar_render', 'altra_remove_admin_bar_links');
  * Project Width meta box callback
  */
 function altra_project_width_callback($post) {
-    // Nonce for security
-    wp_nonce_field('altra_save_project_width', 'altra_project_width_nonce');
+    // Note: Nonce is already added in Project Details meta box
 
     // Get current value
     $width = get_post_meta($post->ID, '_altra_project_width', true);
@@ -429,39 +463,6 @@ function altra_project_width_callback($post) {
     </div>
     <?php
 }
-
-/**
- * Save project width
- */
-function altra_save_project_width($post_id) {
-    // Security checks
-    if (!isset($_POST['altra_project_width_nonce'])) {
-        return;
-    }
-
-    if (!wp_verify_nonce($_POST['altra_project_width_nonce'], 'altra_save_project_width')) {
-        return;
-    }
-
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-        return;
-    }
-
-    if (!current_user_can('edit_post', $post_id)) {
-        return;
-    }
-
-    // Save the value
-    if (isset($_POST['altra_project_width'])) {
-        $width = sanitize_text_field($_POST['altra_project_width']);
-
-        // Validate that it's an accepted value
-        if (in_array($width, array('small', 'medium', 'large'))) {
-            update_post_meta($post_id, '_altra_project_width', $width);
-        }
-    }
-}
-add_action('save_post_project', 'altra_save_project_width');
 
 /**
  * Add width column in projects list

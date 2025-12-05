@@ -30,6 +30,10 @@ services:
       WORDPRESS_DB_NAME: altra_wordpress
       WORDPRESS_DB_USER: altra_user
       WORDPRESS_DB_PASSWORD: altra_password
+      WORDPRESS_DEBUG: '1'
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_DEBUG_LOG', true);
+        define('WP_DEBUG_DISPLAY', false);
     volumes:
       # Monte tout le dossier wordpress en local
       - ./wordpress:/var/www/html

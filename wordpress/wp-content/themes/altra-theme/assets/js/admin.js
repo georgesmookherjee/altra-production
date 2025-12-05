@@ -9,29 +9,24 @@ jQuery(document).ready(function($) {
      * PROJECT GALLERY
      * Handles media library integration for project gallery
      */
-    var galleryFrame;
-
     // Add images to gallery
     $('.altra-add-gallery').on('click', function(e) {
         e.preventDefault();
 
-        if (galleryFrame) {
-            galleryFrame.open();
-            return;
-        }
-
-        galleryFrame = wp.media({
-            title: altriAdminData.selectImages,
+        var galleryFrame = wp.media({
+            title: altraAdminData.selectImages,
             button: {
-                text: altriAdminData.addToGallery
+                text: altraAdminData.addToGallery
             },
             multiple: true
         });
 
         galleryFrame.on('select', function() {
             var selection = galleryFrame.state().get('selection');
-            var ids = $('#altra_project_gallery').val();
-            var idsArray = ids ? ids.split(',') : [];
+            var $hiddenField = $('#altra_project_gallery_hidden');
+            var $displayField = $('#altra_project_gallery_display');
+            var ids = $hiddenField.val();
+            var idsArray = ids ? ids.split(',').filter(function(id) { return id.trim() !== ''; }) : [];
 
             selection.each(function(attachment) {
                 attachment = attachment.toJSON();
@@ -45,7 +40,13 @@ jQuery(document).ready(function($) {
                 );
             });
 
-            $('#altra_project_gallery').val(idsArray.join(','));
+            var newValue = idsArray.join(',');
+
+            // Update both the hidden field (for form submission) and display field (for user visibility)
+            $hiddenField.val(newValue);
+            $displayField.val(newValue);
+
+            console.log('Gallery updated:', newValue);
         });
 
         galleryFrame.open();
@@ -56,13 +57,20 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         var $image = $(this).closest('.gallery-image');
         var id = $image.data('id');
-        var ids = $('#altra_project_gallery').val().split(',');
+        var $hiddenField = $('#altra_project_gallery_hidden');
+        var $displayField = $('#altra_project_gallery_display');
+        var ids = $hiddenField.val().split(',');
 
         ids = ids.filter(function(item) {
             return item != id;
         });
 
-        $('#altra_project_gallery').val(ids.join(','));
+        var newValue = ids.join(',');
+
+        // Update both fields
+        $hiddenField.val(newValue);
+        $displayField.val(newValue);
+
         $image.remove();
     });
 
