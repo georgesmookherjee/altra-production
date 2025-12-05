@@ -96,6 +96,78 @@ p {
 }
 
 /* ==========================================================================
+   HERO SECTION - FULLSCREEN INTRO
+   ========================================================================== */
+
+.hero-section {
+    position: relative;
+    height: 100vh;
+    background-color: var(--color-black);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.hero-section.scrolled {
+    opacity: 0;
+    transform: translateY(-50px);
+    pointer-events: none;
+}
+
+.hero-content {
+    text-align: center;
+    color: var(--color-white);
+}
+
+.hero-logo {
+    font-size: clamp(4rem, 10vw, 10rem);
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    letter-spacing: -0.02em;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-info {
+    font-size: 1rem;
+    opacity: 0.8;
+    line-height: 1.8;
+}
+
+.hero-info p {
+    margin: 0.5rem 0;
+}
+
+.hero-instagram {
+    font-weight: 500;
+}
+
+.hero-contact {
+    font-weight: 300;
+}
+
+/* Scroll indicator */
+.scroll-indicator {
+    position: absolute;
+    bottom: var(--spacing-lg);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-white);
+    opacity: 0.6;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-10px); }
+}
+
+/* ==========================================================================
    HEADER / NAVIGATION
    ========================================================================== */
 
@@ -108,6 +180,14 @@ p {
     background-color: var(--color-black);
     z-index: 1000;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.site-header.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .site-header,
@@ -138,6 +218,15 @@ p {
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
+}
+
+/* ==========================================================================
+   MAIN CONTENT
+   ========================================================================== */
+
+.site-main {
+    position: relative;
+    z-index: 1;
 }
 
 /* ==========================================================================
@@ -228,6 +317,14 @@ p {
    ========================================================================== */
 
 @media (max-width: 768px) {
+    .hero-logo {
+        font-size: clamp(3rem, 12vw, 6rem);
+    }
+
+    .hero-info {
+        font-size: 0.9rem;
+    }
+
     .project-header h1 {
         font-size: 2rem;
     }

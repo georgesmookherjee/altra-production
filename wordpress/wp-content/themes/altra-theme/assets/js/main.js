@@ -7,7 +7,31 @@
     
     // Wait for DOM to be ready
     document.addEventListener('DOMContentLoaded', function() {
-        
+
+        // Hero scroll animation
+        const hero = document.querySelector('.hero-section');
+        const header = document.querySelector('.site-header');
+
+        if (hero && header) {
+            let scrollThreshold = 100; // Pixels de scroll avant transition
+
+            window.addEventListener('scroll', function() {
+                const scrolled = window.pageYOffset || document.documentElement.scrollTop;
+
+                if (scrolled > scrollThreshold) {
+                    // Cacher le hero
+                    hero.classList.add('scrolled');
+                    // Montrer le header
+                    header.classList.add('visible');
+                } else {
+                    // Montrer le hero
+                    hero.classList.remove('scrolled');
+                    // Cacher le header
+                    header.classList.remove('visible');
+                }
+            });
+        }
+
         // Mobile menu toggle (if needed in future)
         const menuToggle = document.querySelector('.menu-toggle');
         if (menuToggle) {
@@ -15,7 +39,7 @@
                 document.body.classList.toggle('menu-open');
             });
         }
-        
+
         // Smooth scroll for anchor links
         const anchorLinks = document.querySelectorAll('a[href^="#"]');
         anchorLinks.forEach(link => {
@@ -30,19 +54,7 @@
                     });
                 }
             });
-        });
-        
-        // Add scroll class to header
-        const header = document.querySelector('.site-header');
-        if (header) {
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 50) {
-                    header.classList.add('scrolled');
-                } else {
-                    header.classList.remove('scrolled');
-                }
-            });
-        }
+        })
         
         // Image lazy loading observer (for future use)
         if ('IntersectionObserver' in window) {
