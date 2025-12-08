@@ -1,13 +1,30 @@
 <?php
 /**
- * Front Page Template (Homepage) - FLEXIBLE LAYOUT VERSION
- * This file displays the projects grid on the homepage with flexible widths
+ * Front Page Template
+ * Used for the homepage
  *
  * @package Altra
  */
 
 get_header();
 ?>
+
+<!-- Hero Section -->
+<section class="hero-section" id="hero">
+    <div class="hero-content">
+        <h1 class="hero-logo">Altra</h1>
+        <div class="hero-info">
+            <p class="hero-instagram">@altraproduction</p>
+            <p class="hero-contact">Contact@altraproduction.com</p>
+        </div>
+    </div>
+    <div class="scroll-indicator">
+        <span>Scroll</span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M19 12l-7 7-7-7"/>
+        </svg>
+    </div>
+</section>
 
 <main class="site-main">
     <div class="container">
@@ -23,24 +40,29 @@ get_header();
 
         $projects_query = new WP_Query($args);
 
-        if ($projects_query->have_posts()) : ?>
+        if ($projects_query->have_posts()) :
+        ?>
 
             <div class="projects-grid">
 
-                <?php while ($projects_query->have_posts()) : $projects_query->the_post();
+                <?php
+                while ($projects_query->have_posts()) : $projects_query->the_post();
 
-                    // Get metadata
                     $client = get_post_meta(get_the_ID(), '_altra_project_client', true);
                     $photographer = get_post_meta(get_the_ID(), '_altra_project_photographer', true);
 
-                    // NEW: Get width class for flexible layout
-                    $width_class = altra_get_project_width_class(get_the_ID());
+                    // Get project width setting
+                    $width = get_post_meta(get_the_ID(), '_altra_project_width', true);
+                    if (empty($width)) {
+                        $width = 'medium'; // Default value
+                    }
+                    $width_class = 'project-width-' . $width;
                     ?>
 
                     <article class="project-card <?php echo esc_attr($width_class); ?>">
                         <a href="<?php the_permalink(); ?>">
                             <?php if (has_post_thumbnail()) : ?>
-                                <?php the_post_thumbnail('large'); ?>
+                                <?php the_post_thumbnail('project-thumbnail'); ?>
                             <?php else : ?>
                                 <img src="<?php echo get_template_directory_uri(); ?>/assets/images/placeholder.jpg" alt="<?php the_title(); ?>">
                             <?php endif; ?>
