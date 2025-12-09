@@ -532,3 +532,44 @@ function altra_get_project_width_class($post_id) {
 
     return $classes[$width];
 }
+
+/**
+ * Move content editor below custom meta boxes for projects
+ */
+function altra_move_project_editor_below_metaboxes() {
+    remove_post_type_support('project', 'editor');
+}
+add_action('init', 'altra_move_project_editor_below_metaboxes');
+
+/**
+ * Add content editor back after meta boxes with reduced height
+ */
+function altra_add_editor_after_metaboxes() {
+    add_meta_box(
+        'altra_project_editor',
+        __('Project Description', 'altra'),
+        'altra_project_editor_callback',
+        'project',
+        'normal',
+        'low'  // 'low' priority puts it at the bottom
+    );
+}
+add_action('add_meta_boxes', 'altra_add_editor_after_metaboxes');
+
+/**
+ * Callback to display the editor
+ */
+function altra_project_editor_callback($post) {
+    wp_editor(
+        $post->post_content,
+        'content',
+        array(
+            'textarea_rows' => 8,
+            'media_buttons' => true,
+            'teeny' => false,
+            'tinymce' => true,
+            'quicktags' => true,
+            'drag_drop_upload' => true
+        )
+    );
+}

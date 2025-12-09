@@ -241,8 +241,12 @@ p {
 .site-main {
     position: relative;
     z-index: 1;
-    margin-top: 100vh; /* Espace pour le hero fullscreen */
     background-color: var(--color-black);
+}
+
+/* Espace pour le hero fullscreen uniquement sur la page d'accueil */
+.home .site-main {
+    margin-top: 100vh;
 }
 
 /* ==========================================================================
@@ -269,14 +273,82 @@ p {
     margin-bottom: var(--spacing-sm);
 }
 
+/* Project Gallery Viewer with Click Navigation */
+.project-gallery-viewer {
+    position: relative;
+    width: 100%;
+    min-height: 50vh;
+    margin-bottom: var(--spacing-xl);
+    cursor: pointer;
+    background-color: var(--color-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md) 0;
+}
+
+.gallery-images {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-slide.active {
+    position: relative;
+    opacity: 1;
+    visibility: visible;
+}
+
+.gallery-slide img {
+    max-width: 100%;
+    max-height: 85vh; /* L'image ne dépassera pas 85% de la hauteur de l'écran */
+    width: auto;
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
+
+.gallery-counter {
+    position: fixed;
+    bottom: var(--spacing-md);
+    right: var(--spacing-md);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-white);
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    z-index: 100;
+    pointer-events: none;
+    letter-spacing: 0.05em;
+}
+
 .project-details {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
     padding: var(--spacing-md) 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .project-detail-item {
@@ -286,12 +358,17 @@ p {
 .project-detail-label {
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 0.75rem;
-    margin-bottom: 0.25rem;
-    opacity: 0.6;
+    letter-spacing: 0.1em;
+    font-size: 0.7rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
 }
 
+.project-detail-value {
+    font-size: 1rem;
+}
+
+/* Old gallery styles (kept for backwards compatibility) */
 .project-gallery {
     display: grid;
     gap: var(--spacing-md);

@@ -13,19 +13,49 @@ get_header();
         
         <article id="post-<?php the_ID(); ?>" <?php post_class('single-project'); ?>>
             <div class="container">
-                
-                <!-- Project Header -->
+
+                <!-- Project Gallery with Click Navigation -->
+                <?php
+                $gallery_ids = get_post_meta(get_the_ID(), '_altra_project_gallery', true);
+                if ($gallery_ids) :
+                    $ids = array_filter(explode(',', $gallery_ids));
+                    $total_images = count($ids);
+                    ?>
+                    <div class="project-gallery-viewer" data-total="<?php echo $total_images; ?>">
+                        <div class="gallery-images">
+                            <?php foreach ($ids as $index => $image_id) : ?>
+                                <?php if ($image_id) : ?>
+                                    <div class="gallery-slide <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>">
+                                        <?php echo wp_get_attachment_image($image_id, 'full', false, array('class' => 'gallery-image')); ?>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="gallery-counter">
+                            <span class="current-image">1</span> / <span class="total-images"><?php echo $total_images; ?></span>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Featured Image (if no gallery) -->
+                <?php if (!$gallery_ids && has_post_thumbnail()) : ?>
+                    <div class="project-featured-image">
+                        <?php the_post_thumbnail('project-large'); ?>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Project Header (after gallery) -->
                 <header class="project-header">
                     <h1 class="project-title"><?php the_title(); ?></h1>
-                    
+
                     <?php if (get_the_content()) : ?>
                         <div class="project-description">
                             <?php the_content(); ?>
                         </div>
                     <?php endif; ?>
                 </header>
-                
-                <!-- Project Details -->
+
+                <!-- Project Details (moved after gallery) -->
                 <div class="project-details">
                     <?php
                     $client = get_post_meta(get_the_ID(), '_altra_project_client', true);
@@ -36,50 +66,50 @@ get_header();
                     $location = get_post_meta(get_the_ID(), '_altra_project_location', true);
                     $team = get_post_meta(get_the_ID(), '_altra_project_team', true);
                     ?>
-                    
+
                     <?php if ($client) : ?>
                         <div class="project-detail-item">
-                            <div class="project-detail-label"><?php _e('Client', 'altra'); ?></div>
+                            <div class="project-detail-label"><?php _e('CLIENT', 'altra'); ?></div>
                             <div class="project-detail-value"><?php echo esc_html($client); ?></div>
                         </div>
                     <?php endif; ?>
-                    
+
                     <?php if ($photographer) : ?>
                         <div class="project-detail-item">
-                            <div class="project-detail-label"><?php _e('Photographer', 'altra'); ?></div>
+                            <div class="project-detail-label"><?php _e('PHOTOGRAPHER', 'altra'); ?></div>
                             <div class="project-detail-value"><?php echo esc_html($photographer); ?></div>
                         </div>
                     <?php endif; ?>
-                    
+
                     <?php if ($stylist) : ?>
                         <div class="project-detail-item">
-                            <div class="project-detail-label"><?php _e('Stylist', 'altra'); ?></div>
+                            <div class="project-detail-label"><?php _e('STYLIST', 'altra'); ?></div>
                             <div class="project-detail-value"><?php echo esc_html($stylist); ?></div>
                         </div>
                     <?php endif; ?>
-                    
+
                     <?php if ($art_director) : ?>
                         <div class="project-detail-item">
-                            <div class="project-detail-label"><?php _e('Art Director', 'altra'); ?></div>
+                            <div class="project-detail-label"><?php _e('ART DIRECTOR', 'altra'); ?></div>
                             <div class="project-detail-value"><?php echo esc_html($art_director); ?></div>
                         </div>
                     <?php endif; ?>
-                    
+
                     <?php if ($date) : ?>
                         <div class="project-detail-item">
-                            <div class="project-detail-label"><?php _e('Date', 'altra'); ?></div>
+                            <div class="project-detail-label"><?php _e('DATE', 'altra'); ?></div>
                             <div class="project-detail-value"><?php echo esc_html(date('F Y', strtotime($date))); ?></div>
                         </div>
                     <?php endif; ?>
-                    
+
                     <?php if ($location) : ?>
                         <div class="project-detail-item">
-                            <div class="project-detail-label"><?php _e('Location', 'altra'); ?></div>
+                            <div class="project-detail-label"><?php _e('LOCATION', 'altra'); ?></div>
                             <div class="project-detail-value"><?php echo esc_html($location); ?></div>
                         </div>
                     <?php endif; ?>
                 </div>
-                
+
                 <?php if ($team) : ?>
                     <div class="project-team">
                         <h3><?php _e('Team', 'altra'); ?></h3>
@@ -88,57 +118,7 @@ get_header();
                         </div>
                     </div>
                 <?php endif; ?>
-                
-                <!-- Project Gallery -->
-                <?php
-                $gallery_ids = get_post_meta(get_the_ID(), '_altra_project_gallery', true);
-                if ($gallery_ids) :
-                    $ids = explode(',', $gallery_ids);
-                    ?>
-                    <div class="project-gallery">
-                        <?php foreach ($ids as $image_id) : ?>
-                            <?php if ($image_id) : ?>
-                                <?php echo wp_get_attachment_image($image_id, 'project-large', false, array('class' => 'project-gallery-image')); ?>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-                
-                <!-- Featured Image (if no gallery) -->
-                <?php if (!$gallery_ids && has_post_thumbnail()) : ?>
-                    <div class="project-featured-image">
-                        <?php the_post_thumbnail('project-large'); ?>
-                    </div>
-                <?php endif; ?>
-                
-                <!-- Navigation -->
-                <nav class="project-navigation">
-                    <div class="nav-links">
-                        <?php
-                        $prev_post = get_previous_post();
-                        $next_post = get_next_post();
-                        ?>
-                        
-                        <?php if ($prev_post) : ?>
-                            <div class="nav-previous">
-                                <a href="<?php echo get_permalink($prev_post); ?>">
-                                    <span class="nav-label"><?php _e('Previous Project', 'altra'); ?></span>
-                                    <span class="nav-title"><?php echo get_the_title($prev_post); ?></span>
-                                </a>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($next_post) : ?>
-                            <div class="nav-next">
-                                <a href="<?php echo get_permalink($next_post); ?>">
-                                    <span class="nav-label"><?php _e('Next Project', 'altra'); ?></span>
-                                    <span class="nav-title"><?php echo get_the_title($next_post); ?></span>
-                                </a>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </nav>
-                
+
             </div>
         </article>
         

@@ -146,6 +146,52 @@
             header.classList.add('visible');
         }
 
+        // Project Gallery Click Navigation
+        const galleryViewer = document.querySelector('.project-gallery-viewer');
+        if (galleryViewer) {
+            const slides = galleryViewer.querySelectorAll('.gallery-slide');
+            const currentImageSpan = galleryViewer.querySelector('.current-image');
+            const totalImages = slides.length;
+            let currentIndex = 0;
+
+            // Click on gallery to go to next image
+            galleryViewer.addEventListener('click', function(e) {
+                // Don't navigate if clicking on the counter
+                if (e.target.closest('.gallery-counter')) {
+                    return;
+                }
+
+                // Hide current slide
+                slides[currentIndex].classList.remove('active');
+
+                // Go to next slide (loop back to 0 if at end)
+                currentIndex = (currentIndex + 1) % totalImages;
+
+                // Show next slide
+                slides[currentIndex].classList.add('active');
+
+                // Update counter
+                currentImageSpan.textContent = currentIndex + 1;
+            });
+
+            // Optional: Add keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (!galleryViewer) return;
+
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    galleryViewer.click();
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    // Go to previous image
+                    slides[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex - 1 + totalImages) % totalImages;
+                    slides[currentIndex].classList.add('active');
+                    currentImageSpan.textContent = currentIndex + 1;
+                }
+            });
+        }
+
         // Mobile menu toggle (if needed in future)
         const menuToggle = document.querySelector('.menu-toggle');
         if (menuToggle) {
