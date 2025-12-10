@@ -23,6 +23,7 @@ export default function GridContainer({ items, onLayoutChange, onWidthChange, on
 			disableOneColumnMode: true,
 			animate: true,
 			removeTimeout: 100,
+			disableResize: true, // Disable manual resize - use S/M/L buttons only
 		}, gridRef.current);
 
 		console.log('GridStack initialized');

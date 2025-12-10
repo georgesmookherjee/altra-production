@@ -67,10 +67,28 @@ export default function GridManagerApp() {
 	}
 
 	function handleWidthChange(projectId, newWidth) {
+		// Map width to columns
+		const widthMap = {
+			small: 4,
+			medium: 6,
+			large: 12,
+		};
+		const newColumns = widthMap[newWidth] || 6;
+
 		setGridItems(prevItems =>
-			prevItems.map(item =>
-				item.id === projectId ? { ...item, width: newWidth } : item
-			)
+			prevItems.map(item => {
+				if (item.id === projectId) {
+					return {
+						...item,
+						width: newWidth,
+						gridPosition: {
+							...item.gridPosition,
+							w: newColumns, // Update grid width too!
+						},
+					};
+				}
+				return item;
+			})
 		);
 	}
 
