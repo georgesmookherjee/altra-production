@@ -94,21 +94,46 @@ get_header();
                             $grid_row_end
                         );
                     }
+
+                    // Get visual settings from Card Editor
+                    $visual_settings = get_post_meta(get_the_ID(), '_altra_visual_settings', true);
+                    $image_style = '';
+
+                    if (!empty($visual_settings) && is_array($visual_settings)) {
+                        $focal_x = isset($visual_settings['focalPoint']['x']) ? floatval($visual_settings['focalPoint']['x']) : 50;
+                        $focal_y = isset($visual_settings['focalPoint']['y']) ? floatval($visual_settings['focalPoint']['y']) : 50;
+                        $zoom = isset($visual_settings['zoom']) ? floatval($visual_settings['zoom']) : 1.0;
+
+                        $image_style = sprintf(
+                            'transform-origin: %s%% %s%%; transform: scale(%s);',
+                            $focal_x,
+                            $focal_y,
+                            $zoom
+                        );
+                    }
                     ?>
 
                     <article class="project-card <?php echo esc_attr($width_class); ?>" <?php if ($grid_styles) echo 'style="' . esc_attr($grid_styles) . '"'; ?>>
                         <a href="<?php the_permalink(); ?>">
                             <?php if (has_post_thumbnail()) : ?>
-                                <?php the_post_thumbnail('project-thumbnail', array(
+                                <?php
+                                $thumbnail_attrs = array(
                                     'loading' => 'lazy',
                                     'decoding' => 'async',
                                     'alt' => esc_attr(get_the_title())
-                                )); ?>
+                                );
+                                // Apply visual settings to image if available
+                                if ($image_style) {
+                                    $thumbnail_attrs['style'] = $image_style;
+                                }
+                                the_post_thumbnail('project-thumbnail', $thumbnail_attrs);
+                                ?>
                             <?php else : ?>
                                 <img src="<?php echo get_template_directory_uri(); ?>/assets/images/placeholder.jpg"
                                      alt="<?php the_title_attribute(); ?>"
                                      loading="lazy"
-                                     decoding="async">
+                                     decoding="async"
+                                     <?php if ($image_style) echo 'style="' . esc_attr($image_style) . '"'; ?>>
                             <?php endif; ?>
 
                             <div class="project-info">
