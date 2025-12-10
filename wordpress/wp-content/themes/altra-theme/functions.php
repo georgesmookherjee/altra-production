@@ -1027,6 +1027,33 @@ function altra_save_grid_positions($request) {
         );
     }
 
+    // Get all project IDs that are in the grid
+    $grid_project_ids = array();
+    foreach ($positions as $item) {
+        if (isset($item['id'])) {
+            $grid_project_ids[] = intval($item['id']);
+        }
+    }
+
+    // Get ALL projects to clear grid data from projects not in grid
+    $all_projects = get_posts(array(
+        'post_type' => 'project',
+        'posts_per_page' => -1,
+        'post_status' => 'publish',
+        'fields' => 'ids',
+    ));
+
+    // Clear grid data from projects NOT in the grid
+    foreach ($all_projects as $project_id) {
+        if (!in_array($project_id, $grid_project_ids)) {
+            delete_post_meta($project_id, '_altra_grid_position');
+            wp_update_post(array(
+                'ID' => $project_id,
+                'menu_order' => 0,
+            ));
+        }
+    }
+
     $saved_count = 0;
     $width_map = array(4 => 'small', 6 => 'medium', 12 => 'large');
 

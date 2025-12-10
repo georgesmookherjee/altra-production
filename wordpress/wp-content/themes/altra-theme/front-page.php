@@ -35,12 +35,12 @@ get_header();
     <div class="container">
 
         <?php
-        // Query for projects - fallback to date if no grid order
+        // Query for projects - order by menu_order (set by Grid Manager), fallback to date
         $args = array(
             'post_type' => 'project',
             'posts_per_page' => 24,
-            'orderby' => 'date',
-            'order' => 'DESC',
+            'orderby' => 'menu_order date',
+            'order' => 'ASC',
             'paged' => get_query_var('paged') ? get_query_var('paged') : 1,
             'update_post_meta_cache' => true, // Pre-cache meta data to avoid N+1 queries
             'update_post_term_cache' => false, // Disable if not using taxonomies
