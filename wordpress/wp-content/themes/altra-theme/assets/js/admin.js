@@ -9,6 +9,42 @@ jQuery(document).ready(function($) {
      * PROJECT GALLERY
      * Handles media library integration for project gallery
      */
+
+    /**
+     * DRAG & DROP REORDERING
+     * Enable sortable gallery with visual feedback
+     */
+    function initGallerySortable() {
+        $('.altra-gallery-sortable').sortable({
+            items: '.gallery-image',
+            handle: '.drag-handle', // Only drag by the handle icon
+            cursor: 'move',
+            opacity: 0.7,
+            placeholder: 'gallery-image-placeholder',
+            update: function() {
+                // Update hidden fields with new order
+                updateGalleryOrder();
+            },
+            start: function(_event, ui) {
+                ui.placeholder.height(ui.item.height());
+            }
+        });
+    }
+
+    // Update gallery order after drag & drop
+    function updateGalleryOrder() {
+        var ids = [];
+        $('.altra-gallery-preview .gallery-image').each(function() {
+            ids.push($(this).data('id'));
+        });
+
+        var newValue = ids.join(',');
+        $('#altra_project_gallery_hidden').val(newValue);
+        $('#altra_project_gallery_display').val(newValue);
+
+        console.log('Gallery reordered:', newValue);
+    }
+
     // Add images to gallery
     $('.altra-add-gallery').on('click', function(e) {
         e.preventDefault();
@@ -28,12 +64,18 @@ jQuery(document).ready(function($) {
             var ids = $hiddenField.val();
             var idsArray = ids ? ids.split(',').filter(function(id) { return id.trim() !== ''; }) : [];
 
+            // Destroy sortable before adding new images
+            if ($('.altra-gallery-sortable').hasClass('ui-sortable')) {
+                $('.altra-gallery-sortable').sortable('destroy');
+            }
+
             selection.each(function(attachment) {
                 attachment = attachment.toJSON();
                 idsArray.push(attachment.id);
 
                 $('.altra-gallery-preview').append(
                     '<div class="gallery-image" data-id="' + attachment.id + '">' +
+                    '<span class="dashicons dashicons-move drag-handle" title="Drag to reorder"></span>' +
                     '<img src="' + attachment.sizes.thumbnail.url + '">' +
                     '<button type="button" class="button button-small remove-gallery-image">×</button>' +
                     '</div>'
@@ -47,6 +89,11 @@ jQuery(document).ready(function($) {
             $displayField.val(newValue);
 
             console.log('Gallery updated:', newValue);
+
+            // Re-initialize sortable after adding images
+            setTimeout(function() {
+                initGallerySortable();
+            }, 100);
         });
 
         galleryFrame.open();
@@ -73,6 +120,11 @@ jQuery(document).ready(function($) {
 
         $image.remove();
     });
+
+    // Initialize sortable on page load
+    if ($('.altra-gallery-sortable').length) {
+        initGallerySortable();
+    }
 
     /**
      * PROJECT WIDTH PREVIEW

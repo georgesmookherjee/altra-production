@@ -26,7 +26,12 @@ get_header();
                             <?php foreach ($ids as $index => $image_id) : ?>
                                 <?php if ($image_id) : ?>
                                     <div class="gallery-slide <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>">
-                                        <?php echo wp_get_attachment_image($image_id, 'full', false, array('class' => 'gallery-image')); ?>
+                                        <?php echo wp_get_attachment_image($image_id, 'full', false, array(
+                                            'class' => 'gallery-image',
+                                            'loading' => $index === 0 ? 'eager' : 'lazy', // First image eager, rest lazy
+                                            'decoding' => 'async',
+                                            'alt' => sprintf(__('%s - Image %d of %d', 'altra'), get_the_title(), $index + 1, $total_images)
+                                        )); ?>
                                     </div>
                                 <?php endif; ?>
                             <?php endforeach; ?>

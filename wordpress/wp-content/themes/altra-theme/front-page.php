@@ -33,14 +33,19 @@ get_header();
         // Query for projects
         $args = array(
             'post_type' => 'project',
-            'posts_per_page' => -1,
+            'posts_per_page' => 24,
             'orderby' => 'date',
-            'order' => 'DESC'
+            'order' => 'DESC',
+            'paged' => get_query_var('paged') ? get_query_var('paged') : 1,
+            'update_post_meta_cache' => true, // Pre-cache meta data to avoid N+1 queries
+            'update_post_term_cache' => false, // Disable if not using taxonomies
         );
 
         $projects_query = new WP_Query($args);
 
         if ($projects_query->have_posts()) :
+            // Pre-cache all meta data for better performance
+            update_meta_cache('post', wp_list_pluck($projects_query->posts, 'ID'));
         ?>
 
             <div class="projects-grid">
@@ -62,9 +67,16 @@ get_header();
                     <article class="project-card <?php echo esc_attr($width_class); ?>">
                         <a href="<?php the_permalink(); ?>">
                             <?php if (has_post_thumbnail()) : ?>
-                                <?php the_post_thumbnail('project-thumbnail'); ?>
+                                <?php the_post_thumbnail('project-thumbnail', array(
+                                    'loading' => 'lazy',
+                                    'decoding' => 'async',
+                                    'alt' => esc_attr(get_the_title())
+                                )); ?>
                             <?php else : ?>
-                                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/placeholder.jpg" alt="<?php the_title(); ?>">
+                                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/placeholder.jpg"
+                                     alt="<?php the_title_attribute(); ?>"
+                                     loading="lazy"
+                                     decoding="async">
                             <?php endif; ?>
 
                             <div class="project-info">
@@ -82,9 +94,21 @@ get_header();
                     </article>
 
                 <?php endwhile; ?>
-                <?php wp_reset_postdata(); ?>
 
             </div>
+
+            <?php
+            // Pagination
+            if ($projects_query->max_num_pages > 1) :
+                the_posts_pagination(array(
+                    'mid_size' => 2,
+                    'prev_text' => __('← Previous', 'altra'),
+                    'next_text' => __('Next →', 'altra'),
+                ));
+            endif;
+            ?>
+
+            <?php wp_reset_postdata(); ?>
 
         <?php else : ?>
 

@@ -37,6 +37,8 @@ services:
     volumes:
       # Monte tout le dossier wordpress en local
       - ./wordpress:/var/www/html
+      # Configuration PHP pour augmenter les limites d'upload
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     networks:
       - altra_network
 

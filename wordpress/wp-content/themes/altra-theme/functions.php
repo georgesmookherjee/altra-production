@@ -34,37 +34,60 @@ function altra_theme_setup() {
     
     // Add image sizes
     add_image_size('project-thumbnail', 800, 600, true);
+    add_image_size('project-thumbnail-2x', 1600, 1200, true); // Retina display
     add_image_size('project-large', 1600, 1200, false);
+    add_image_size('project-large-2x', 3200, 2400, false); // Retina display
+
+    // Enable responsive embeds
+    add_theme_support('responsive-embeds');
 }
 add_action('after_setup_theme', 'altra_theme_setup');
+
+/**
+ * Enable lazy loading for images (WordPress 5.5+)
+ */
+add_filter('wp_lazy_loading_enabled', '__return_true');
+
+/**
+ * Add WebP support
+ */
+function altra_add_webp_support($mimes) {
+    $mimes['webp'] = 'image/webp';
+    return $mimes;
+}
+add_filter('mime_types', 'altra_add_webp_support');
 
 /**
  * Enqueue Scripts and Styles
  */
 function altra_enqueue_assets() {
-    // Main stylesheet
+    $theme_dir = get_template_directory();
+
+    // Main stylesheet - Use file modification time for cache busting
     wp_enqueue_style(
         'altra-style',
         get_stylesheet_uri(),
         array(),
-        '1.0.0'
+        filemtime(get_stylesheet_directory() . '/style.css')
     );
 
     // Flexible Layout CSS
+    $flexible_layout_path = $theme_dir . '/assets/css/flexible-layout.css';
     wp_enqueue_style(
         'altra-flexible-layout',
         get_template_directory_uri() . '/assets/css/flexible-layout.css',
         array('altra-style'),
-        '1.0.0'
+        file_exists($flexible_layout_path) ? filemtime($flexible_layout_path) : '1.0.0'
     );
 
-    // Main JavaScript
+    // Main JavaScript - Defer loading for better performance
+    $main_js_path = $theme_dir . '/assets/js/main.js';
     wp_enqueue_script(
         'altra-script',
         get_template_directory_uri() . '/assets/js/main.js',
         array(),
-        '1.0.0',
-        true
+        file_exists($main_js_path) ? filemtime($main_js_path) : '1.0.0',
+        true // Load in footer
     );
 }
 add_action('wp_enqueue_scripts', 'altra_enqueue_assets');
@@ -233,16 +256,20 @@ function altra_project_gallery_callback($post) {
         <p style="margin-bottom: 10px;">
             <label for="altra_project_gallery_display" style="display: block; margin-bottom: 5px;"><?php _e('Gallery IDs (comma separated):', 'altra'); ?></label>
             <input type="text" id="altra_project_gallery_display" value="<?php echo esc_attr($gallery_ids); ?>" class="widefat" readonly style="background-color: #f0f0f0;" />
-            <span class="description"><?php _e('This field is automatically updated when you add/remove images below', 'altra'); ?></span>
+            <span class="description"><?php _e('This field is automatically updated when you add/remove/reorder images below', 'altra'); ?></span>
         </p>
         <button type="button" class="button altra-add-gallery"><?php _e('Add Images to Gallery', 'altra'); ?></button>
-        <div class="altra-gallery-preview">
+        <p class="description" style="margin-top: 10px; font-style: italic;">
+            <?php _e('💡 Tip: Drag and drop images to reorder them', 'altra'); ?>
+        </p>
+        <div class="altra-gallery-preview altra-gallery-sortable">
             <?php
             if ($gallery_ids) {
                 $ids = explode(',', $gallery_ids);
                 foreach ($ids as $id) {
                     if ($id) {
                         echo '<div class="gallery-image" data-id="' . esc_attr($id) . '">';
+                        echo '<span class="dashicons dashicons-move drag-handle" title="' . esc_attr__('Drag to reorder', 'altra') . '"></span>';
                         echo wp_get_attachment_image($id, 'thumbnail');
                         echo '<button type="button" class="button button-small remove-gallery-image">×</button>';
                         echo '</div>';
@@ -260,39 +287,25 @@ function altra_project_gallery_callback($post) {
  * Handles: Project Details, Gallery, and Width
  */
 function altra_save_project_meta($post_id) {
-    // DEBUG: Log all POST data
-    error_log('ALTRA DEBUG - Post ID: ' . $post_id);
-    error_log('ALTRA DEBUG - Nonce present: ' . (isset($_POST['altra_project_meta_nonce']) ? 'YES' : 'NO'));
-    error_log('ALTRA DEBUG - Gallery field present: ' . (isset($_POST['altra_project_gallery']) ? 'YES' : 'NO'));
-    if (isset($_POST['altra_project_gallery'])) {
-        error_log('ALTRA DEBUG - Gallery value: ' . $_POST['altra_project_gallery']);
-    }
-
     // Check if nonce is set
     if (!isset($_POST['altra_project_meta_nonce'])) {
-        error_log('ALTRA DEBUG - EXIT: No nonce');
         return;
     }
 
     // Verify nonce
     if (!wp_verify_nonce($_POST['altra_project_meta_nonce'], 'altra_save_project_meta')) {
-        error_log('ALTRA DEBUG - EXIT: Nonce verification failed');
         return;
     }
 
     // Check for autosave
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-        error_log('ALTRA DEBUG - EXIT: Autosave');
         return;
     }
 
     // Check user permissions
-    if (!current_user_can('edit_post', $post_id)) {
-        error_log('ALTRA DEBUG - EXIT: No permissions');
+    if (!current_user_can('edit_post', $post_id) || get_post_type($post_id) !== 'project') {
         return;
     }
-
-    error_log('ALTRA DEBUG - All checks passed, saving data...');
 
     // Save Project Details
     $text_fields = array(
@@ -318,18 +331,13 @@ function altra_save_project_meta($post_id) {
     // Save Gallery (liste d'IDs séparés par des virgules)
     if (isset($_POST['altra_project_gallery'])) {
         $gallery_value = sanitize_text_field($_POST['altra_project_gallery']);
-        error_log('ALTRA DEBUG - Saving gallery: ' . $gallery_value);
 
         // Si la valeur est vide, on supprime la meta pour nettoyer
         if (empty($gallery_value)) {
             delete_post_meta($post_id, '_altra_project_gallery');
-            error_log('ALTRA DEBUG - Deleted empty gallery');
         } else {
             update_post_meta($post_id, '_altra_project_gallery', $gallery_value);
-            error_log('ALTRA DEBUG - Saved gallery successfully');
         }
-    } else {
-        error_log('ALTRA DEBUG - Gallery field NOT in POST data');
     }
 
     // Save Project Width
@@ -355,19 +363,25 @@ function altra_enqueue_admin_scripts($hook) {
     // Enqueue media library
     wp_enqueue_media();
 
+    // Enqueue jQuery UI CSS (required for sortable to work properly)
+    wp_enqueue_style('jquery-ui-core');
+
     // Enqueue admin CSS
     wp_enqueue_style(
         'altra-admin-style',
         get_template_directory_uri() . '/assets/css/admin.css',
-        array(),
+        array('jquery-ui-core'),
         '1.0.0'
     );
+
+    // Enqueue jQuery UI Sortable for drag & drop
+    wp_enqueue_script('jquery-ui-sortable');
 
     // Enqueue admin JavaScript
     wp_enqueue_script(
         'altra-admin-script',
         get_template_directory_uri() . '/assets/js/admin.js',
-        array('jquery'),
+        array('jquery', 'jquery-ui-sortable'),
         '1.0.0',
         true
     );

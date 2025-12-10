@@ -13,8 +13,8 @@
 
 .altra-gallery-preview {
     margin-top: 20px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    display: flex !important;
+    flex-wrap: wrap;
     gap: 10px;
 }
 
@@ -23,12 +23,52 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     overflow: hidden;
+    cursor: default;
+    width: 150px !important;
+    height: 150px !important;
+    flex-shrink: 0;
+    display: inline-block !important;
 }
 
 .gallery-image img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     display: block;
+}
+
+/* Drag handle */
+.drag-handle {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px;
+    border-radius: 3px;
+    cursor: move;
+    font-size: 16px;
+    z-index: 10;
+}
+
+.drag-handle:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+/* Sortable placeholder */
+.gallery-image-placeholder {
+    border: 2px dashed #2271b1 !important;
+    background: #f0f6fc !important;
+    visibility: visible !important;
+    width: 150px !important;
+    height: 150px !important;
+    display: inline-block !important;
+}
+
+/* During drag */
+.ui-sortable-helper {
+    opacity: 0.7 !important;
+    cursor: move !important;
 }
 
 .remove-gallery-image {
