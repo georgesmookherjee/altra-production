@@ -57,21 +57,31 @@ export default function GridContainer({ items, onLayoutChange, onWidthChange, on
 	useEffect(() => {
 		if (!gridInstanceRef.current || items.length === 0) return;
 
-		// Make GridStack aware of the DOM elements that already exist
 		const grid = gridInstanceRef.current;
 
-		// Let GridStack process the existing elements
-		setTimeout(() => {
-			grid.engine.nodes.forEach(node => {
-				grid.update(node.el, {
-					x: parseInt(node.el.dataset.gsX),
-					y: parseInt(node.el.dataset.gsY),
-					w: parseInt(node.el.dataset.gsW),
-					h: parseInt(node.el.dataset.gsH),
-				});
-			});
-			grid.compact();
-		}, 100);
+		// Sync items from React state to GridStack
+		items.forEach(item => {
+			const node = grid.engine.nodes.find(
+				n => parseInt(n.el.dataset.projectId) === item.id
+			);
+
+			if (node) {
+				const targetW = item.gridPosition?.w || getWidthColumns(item.width);
+				const targetX = item.gridPosition?.x || 0;
+				const targetY = item.gridPosition?.y || 0;
+				const targetH = item.gridPosition?.h || 2;
+
+				// Only update if changed to avoid infinite loops
+				if (node.w !== targetW || node.x !== targetX || node.y !== targetY || node.h !== targetH) {
+					grid.update(node.el, {
+						x: targetX,
+						y: targetY,
+						w: targetW,
+						h: targetH,
+					});
+				}
+			}
+		});
 	}, [items]);
 
 	function getWidthColumns(width) {

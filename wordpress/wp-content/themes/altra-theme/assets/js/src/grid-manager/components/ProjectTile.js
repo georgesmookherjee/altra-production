@@ -25,7 +25,11 @@ export default function ProjectTile({ project, onWidthChange, onRemove }) {
 								key={option.value}
 								type="button"
 								className={`width-btn ${project.width === option.value ? 'active' : ''}`}
-								onClick={() => onWidthChange(option.value)}
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									onWidthChange(option.value);
+								}}
 								title={`${option.label} - ${option.cols}/12 columns`}
 							>
 								{option.label}
@@ -36,7 +40,11 @@ export default function ProjectTile({ project, onWidthChange, onRemove }) {
 					<button
 						type="button"
 						className="remove-btn"
-						onClick={onRemove}
+						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							onRemove();
+						}}
 						title="Remove from grid"
 					>
 						×
