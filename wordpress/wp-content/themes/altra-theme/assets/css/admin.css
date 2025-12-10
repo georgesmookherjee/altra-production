@@ -95,6 +95,101 @@
 }
 
 /* ==========================================================================
+   PROJECT DETAILS META BOX - SORTABLE FIELDS
+   ========================================================================== */
+
+.altra-project-details-container {
+    padding: 10px 0;
+}
+
+.altra-fields-sortable {
+    margin-top: 10px;
+}
+
+.altra-field-row {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    display: grid;
+    grid-template-columns: 180px 1fr 70px 30px;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
+}
+
+.altra-field-row:hover {
+    background: #f9f9f9;
+    border-color: #2271b1;
+}
+
+.field-drag-handle {
+    cursor: move;
+    color: #666;
+    font-size: 20px;
+    transition: color 0.2s;
+    text-align: center;
+}
+
+.field-drag-handle:hover {
+    color: #2271b1;
+}
+
+.field-visibility-toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 5px 8px;
+    background: #f0f0f1;
+    border-radius: 3px;
+    transition: background 0.2s;
+    white-space: nowrap;
+    justify-content: center;
+}
+
+.field-visibility-toggle:hover {
+    background: #dcdcde;
+}
+
+.field-visibility-toggle input[type="checkbox"] {
+    margin: 0;
+}
+
+.visibility-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #2c3338;
+}
+
+.field-label {
+    font-weight: 600;
+    color: #1d2327;
+    white-space: nowrap;
+    margin: 0;
+}
+
+.field-input {
+    width: 100%;
+}
+
+/* Sortable placeholder */
+.altra-field-placeholder {
+    border: 2px dashed #2271b1 !important;
+    background: #f0f6fc !important;
+    visibility: visible !important;
+    height: 60px !important;
+}
+
+/* During drag */
+.ui-sortable-helper {
+    opacity: 0.7 !important;
+    cursor: move !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
    PROJECT WIDTH META BOX
    ========================================================================== */
 

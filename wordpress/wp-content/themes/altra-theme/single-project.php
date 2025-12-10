@@ -63,66 +63,40 @@ get_header();
                 <!-- Project Details (moved after gallery) -->
                 <div class="project-details">
                     <?php
-                    $client = get_post_meta(get_the_ID(), '_altra_project_client', true);
-                    $photographer = get_post_meta(get_the_ID(), '_altra_project_photographer', true);
-                    $stylist = get_post_meta(get_the_ID(), '_altra_project_stylist', true);
-                    $art_director = get_post_meta(get_the_ID(), '_altra_project_art_director', true);
-                    $date = get_post_meta(get_the_ID(), '_altra_project_date', true);
-                    $location = get_post_meta(get_the_ID(), '_altra_project_location', true);
-                    $team = get_post_meta(get_the_ID(), '_altra_project_team', true);
+                    // Get all fields, their order, and visibility
+                    $all_fields = altra_get_project_fields();
+                    $field_order = altra_get_field_order(get_the_ID());
+                    $visibility = altra_get_field_visibility(get_the_ID());
+
+                    // Display fields in custom order, respecting visibility
+                    foreach ($field_order as $field_key) {
+                        // Skip if field doesn't exist or is not visible
+                        if (!isset($all_fields[$field_key]) || !isset($visibility[$field_key]) || !$visibility[$field_key]) {
+                            continue;
+                        }
+
+                        $field = $all_fields[$field_key];
+                        $value = get_post_meta(get_the_ID(), '_altra_project_' . $field_key, true);
+
+                        // Only display if there's a value
+                        if (empty($value)) {
+                            continue;
+                        }
+
+                        // Format value based on field type
+                        $display_value = $value;
+                        if ($field['type'] === 'date') {
+                            $display_value = date('F Y', strtotime($value));
+                        }
+                        ?>
+                        <div class="project-detail-item">
+                            <div class="project-detail-label"><?php echo strtoupper(esc_html($field['label'])); ?></div>
+                            <div class="project-detail-value"><?php echo esc_html($display_value); ?></div>
+                        </div>
+                        <?php
+                    }
                     ?>
-
-                    <?php if ($client) : ?>
-                        <div class="project-detail-item">
-                            <div class="project-detail-label"><?php _e('CLIENT', 'altra'); ?></div>
-                            <div class="project-detail-value"><?php echo esc_html($client); ?></div>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if ($photographer) : ?>
-                        <div class="project-detail-item">
-                            <div class="project-detail-label"><?php _e('PHOTOGRAPHER', 'altra'); ?></div>
-                            <div class="project-detail-value"><?php echo esc_html($photographer); ?></div>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if ($stylist) : ?>
-                        <div class="project-detail-item">
-                            <div class="project-detail-label"><?php _e('STYLIST', 'altra'); ?></div>
-                            <div class="project-detail-value"><?php echo esc_html($stylist); ?></div>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if ($art_director) : ?>
-                        <div class="project-detail-item">
-                            <div class="project-detail-label"><?php _e('ART DIRECTOR', 'altra'); ?></div>
-                            <div class="project-detail-value"><?php echo esc_html($art_director); ?></div>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if ($date) : ?>
-                        <div class="project-detail-item">
-                            <div class="project-detail-label"><?php _e('DATE', 'altra'); ?></div>
-                            <div class="project-detail-value"><?php echo esc_html(date('F Y', strtotime($date))); ?></div>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if ($location) : ?>
-                        <div class="project-detail-item">
-                            <div class="project-detail-label"><?php _e('LOCATION', 'altra'); ?></div>
-                            <div class="project-detail-value"><?php echo esc_html($location); ?></div>
-                        </div>
-                    <?php endif; ?>
                 </div>
-
-                <?php if ($team) : ?>
-                    <div class="project-team">
-                        <h3><?php _e('Team', 'altra'); ?></h3>
-                        <div class="project-team-content">
-                            <?php echo nl2br(esc_html($team)); ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
 
             </div>
         </article>

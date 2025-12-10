@@ -6,6 +6,46 @@
 jQuery(document).ready(function($) {
 
     /**
+     * PROJECT DETAILS FIELDS
+     * Handles sortable fields with drag & drop reordering
+     */
+    function initFieldsSortable() {
+        $('.altra-fields-sortable').sortable({
+            items: '.altra-field-row',
+            handle: '.field-drag-handle',
+            cursor: 'move',
+            opacity: 0.7,
+            placeholder: 'altra-field-placeholder',
+            update: function() {
+                updateFieldsOrder();
+            },
+            start: function(_event, ui) {
+                ui.placeholder.height(ui.item.height());
+            }
+        });
+    }
+
+    // Update field order after drag & drop
+    function updateFieldsOrder() {
+        var keys = [];
+        $('.altra-fields-sortable .altra-field-row').each(function() {
+            keys.push($(this).data('field-key'));
+        });
+
+        var newOrder = keys.join(',');
+        $('#altra_fields_order').val(newOrder);
+
+        console.log('Fields reordered:', newOrder);
+    }
+
+    // Initialize sortable on page load
+    if ($('.altra-fields-sortable').length) {
+        initFieldsSortable();
+        // Set initial order value
+        updateFieldsOrder();
+    }
+
+    /**
      * PROJECT GALLERY
      * Handles media library integration for project gallery
      */

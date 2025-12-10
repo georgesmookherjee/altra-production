@@ -32,9 +32,9 @@ function altra_theme_setup() {
         'footer' => __('Footer Menu', 'altra'),
     ));
     
-    // Add image sizes
-    add_image_size('project-thumbnail', 800, 600, true);
-    add_image_size('project-thumbnail-2x', 1600, 1200, true); // Retina display
+    // Add image sizes - No crop to preserve original proportions
+    add_image_size('project-thumbnail', 1200, 900, false); // No crop
+    add_image_size('project-thumbnail-2x', 2400, 1800, false); // Retina display
     add_image_size('project-large', 1600, 1200, false);
     add_image_size('project-large-2x', 3200, 2400, false); // Retina display
 
@@ -189,55 +189,182 @@ function altra_add_project_meta_boxes() {
 add_action('add_meta_boxes', 'altra_add_project_meta_boxes');
 
 /**
+ * Get all available project detail fields definition
+ */
+function altra_get_project_fields() {
+    return array(
+        'client' => array(
+            'key' => 'client',
+            'label' => __('Client', 'altra'),
+            'type' => 'text'
+        ),
+        'project' => array(
+            'key' => 'project',
+            'label' => __('Project', 'altra'),
+            'type' => 'text'
+        ),
+        'photographer' => array(
+            'key' => 'photographer',
+            'label' => __('Photographer', 'altra'),
+            'type' => 'text'
+        ),
+        'stylist' => array(
+            'key' => 'stylist',
+            'label' => __('Stylist', 'altra'),
+            'type' => 'text'
+        ),
+        'hair_stylist' => array(
+            'key' => 'hair_stylist',
+            'label' => __('Hair Stylist', 'altra'),
+            'type' => 'text'
+        ),
+        'set_design' => array(
+            'key' => 'set_design',
+            'label' => __('Set Design', 'altra'),
+            'type' => 'text'
+        ),
+        'casting' => array(
+            'key' => 'casting',
+            'label' => __('Casting', 'altra'),
+            'type' => 'text'
+        ),
+        'models' => array(
+            'key' => 'models',
+            'label' => __('Models', 'altra'),
+            'type' => 'text'
+        ),
+        'location' => array(
+            'key' => 'location',
+            'label' => __('Location', 'altra'),
+            'type' => 'text'
+        ),
+        'makeup_artist' => array(
+            'key' => 'makeup_artist',
+            'label' => __('Make up Artist', 'altra'),
+            'type' => 'text'
+        ),
+        'director' => array(
+            'key' => 'director',
+            'label' => __('Director', 'altra'),
+            'type' => 'text'
+        ),
+        'art_director' => array(
+            'key' => 'art_director',
+            'label' => __('Art Director', 'altra'),
+            'type' => 'text'
+        ),
+        'art_direction' => array(
+            'key' => 'art_direction',
+            'label' => __('Art Direction', 'altra'),
+            'type' => 'text'
+        ),
+        'date' => array(
+            'key' => 'date',
+            'label' => __('Project Date', 'altra'),
+            'type' => 'date'
+        ),
+    );
+}
+
+/**
+ * Get field order for a project
+ */
+function altra_get_field_order($post_id) {
+    $saved_order = get_post_meta($post_id, '_altra_project_fields_order', true);
+
+    if ($saved_order && is_array($saved_order)) {
+        return $saved_order;
+    }
+
+    // Default order
+    return array_keys(altra_get_project_fields());
+}
+
+/**
+ * Get field visibility settings for a project
+ */
+function altra_get_field_visibility($post_id) {
+    $saved_visibility = get_post_meta($post_id, '_altra_project_fields_visibility', true);
+
+    if ($saved_visibility && is_array($saved_visibility)) {
+        return $saved_visibility;
+    }
+
+    // Default: all fields visible
+    $all_fields = altra_get_project_fields();
+    $visibility = array();
+    foreach ($all_fields as $key => $field) {
+        $visibility[$key] = true;
+    }
+
+    return $visibility;
+}
+
+/**
  * Project Details Meta Box Callback
  */
 function altra_project_details_callback($post) {
     // Add nonce for security
     wp_nonce_field('altra_save_project_meta', 'altra_project_meta_nonce');
-    
-    // Retrieve existing values
-    $client = get_post_meta($post->ID, '_altra_project_client', true);
-    $photographer = get_post_meta($post->ID, '_altra_project_photographer', true);
-    $stylist = get_post_meta($post->ID, '_altra_project_stylist', true);
-    $art_director = get_post_meta($post->ID, '_altra_project_art_director', true);
-    $date = get_post_meta($post->ID, '_altra_project_date', true);
-    $location = get_post_meta($post->ID, '_altra_project_location', true);
-    $team = get_post_meta($post->ID, '_altra_project_team', true);
-    
+
+    $all_fields = altra_get_project_fields();
+    $field_order = altra_get_field_order($post->ID);
+    $visibility = altra_get_field_visibility($post->ID);
+
     ?>
-    <table class="form-table">
-        <tr>
-            <th><label for="altra_project_client"><?php _e('Client', 'altra'); ?></label></th>
-            <td><input type="text" id="altra_project_client" name="altra_project_client" value="<?php echo esc_attr($client); ?>" class="widefat"></td>
-        </tr>
-        <tr>
-            <th><label for="altra_project_photographer"><?php _e('Photographer', 'altra'); ?></label></th>
-            <td><input type="text" id="altra_project_photographer" name="altra_project_photographer" value="<?php echo esc_attr($photographer); ?>" class="widefat"></td>
-        </tr>
-        <tr>
-            <th><label for="altra_project_stylist"><?php _e('Stylist', 'altra'); ?></label></th>
-            <td><input type="text" id="altra_project_stylist" name="altra_project_stylist" value="<?php echo esc_attr($stylist); ?>" class="widefat"></td>
-        </tr>
-        <tr>
-            <th><label for="altra_project_art_director"><?php _e('Art Director', 'altra'); ?></label></th>
-            <td><input type="text" id="altra_project_art_director" name="altra_project_art_director" value="<?php echo esc_attr($art_director); ?>" class="widefat"></td>
-        </tr>
-        <tr>
-            <th><label for="altra_project_date"><?php _e('Project Date', 'altra'); ?></label></th>
-            <td><input type="date" id="altra_project_date" name="altra_project_date" value="<?php echo esc_attr($date); ?>" class="widefat"></td>
-        </tr>
-        <tr>
-            <th><label for="altra_project_location"><?php _e('Location', 'altra'); ?></label></th>
-            <td><input type="text" id="altra_project_location" name="altra_project_location" value="<?php echo esc_attr($location); ?>" class="widefat"></td>
-        </tr>
-        <tr>
-            <th><label for="altra_project_team"><?php _e('Team Members', 'altra'); ?></label></th>
-            <td>
-                <textarea id="altra_project_team" name="altra_project_team" rows="5" class="widefat"><?php echo esc_textarea($team); ?></textarea>
-                <p class="description"><?php _e('List team members (Hair Stylist, Make-up Artist, Models, etc.)', 'altra'); ?></p>
-            </td>
-        </tr>
-    </table>
+    <div class="altra-project-details-container">
+        <p class="description" style="margin-bottom: 15px;">
+            <strong><?php _e('💡 Tip:', 'altra'); ?></strong>
+            <?php _e('Drag fields to reorder them, and use checkboxes to show/hide fields on the frontend.', 'altra'); ?>
+        </p>
+
+        <!-- Hidden field to store the order -->
+        <input type="hidden" id="altra_fields_order" name="altra_fields_order" value="" />
+
+        <div class="altra-fields-sortable">
+            <?php
+            // Display fields in saved order
+            foreach ($field_order as $field_key) {
+                if (!isset($all_fields[$field_key])) continue; // Skip if field doesn't exist anymore
+
+                $field = $all_fields[$field_key];
+                $value = get_post_meta($post->ID, '_altra_project_' . $field_key, true);
+                $is_visible = isset($visibility[$field_key]) ? $visibility[$field_key] : true;
+                ?>
+                <div class="altra-field-row" data-field-key="<?php echo esc_attr($field_key); ?>">
+                    <label for="altra_project_<?php echo esc_attr($field_key); ?>" class="field-label">
+                        <?php echo esc_html($field['label']); ?>
+                    </label>
+
+                    <?php if ($field['type'] === 'date') : ?>
+                        <input type="date"
+                               id="altra_project_<?php echo esc_attr($field_key); ?>"
+                               name="altra_project_<?php echo esc_attr($field_key); ?>"
+                               value="<?php echo esc_attr($value); ?>"
+                               class="field-input" />
+                    <?php else : ?>
+                        <input type="text"
+                               id="altra_project_<?php echo esc_attr($field_key); ?>"
+                               name="altra_project_<?php echo esc_attr($field_key); ?>"
+                               value="<?php echo esc_attr($value); ?>"
+                               class="field-input" />
+                    <?php endif; ?>
+
+                    <label class="field-visibility-toggle">
+                        <input type="checkbox"
+                               name="altra_field_visible[<?php echo esc_attr($field_key); ?>]"
+                               value="1"
+                               <?php checked($is_visible, true); ?> />
+                        <span class="visibility-label"><?php _e('Show', 'altra'); ?></span>
+                    </label>
+
+                    <span class="dashicons dashicons-move field-drag-handle" title="<?php esc_attr_e('Drag to reorder', 'altra'); ?>"></span>
+                </div>
+                <?php
+            }
+            ?>
+        </div>
+    </div>
     <?php
 }
 
@@ -307,26 +434,31 @@ function altra_save_project_meta($post_id) {
         return;
     }
 
-    // Save Project Details
-    $text_fields = array(
-        'altra_project_client',
-        'altra_project_photographer',
-        'altra_project_stylist',
-        'altra_project_art_director',
-        'altra_project_date',
-        'altra_project_location',
-    );
-
-    foreach ($text_fields as $field) {
-        if (isset($_POST[$field])) {
-            update_post_meta($post_id, '_' . $field, sanitize_text_field($_POST[$field]));
+    // Save all project detail fields dynamically
+    $all_fields = altra_get_project_fields();
+    foreach ($all_fields as $field_key => $field) {
+        $post_key = 'altra_project_' . $field_key;
+        if (isset($_POST[$post_key])) {
+            $value = sanitize_text_field($_POST[$post_key]);
+            update_post_meta($post_id, '_' . $post_key, $value);
         }
     }
 
-    // Save Team (textarea field)
-    if (isset($_POST['altra_project_team'])) {
-        update_post_meta($post_id, '_altra_project_team', sanitize_textarea_field($_POST['altra_project_team']));
+    // Save field order
+    if (isset($_POST['altra_fields_order'])) {
+        $order = sanitize_text_field($_POST['altra_fields_order']);
+        $order_array = array_filter(explode(',', $order));
+        update_post_meta($post_id, '_altra_project_fields_order', $order_array);
     }
+
+    // Save field visibility
+    $visibility = array();
+    foreach ($all_fields as $field_key => $field) {
+        // Checkbox: if not set, it's unchecked (false)
+        $is_visible = isset($_POST['altra_field_visible'][$field_key]);
+        $visibility[$field_key] = $is_visible;
+    }
+    update_post_meta($post_id, '_altra_project_fields_visibility', $visibility);
 
     // Save Gallery (liste d'IDs séparés par des virgules)
     if (isset($_POST['altra_project_gallery'])) {
@@ -366,12 +498,13 @@ function altra_enqueue_admin_scripts($hook) {
     // Enqueue jQuery UI CSS (required for sortable to work properly)
     wp_enqueue_style('jquery-ui-core');
 
-    // Enqueue admin CSS
+    // Enqueue admin CSS with file modification time for cache busting
+    $admin_css_path = get_template_directory() . '/assets/css/admin.css';
     wp_enqueue_style(
         'altra-admin-style',
         get_template_directory_uri() . '/assets/css/admin.css',
         array('jquery-ui-core'),
-        '1.0.0'
+        file_exists($admin_css_path) ? filemtime($admin_css_path) : '1.0.0'
     );
 
     // Enqueue jQuery UI Sortable for drag & drop
