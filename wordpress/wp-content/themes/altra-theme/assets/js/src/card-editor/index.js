@@ -1,17 +1,16 @@
 /**
  * Card Editor Entry Point
- * Initializes React app for project card visual editing
+ * Initializes React app for visual card customization in admin
  */
 import { render } from '@wordpress/element';
+import CardEditorApp from './CardEditorApp';
+import './style.scss';
 
-console.log('Card Editor loaded');
-
-// Placeholder for now - we'll build the full component next
 document.addEventListener('DOMContentLoaded', () => {
 	const root = document.getElementById('altra-card-editor-root');
 
 	if (root && window.altraCardEditorData) {
-		console.log('Card Editor root found, ready to initialize');
-		// render(<CardEditorApp {...window.altraCardEditorData} />, root); // Will add this next
+		console.log('Card Editor initializing...');
+		render(<CardEditorApp />, root);
 	}
 });

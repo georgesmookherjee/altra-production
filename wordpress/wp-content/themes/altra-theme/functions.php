@@ -147,6 +147,48 @@ function altra_enqueue_grid_manager() {
 add_action('wp_enqueue_scripts', 'altra_enqueue_grid_manager');
 
 /**
+ * Enqueue Card Editor assets in admin for project edit screen
+ */
+function altra_enqueue_card_editor() {
+    $screen = get_current_screen();
+
+    // Only on project edit screen
+    if (!$screen || $screen->post_type !== 'project' || $screen->base !== 'post') {
+        return;
+    }
+
+    $theme_dir = get_template_directory();
+    $asset_file_path = $theme_dir . '/build/card-editor.asset.php';
+
+    if (!file_exists($asset_file_path)) {
+        return;
+    }
+
+    $asset_file = include $asset_file_path;
+
+    wp_enqueue_script(
+        'altra-card-editor',
+        get_template_directory_uri() . '/build/card-editor.js',
+        $asset_file['dependencies'],
+        $asset_file['version'],
+        true
+    );
+
+    // Enqueue card editor styles
+    if (file_exists($theme_dir . '/build/style-card-editor.css')) {
+        wp_enqueue_style(
+            'altra-card-editor',
+            get_template_directory_uri() . '/build/style-card-editor.css',
+            array(),
+            $asset_file['version']
+        );
+    }
+
+    // No need for wp_localize_script - data is passed via window.altraCardEditorData in meta box callback
+}
+add_action('admin_enqueue_scripts', 'altra_enqueue_card_editor');
+
+/**
  * Register Custom Post Type: Projects
  */
 function altra_register_project_post_type() {
@@ -238,6 +280,16 @@ function altra_add_project_meta_boxes() {
         'project',
         'side',
         'high'
+    );
+
+    // Visual Card Editor meta box
+    add_meta_box(
+        'altra_visual_card_editor',
+        __('Visual Card Settings', 'altra'),
+        'altra_visual_card_editor_callback',
+        'project',
+        'normal',
+        'default'
     );
 }
 add_action('add_meta_boxes', 'altra_add_project_meta_boxes');
@@ -535,6 +587,48 @@ function altra_save_project_meta($post_id) {
             update_post_meta($post_id, '_altra_project_width', $width);
         }
     }
+
+    // Save Visual Card Settings
+    if (isset($_POST['altra_visual_settings'])) {
+        $visual_settings_json = stripslashes($_POST['altra_visual_settings']);
+        $visual_settings = json_decode($visual_settings_json, true);
+
+        // Validate JSON structure
+        if (json_last_error() === JSON_ERROR_NONE && is_array($visual_settings)) {
+            // Sanitize values
+            $sanitized = array();
+
+            // Focal point
+            if (isset($visual_settings['focalPoint'])) {
+                $sanitized['focalPoint'] = array(
+                    'x' => floatval($visual_settings['focalPoint']['x']),
+                    'y' => floatval($visual_settings['focalPoint']['y']),
+                );
+            }
+
+            // Zoom
+            if (isset($visual_settings['zoom'])) {
+                $sanitized['zoom'] = floatval($visual_settings['zoom']);
+            }
+
+            // Text layers
+            if (isset($visual_settings['textLayers']) && is_array($visual_settings['textLayers'])) {
+                $sanitized['textLayers'] = array_map(function($layer) {
+                    return array(
+                        'id' => sanitize_text_field($layer['id']),
+                        'visible' => (bool)$layer['visible'],
+                        'size' => sanitize_text_field($layer['size']),
+                        'position' => array(
+                            'x' => floatval($layer['position']['x']),
+                            'y' => floatval($layer['position']['y']),
+                        ),
+                    );
+                }, $visual_settings['textLayers']);
+            }
+
+            update_post_meta($post_id, '_altra_visual_settings', $sanitized);
+        }
+    }
 }
 add_action('save_post_project', 'altra_save_project_meta');
 
@@ -662,6 +756,49 @@ function altra_project_width_callback($post) {
             <div id="width-preview"></div>
         </div>
     </div>
+    <?php
+}
+
+/**
+ * Visual Card Editor Callback
+ * Renders React app for visual card customization
+ */
+function altra_visual_card_editor_callback($post) {
+    // Get current visual settings
+    $visual_settings = get_post_meta($post->ID, '_altra_visual_settings', true);
+
+    // Default settings
+    if (empty($visual_settings)) {
+        $visual_settings = array(
+            'focalPoint' => array('x' => 50, 'y' => 50),
+            'zoom' => 1.0,
+            'textLayers' => array()
+        );
+    }
+
+    // Get featured image for preview
+    $featured_image = '';
+    if (has_post_thumbnail($post->ID)) {
+        $featured_image = get_the_post_thumbnail_url($post->ID, 'full');
+    }
+
+    ?>
+    <div id="altra-card-editor-root"></div>
+    <input type="hidden"
+           id="altra_visual_settings_input"
+           name="altra_visual_settings"
+           value="<?php echo esc_attr(wp_json_encode($visual_settings)); ?>" />
+
+    <script type="text/javascript">
+        // Pass data to React app
+        window.altraCardEditorData = {
+            postId: <?php echo $post->ID; ?>,
+            featuredImage: <?php echo wp_json_encode($featured_image); ?>,
+            currentSettings: <?php echo wp_json_encode($visual_settings); ?>,
+            projectTitle: <?php echo wp_json_encode(get_the_title($post->ID)); ?>,
+            nonce: '<?php echo wp_create_nonce('wp_rest'); ?>'
+        };
+    </script>
     <?php
 }
 
