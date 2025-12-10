@@ -9,6 +9,11 @@
 get_header();
 ?>
 
+<!-- Grid Manager Root (only for logged in users) -->
+<?php if (is_user_logged_in() && current_user_can('edit_posts')) : ?>
+    <div id="altra-grid-manager-root"></div>
+<?php endif; ?>
+
 <!-- Hero Section -->
 <section class="hero-section" id="hero">
     <div class="hero-content">

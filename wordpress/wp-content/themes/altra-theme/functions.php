@@ -93,6 +93,49 @@ function altra_enqueue_assets() {
 add_action('wp_enqueue_scripts', 'altra_enqueue_assets');
 
 /**
+ * Enqueue Grid Manager assets (frontend - homepage only)
+ */
+function altra_enqueue_grid_manager() {
+    // Only on homepage, only for logged in users with edit permissions
+    if (!is_front_page() || !current_user_can('edit_posts')) {
+        return;
+    }
+
+    $theme_dir = get_template_directory();
+    $asset_file_path = $theme_dir . '/build/grid-manager.asset.php';
+
+    if (!file_exists($asset_file_path)) {
+        return;
+    }
+
+    $asset_file = include $asset_file_path;
+
+    wp_enqueue_script(
+        'altra-grid-manager',
+        get_template_directory_uri() . '/build/grid-manager.js',
+        $asset_file['dependencies'],
+        $asset_file['version'],
+        true
+    );
+
+    if (file_exists($theme_dir . '/build/style-grid-manager.css')) {
+        wp_enqueue_style(
+            'altra-grid-manager',
+            get_template_directory_uri() . '/build/style-grid-manager.css',
+            array(),
+            $asset_file['version']
+        );
+    }
+
+    // Pass REST API data to JavaScript
+    wp_localize_script('altra-grid-manager', 'altraGridData', array(
+        'restUrl' => rest_url('altra/v1/'),
+        'nonce' => wp_create_nonce('wp_rest'),
+    ));
+}
+add_action('wp_enqueue_scripts', 'altra_enqueue_grid_manager');
+
+/**
  * Register Custom Post Type: Projects
  */
 function altra_register_project_post_type() {
