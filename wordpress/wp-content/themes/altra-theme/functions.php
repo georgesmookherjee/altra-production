@@ -144,7 +144,7 @@ function altra_register_project_post_type() {
         'exclude_from_search'  => false,
         'publicly_queryable'   => true,
         'capability_type'      => 'post',
-        'show_in_rest'         => false, // Désactive Gutenberg pour éviter les conflits avec les meta boxes
+        'show_in_rest'         => true, // Active REST API pour Grid Manager
         'rewrite'              => array('slug' => 'projects'),
     );
 
@@ -718,5 +718,166 @@ function altra_project_editor_callback($post) {
             'quicktags' => true,
             'drag_drop_upload' => true
         )
+    );
+}
+
+/**
+ * =============================================================================
+ * REST API ENDPOINTS FOR VISUAL PAGE BUILDER
+ * =============================================================================
+ */
+
+/**
+ * Register custom REST API endpoints
+ */
+function altra_register_rest_api_endpoints() {
+    // GET /wp-json/altra/v1/projects
+    // Returns all published projects with grid data
+    register_rest_route('altra/v1', '/projects', array(
+        'methods' => 'GET',
+        'callback' => 'altra_get_projects_with_grid',
+        'permission_callback' => 'altra_check_edit_permission',
+    ));
+
+    // POST /wp-json/altra/v1/grid-positions
+    // Saves grid positions for all projects
+    register_rest_route('altra/v1', '/grid-positions', array(
+        'methods' => 'POST',
+        'callback' => 'altra_save_grid_positions',
+        'permission_callback' => 'altra_check_edit_permission',
+        'args' => array(
+            'positions' => array(
+                'required' => true,
+                'type' => 'array',
+                'description' => 'Array of project positions with id, x, y, w, h, order',
+            ),
+        ),
+    ));
+}
+add_action('rest_api_init', 'altra_register_rest_api_endpoints');
+
+/**
+ * Permission check for REST API endpoints
+ * Requires user to be logged in and able to edit posts
+ */
+function altra_check_edit_permission() {
+    return current_user_can('edit_posts');
+}
+
+/**
+ * GET /wp-json/altra/v1/projects
+ * Returns all published projects with grid data and metadata
+ */
+function altra_get_projects_with_grid() {
+    $projects = get_posts(array(
+        'post_type' => 'project',
+        'posts_per_page' => -1,
+        'orderby' => 'date',
+        'order' => 'DESC',
+        'post_status' => 'publish',
+    ));
+
+    $result = array();
+
+    foreach ($projects as $project) {
+        // Get grid position
+        $grid_pos = get_post_meta($project->ID, '_altra_grid_position', true);
+        $grid_position = null;
+
+        if ($grid_pos) {
+            $decoded = json_decode($grid_pos, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $grid_position = $decoded;
+            }
+        }
+
+        // Get width setting
+        $width = get_post_meta($project->ID, '_altra_project_width', true);
+        if (empty($width)) {
+            $width = 'medium';
+        }
+
+        // Get thumbnail
+        $thumbnail_url = get_the_post_thumbnail_url($project->ID, 'medium');
+        if (!$thumbnail_url) {
+            $thumbnail_url = get_template_directory_uri() . '/assets/images/placeholder.jpg';
+        }
+
+        $result[] = array(
+            'id' => $project->ID,
+            'title' => $project->post_title,
+            'thumbnail' => $thumbnail_url,
+            'width' => $width,
+            'gridPosition' => $grid_position,
+            'url' => get_permalink($project->ID),
+        );
+    }
+
+    return new WP_REST_Response($result, 200);
+}
+
+/**
+ * POST /wp-json/altra/v1/grid-positions
+ * Saves grid positions for all projects
+ */
+function altra_save_grid_positions($request) {
+    $positions = $request->get_param('positions');
+
+    if (!is_array($positions)) {
+        return new WP_Error(
+            'invalid_data',
+            'Positions must be an array',
+            array('status' => 400)
+        );
+    }
+
+    $saved_count = 0;
+    $width_map = array(4 => 'small', 6 => 'medium', 12 => 'large');
+
+    foreach ($positions as $item) {
+        if (!isset($item['id'])) {
+            continue;
+        }
+
+        $post_id = intval($item['id']);
+
+        // Verify post exists and is a project
+        if (get_post_type($post_id) !== 'project') {
+            continue;
+        }
+
+        // Build position data
+        $position = array(
+            'x' => isset($item['x']) ? intval($item['x']) : 0,
+            'y' => isset($item['y']) ? intval($item['y']) : 0,
+            'w' => isset($item['w']) ? intval($item['w']) : 6,
+            'h' => isset($item['h']) ? intval($item['h']) : 2,
+            'order' => isset($item['order']) ? intval($item['order']) : 0,
+        );
+
+        // Save grid position as JSON
+        update_post_meta($post_id, '_altra_grid_position', wp_json_encode($position));
+
+        // Also update width meta for backward compatibility
+        if (isset($width_map[$item['w']])) {
+            update_post_meta($post_id, '_altra_project_width', $width_map[$item['w']]);
+        }
+
+        // Update menu_order for fallback sorting
+        wp_update_post(array(
+            'ID' => $post_id,
+            'menu_order' => $position['order'],
+        ));
+
+        $saved_count++;
+    }
+
+    return new WP_REST_Response(
+        array(
+            'success' => true,
+            'message' => sprintf('Grid positions saved for %d projects', $saved_count),
+            'saved_count' => $saved_count,
+        ),
+        200
     );
 }
