@@ -16,6 +16,7 @@
     row-gap: 60px; /* Espacement vertical entre les lignes */
     padding: var(--spacing-xl, 60px) 0;
     margin-top: 10px;
+    grid-auto-rows: minmax(100px, auto); /* Hauteur minimale des lignes pour Grid Manager */
 }
 
 /* CLASSES DE LARGEUR */
@@ -34,6 +35,8 @@
 .project-card.project-width-large {
     grid-column: span 12;
 }
+
+/* Note: Grid Manager inline styles (grid-column, grid-row) override these classes automatically */
 
 /* AJUSTEMENTS VISUELS selon la largeur */
 
