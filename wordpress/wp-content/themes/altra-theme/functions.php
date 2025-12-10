@@ -118,11 +118,22 @@ function altra_enqueue_grid_manager() {
         true
     );
 
+    // Enqueue GridStack CSS (bundled with grid-manager)
+    if (file_exists($theme_dir . '/build/grid-manager.css')) {
+        wp_enqueue_style(
+            'altra-gridstack',
+            get_template_directory_uri() . '/build/grid-manager.css',
+            array(),
+            $asset_file['version']
+        );
+    }
+
+    // Enqueue custom Grid Manager styles
     if (file_exists($theme_dir . '/build/style-grid-manager.css')) {
         wp_enqueue_style(
             'altra-grid-manager',
             get_template_directory_uri() . '/build/style-grid-manager.css',
-            array(),
+            array('altra-gridstack'),
             $asset_file['version']
         );
     }

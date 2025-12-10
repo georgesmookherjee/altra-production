@@ -4,10 +4,12 @@
  */
 import { useState, useEffect } from '@wordpress/element';
 import { fetchProjects, saveGridPositions } from './utils/api';
+import GridContainer from './components/GridContainer';
+import ProjectSidebar from './components/ProjectSidebar';
 
 export default function GridManagerApp() {
 	const [isEditMode, setIsEditMode] = useState(false);
-	const [projects, setProjects] = useState([]);
+	const [allProjects, setAllProjects] = useState([]);
 	const [gridItems, setGridItems] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [saving, setSaving] = useState(false);
@@ -22,21 +24,70 @@ export default function GridManagerApp() {
 		setLoading(true);
 		try {
 			const data = await fetchProjects();
-			setProjects(data);
+			setAllProjects(data);
 
-			// Separate projects with grid positions from those without
+			// Get projects with positions or fallback to all
 			const positioned = data.filter(p => p.gridPosition);
-			const unpositioned = data.filter(p => !p.gridPosition);
 
-			setGridItems(positioned);
+			if (positioned.length > 0) {
+				setGridItems(positioned);
+			} else {
+				// First time: add first 6 projects to grid
+				setGridItems(data.slice(0, 6));
+			}
 
 			console.log('Projects loaded:', data.length);
-			console.log('Positioned:', positioned.length, 'Unpositioned:', unpositioned.length);
 		} catch (error) {
 			console.error('Failed to load projects:', error);
 			showMessage('Failed to load projects: ' + error.message, 'error');
 		} finally {
 			setLoading(false);
+		}
+	}
+
+	function handleLayoutChange(layoutItems) {
+		// Update grid items with new positions
+		setGridItems(prevItems => {
+			return prevItems.map(item => {
+				const layoutItem = layoutItems.find(l => l.id === item.id);
+				if (layoutItem) {
+					return {
+						...item,
+						gridPosition: {
+							x: layoutItem.x,
+							y: layoutItem.y,
+							w: layoutItem.w,
+							h: layoutItem.h,
+						},
+					};
+				}
+				return item;
+			});
+		});
+	}
+
+	function handleWidthChange(projectId, newWidth) {
+		setGridItems(prevItems =>
+			prevItems.map(item =>
+				item.id === projectId ? { ...item, width: newWidth } : item
+			)
+		);
+	}
+
+	function handleAddToGrid(project) {
+		if (gridItems.find(item => item.id === project.id)) {
+			return; // Already in grid
+		}
+
+		setGridItems(prev => [...prev, project]);
+		showMessage(`Added "${project.title}" to grid`, 'success');
+	}
+
+	function handleRemoveFromGrid(projectId) {
+		setGridItems(prev => prev.filter(item => item.id !== projectId));
+		const project = allProjects.find(p => p.id === projectId);
+		if (project) {
+			showMessage(`Removed "${project.title}" from grid`, 'success');
 		}
 	}
 
@@ -60,7 +111,11 @@ export default function GridManagerApp() {
 
 			// Reload to get fresh data
 			await loadProjects();
-			setIsEditMode(false);
+
+			// Close edit mode after 2 seconds
+			setTimeout(() => {
+				setIsEditMode(false);
+			}, 2000);
 		} catch (error) {
 			console.error('Failed to save grid:', error);
 			showMessage('Failed to save grid: ' + error.message, 'error');
@@ -126,31 +181,18 @@ export default function GridManagerApp() {
 					)}
 
 					<div className="edit-layout">
-						<div className="project-sidebar">
-							<h3>Available Projects</h3>
-							<div className="projects-list">
-								{projects.map(project => (
-									<div key={project.id} className="sidebar-project">
-										<img src={project.thumbnail} alt={project.title} />
-										<span>{project.title}</span>
-									</div>
-								))}
-							</div>
-						</div>
+						<ProjectSidebar
+							allProjects={allProjects}
+							gridProjects={gridItems}
+							onAddToGrid={handleAddToGrid}
+						/>
 
-						<div className="grid-container">
-							<h3>Homepage Grid (Coming Soon)</h3>
-							<p>GridStack integration will be added next</p>
-							<div className="grid-preview">
-								{gridItems.map(item => (
-									<div key={item.id} className="grid-item-preview">
-										<img src={item.thumbnail} alt={item.title} />
-										<p>{item.title}</p>
-										<small>Width: {item.width}</small>
-									</div>
-								))}
-							</div>
-						</div>
+						<GridContainer
+							items={gridItems}
+							onLayoutChange={handleLayoutChange}
+							onWidthChange={handleWidthChange}
+							onRemove={handleRemoveFromGrid}
+						/>
 					</div>
 				</div>
 			)}
