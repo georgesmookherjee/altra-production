@@ -1,0 +1,1 @@
+(()=>{"use strict";window.wp.element,console.log("Card Editor loaded"),document.addEventListener("DOMContentLoaded",()=>{document.getElementById("altra-card-editor-root")&&window.altraCardEditorData&&console.log("Card Editor root found, ready to initialize")})})();

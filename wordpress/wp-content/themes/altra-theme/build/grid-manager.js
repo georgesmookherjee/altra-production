@@ -1,0 +1,1 @@
+(()=>{"use strict";window.wp.element,console.log("Grid Manager loaded"),document.addEventListener("DOMContentLoaded",()=>{document.getElementById("altra-grid-manager-root")&&console.log("Grid Manager root found, ready to initialize")})})();

@@ -1,0 +1,25 @@
+{
+  "name": "altra-theme",
+  "version": "1.0.0",
+  "description": "A minimalist portfolio theme for Altra Production showcasing photography and video projects.",
+  "main": "index.js",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "check-engines": "wp-scripts check-engines",
+    "check-licenses": "wp-scripts check-licenses"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@wordpress/scripts": "^31.1.0"
+  },
+  "dependencies": {
+    "gridstack": "^12.3.3",
+    "react": "^18.3.1",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-dom": "^18.3.1",
+    "react-easy-crop": "^5.5.6"
+  }
+}
