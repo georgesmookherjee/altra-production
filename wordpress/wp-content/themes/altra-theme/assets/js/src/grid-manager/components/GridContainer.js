@@ -55,9 +55,21 @@ export default function GridContainer({ items, onLayoutChange, onWidthChange, on
 
 	// Update grid when items change
 	useEffect(() => {
-		if (!gridInstanceRef.current || items.length === 0) return;
+		if (!gridInstanceRef.current) return;
 
 		const grid = gridInstanceRef.current;
+
+		// Get current item IDs
+		const currentItemIds = items.map(item => item.id);
+
+		// Remove items that are no longer in React state
+		const nodesToRemove = grid.engine.nodes.filter(
+			node => !currentItemIds.includes(parseInt(node.el.dataset.projectId))
+		);
+
+		nodesToRemove.forEach(node => {
+			grid.removeWidget(node.el, false); // false = don't trigger change event
+		});
 
 		// Sync items from React state to GridStack
 		items.forEach(item => {
@@ -108,14 +120,9 @@ export default function GridContainer({ items, onLayoutChange, onWidthChange, on
 	}
 
 	function handleRemove(projectId) {
-		const gridItem = gridInstanceRef.current.engine.nodes.find(
-			node => parseInt(node.el.dataset.projectId) === projectId
-		);
-
-		if (gridItem) {
-			gridInstanceRef.current.removeWidget(gridItem.el);
-			onRemove(projectId);
-		}
+		// Let React handle the removal via state update
+		// GridStack will sync automatically when items array changes
+		onRemove(projectId);
 	}
 
 	return (

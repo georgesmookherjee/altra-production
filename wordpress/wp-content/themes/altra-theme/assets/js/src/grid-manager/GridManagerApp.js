@@ -115,13 +115,26 @@ export default function GridManagerApp() {
 
 		try {
 			// Build positions array from current grid state
-			const positions = gridItems.map((item, index) => ({
+			// Sort by Y position first, then X position (reading order: top to bottom, left to right)
+			const sortedItems = [...gridItems].sort((a, b) => {
+				const aY = a.gridPosition?.y || 0;
+				const bY = b.gridPosition?.y || 0;
+				const aX = a.gridPosition?.x || 0;
+				const bX = b.gridPosition?.x || 0;
+
+				if (aY !== bY) {
+					return aY - bY; // Sort by row first
+				}
+				return aX - bX; // Then by column
+			});
+
+			const positions = sortedItems.map((item, index) => ({
 				id: item.id,
 				x: item.gridPosition?.x || 0,
 				y: item.gridPosition?.y || 0,
 				w: item.gridPosition?.w || (item.width === 'small' ? 4 : item.width === 'large' ? 12 : 6),
 				h: item.gridPosition?.h || 2,
-				order: index,
+				order: index, // Now index represents visual order
 			}));
 
 			const result = await saveGridPositions(positions);
