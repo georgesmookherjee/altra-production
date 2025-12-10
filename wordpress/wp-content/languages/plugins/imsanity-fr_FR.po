@@ -1,0 +1,476 @@
+# Translation of Plugins - Imsanity - Stable (latest release) in French (France)
+# This file is distributed under the same license as the Plugins - Imsanity - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2022-10-05 22:37:41+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: GlotPress/4.0.1\n"
+"Language: fr\n"
+"Project-Id-Version: Plugins - Imsanity - Stable (latest release)\n"
+
+#. translators: %s: File-name of the image
+#: libs/utils.php:203
+msgid "Could not retrieve location of %s"
+msgstr "Impossible de récupérer les emplacements de %s"
+
+#. Author URI of the plugin
+#: imsanity.php
+msgid "https://ewww.io/about/"
+msgstr "https://ewww.io/about/"
+
+#: settings.php:314 settings.php:795
+msgid "Usable values are 1-92."
+msgstr "Les valeurs utilisables sont 1-92."
+
+#: media.php:121
+msgid "Remove Original Link"
+msgstr "Supprimer le lien original"
+
+#: settings.php:717
+msgid "Clear Queue"
+msgstr "Effacer la file d’attente"
+
+#: settings.php:710
+msgid "You will be able to resume the process later."
+msgstr "Vous pourrez reprendre le processus ultérieurement."
+
+#: settings.php:106
+msgid "You are about to resize all your existing images. Please be sure your site is backed up before proceeding. Do you wish to continue?"
+msgstr "Vous êtes sur le point de redimensionner toutes vos images existantes. Veuillez vous assurer que votre site est sauvegardé avant de continuer. Voulez-vous poursuivre ?"
+
+#: settings.php:750
+msgid "The GD extension is not enabled in PHP, Imsanity may not function correctly. Enable GD or contact your web host for assistance."
+msgstr "L’extension PHP GD n’est pas activée, Imsanity peut ne pas fonctionner correctement. Activez GD ou contactez votre hébergeur Web pour obtenir de l’aide."
+
+#: settings.php:724
+msgid "Resizing..."
+msgstr "Redimensionnement…"
+
+#: settings.php:721
+msgid "Searching for images. This may take a moment."
+msgstr "Recherche des images. Veuillez patienter."
+
+#: settings.php:713
+msgid "Would you like to start back at the beginning?"
+msgstr "Voulez-vous recommencer au début ?"
+
+#: settings.php:709
+msgid "Stop Resizing"
+msgstr "Arrêter le redimensionnement"
+
+#: settings.php:701
+msgid "Continue Resizing"
+msgstr "Continuer à redimensionner"
+
+#: settings.php:699
+msgid "Start Resizing All Images"
+msgstr "Démarrer le redimensionnement de toutes les images"
+
+#. translators: %s: List View in the Media Library
+#: settings.php:691
+msgid "You may also resize 1 or 2 images using %s to verify that everything is working properly before processing your entire library."
+msgstr "Vous pouvez également redimensionner 1 ou 2 images en utilisant %s pour vérifier que tout est OK avant de traiter toute votre bibliothèque."
+
+#: settings.php:687
+msgid "It is HIGHLY recommended that you backup your images before proceeding."
+msgstr "Il est FORTEMENT recommandé de sauvegarder vos images avant de continuer."
+
+#: settings.php:677 settings.php:692
+msgid "List View in the Media Library"
+msgstr "Vue de liste dans la médiathèque"
+
+#. translators: 1: List View in the Media Library 2: the WP-CLI command
+#: settings.php:676
+msgid "You may also use %1$s to selectively resize images or WP-CLI to resize your images in bulk: %2$s"
+msgstr "Vous pouvez également utiliser %1$s pour redimensionner sélectivement les images ou WP-CLI pour redimensionner vos images en lot : %2$s"
+
+#: settings.php:671
+msgid "If you have existing images that were uploaded prior to installing Imsanity, you may resize them all in bulk to recover disk space (below)."
+msgstr "Si vous avez des images existantes qui ont été téléversées avant d’installer Imsanity, vous pouvez les redimensionner en lot pour récupérer de l’espace disque (ci-dessous)."
+
+#: settings.php:634
+msgid "Support"
+msgstr "Support"
+
+#: settings.php:633
+msgid "FAQ"
+msgstr "FAQ"
+
+#: settings.php:348 settings.php:830
+msgid "Remove the large pre-scaled originals that WordPress retains for thumbnail generation."
+msgstr "Retirer les grands originaux pré-dimensionnés que WordPress conserve pour la génération de vignettes."
+
+#: settings.php:344 settings.php:826
+msgid "Delete Originals"
+msgstr "Supprimer les originaux"
+
+#. translators: %s: link to install EWWW Image Optimizer plugin
+#: settings.php:336 settings.php:818
+msgid "Only applies to new image uploads, existing images may be converted with %s."
+msgstr "S’applique uniquement aux nouveaux téléversements d’images, les images existantes peuvent être converties avec %s."
+
+#: settings.php:324 settings.php:806
+msgid "Only applies to new image uploads, existing BMP images cannot be converted or resized."
+msgstr "S’applique uniquement aux nouveaux téléversements d’images, les images BMP existantes ne peuvent pas être converties ou redimensionnées."
+
+#: settings.php:112
+msgid "Resizing stopped, reload page to resume."
+msgstr "Redimensionnement arrêté, rechargez la page pour reprendre."
+
+#: settings.php:111
+msgid "Removal Complete"
+msgstr "Suppression complète"
+
+#: settings.php:110
+msgid "Removal Failed"
+msgstr "Échec de la suppression"
+
+#: settings.php:109
+msgid "Please wait..."
+msgstr "Veuillez attendre..."
+
+#: settings.php:107 settings.php:635
+msgid "Leave a Review"
+msgstr "Laisser un avis"
+
+#: media.php:119
+msgid "Remove Original"
+msgstr "Supprimer l’original"
+
+#: media.php:110
+msgid "Resize Image"
+msgstr "Redimensionner l’image"
+
+#: media.php:71
+msgid "Could not retrieve file path."
+msgstr "Impossible de récupérer le chemin du fichier."
+
+#: media.php:66
+msgid "Media Cloud image"
+msgstr "Image de Media Cloud"
+
+#: media.php:61
+msgid "WP Stateless image"
+msgstr "Image WP sans état"
+
+#: media.php:57
+msgid "Amazon S3 image"
+msgstr "Image S3 Amazon"
+
+#: media.php:53
+msgid "Offloaded Media"
+msgstr "Média déchargé"
+
+#: media.php:49
+msgid "Azure Storage image"
+msgstr "Espace de stockage d’image Azure"
+
+#: media.php:45
+msgid "Cloudinary image"
+msgstr "Image en cloud"
+
+#: media.php:41
+msgid "Amazon-hosted image"
+msgstr "Image hébergée sur Amazon"
+
+#. translators: 1: File-name of the image 2: the error message, translated
+#. elsewhere
+#: libs/utils.php:301
+msgid "File size of resized image was larger than the original"
+msgstr "La taille du fichier de l’image redimensionnée était plus grande que l’original"
+
+#. translators: 1: File-name of the image
+#: libs/utils.php:289
+msgid "OK: %1$s resized to %2$s x %3$s"
+msgstr "OK : %1$s redimensionné à %2$s x %3$s"
+
+#. translators: %s: File-name of the image
+#: libs/utils.php:238
+msgid "SKIPPED: %s (by user exclusion)"
+msgstr "SAUTÉ : %s (par exclusion de l’utilisateur)"
+
+#. translators: %s: File type of the image
+#: libs/utils.php:220
+msgid "%1$s does not have an allowed file type (%2$s)"
+msgstr "%1$s est un type de fichier non autorisé (%2$s)"
+
+#. translators: %s: File-name of the image
+#: libs/utils.php:191
+msgid "SKIPPED: %s (noresize)"
+msgstr "SAUTÉ : %s (pas de redimensionnement)"
+
+#: class-imsanity-cli.php:111
+msgid "Finished Resizing!"
+msgstr "Redimensionnement terminé !"
+
+#: class-imsanity-cli.php:94
+msgid "Resize (Y/n)?"
+msgstr "Redimensionner (o/n) ?"
+
+#: class-imsanity-cli.php:63
+msgid "Continue?"
+msgstr "Continuer ?"
+
+#. translators: %d: number of images
+#: class-imsanity-cli.php:62 class-imsanity-cli.php:67
+msgid "There are %d images to check."
+msgstr "Il y a %d images à vérifier."
+
+#: class-imsanity-cli.php:57
+msgid "There are no images to resize."
+msgstr "Il n’y a pas d’images à redimensionner."
+
+#. translators: 1: width in pixels, 2: height in pixels
+#: class-imsanity-cli.php:50
+msgid "Resizing images to %1$d x %2$d"
+msgstr "Redimensionner les images en %1$d x %2$d"
+
+#: class-imsanity-cli.php:45
+msgid "It is also recommended that you initially resize only 1 or 2 images and verify that everything is working properly before processing your entire library."
+msgstr "Il est également recommandé de redimensionner initialement seulement 1 ou 2 images et de vérifier que tout fonctionne correctement avant de traiter toute votre bibliothèque."
+
+#: class-imsanity-cli.php:44
+msgid "It is HIGHLY recommended that you backup your wp-content/uploads folder before proceeding. You will be prompted before resizing each image."
+msgstr "Il est FORTEMENT recommandé de sauvegarder votre dossier wp-content/uploads avant de continuer. Vous serez ncité avant de redimensionner chaque image."
+
+#: class-imsanity-cli.php:43
+msgid "Bulk Resize will alter your original images and cannot be undone!"
+msgstr "Redimensionner en lot modifiera vos images originales et ne pourra pas être annulé !"
+
+#: settings.php:315 settings.php:796
+msgid "Only used when resizing images, does not affect thumbnails."
+msgstr "Utilisé uniquement lors du redimensionnement des images, n’affecte pas les miniatures."
+
+#: settings.php:291 settings.php:768
+msgid "These dimensions are used for Bulk Resizing also."
+msgstr "Ces dimensions sont également utilisées pour le redimensionnement en lot."
+
+#: settings.php:283
+msgid "If you allow per-site configuration, the settings below will be used as the defaults. Single-site defaults will be set the first time you visit the site admin after activating Imsanity."
+msgstr "Si vous autorisez la configuration par site, les réglages ci-dessous seront utilisés par défaut. Les réglages par défaut d’un seul site seront définis la première fois que vous visiterez l’administrateur du site après l’activation d’Imsanity."
+
+#: settings.php:267 settings.php:651
+msgid "WebP Conversion"
+msgstr "Conversion WebP"
+
+#: settings.php:266 settings.php:650
+msgid "Lazy Load"
+msgstr "Chargement différé"
+
+#: settings.php:265 settings.php:649
+msgid "Automatic Scaling"
+msgstr "Mise à l’échelle automatique"
+
+#: settings.php:264 settings.php:648
+msgid "Full Compression"
+msgstr "Compression complète"
+
+#. translators: %s: link to install EWWW Image Optimizer plugin
+#: settings.php:259 settings.php:643
+msgid "Get comprehensive image optimization with %s"
+msgstr "Obtenir une optimisation complète de l’image avec %s"
+
+#. Author of the plugin
+#: imsanity.php
+msgid "Exactly WWW"
+msgstr "Exactly WWW"
+
+#. translators: 1: File-name of the image 2: the error message, translated
+#. elsewhere
+#: libs/utils.php:316
+msgid "wp_get_image_editor missing"
+msgstr "wp_get_image_editor manquant"
+
+#. translators: 1: File-name of the image 2: the error message, translated
+#. elsewhere
+#: libs/utils.php:301 libs/utils.php:308 libs/utils.php:316 libs/utils.php:323
+msgid "ERROR: %1$s (%2$s)"
+msgstr "ERREUR : %1$s (%2$s)"
+
+#: settings.php:685
+msgid "WARNING: Bulk Resize will alter your original images and cannot be undone!"
+msgstr "AVERTISSEMENT : le redimensionnement en lot modifiera vos images originales et ne pourra pas être annulé !"
+
+#: settings.php:290 settings.php:298 settings.php:305 settings.php:767
+#: settings.php:776 settings.php:784
+msgid "in pixels, enter 0 to disable"
+msgstr "en pixels, saisir 0 pour désactiver"
+
+#: settings.php:290 settings.php:298 settings.php:305 settings.php:767
+#: settings.php:776 settings.php:784
+msgid "Max Height"
+msgstr "Hauteur maximale"
+
+#: settings.php:289 settings.php:297 settings.php:304 settings.php:766
+#: settings.php:775 settings.php:783
+msgid "Max Width"
+msgstr "Largeur maximale"
+
+#: settings.php:115
+msgid "There are no images that need to be resized."
+msgstr "Aucune image n’a besoin d’être redimensionnée."
+
+#: settings.php:114
+msgid "Received an invalid response, please check for errors in the Developer Tools console of your browser."
+msgstr "Vous avez reçu une réponse non valide, veuillez vérifier les erreurs dans la console des outils de développement de votre navigateur."
+
+#: settings.php:113
+msgid "Image"
+msgstr "Image"
+
+#: settings.php:108
+msgid "Resize Selected Images"
+msgstr "Redimensionner les images sélectionnées"
+
+#: settings.php:107
+msgid "Resizing Complete"
+msgstr "Redimensionnement terminé"
+
+#: settings.php:76 settings.php:78
+msgid "Settings"
+msgstr "Réglages"
+
+#. translators: %s: the image mime type
+#: imsanity.php:358
+msgid "Imsanity was unable to process the %s file. If you continue to see this error you may need to disable the conversion option in the Imsanity settings."
+msgstr "Imsanity n’a pas pu traiter le fichier %s. Si vous continuez à voir cette erreur, vous devrez peut-être désactiver l’option de conversion dans les réglages Imsanity."
+
+#: imsanity.php:334
+msgid "Unknown image type specified in imsanity_convert_to_jpg"
+msgstr "Type d’image inconnu spécifié dans imsanity_convert_to_jpg"
+
+#: imsanity.php:324
+msgid "Imsanity requires the GD library to convert PNG images to JPG"
+msgstr "Imsanity nécessite la bibliothèque GD pour convertir des images PNG en JPG"
+
+#. translators: 1: error message 2: link to support forums
+#: imsanity.php:281
+msgid "Imsanity was unable to resize this image for the following reason: %1$s. If you continue to see this error message, you may need to install missing server components. If you think you have discovered a bug, please report it on the Imsanity support forum: %2$s"
+msgstr "Imsanity n’a pas pu redimensionner l’image pour la raison suivante : %1$s. Si vous continuez à voir ce message d’erreur, il se peut que vous ayez besoin d’installer des composants de serveur manquants. Si vous pensez avoir découvert un bogue, veuillez le signaler sur le forum de support Imsanity : %2$s"
+
+#. translators: 1: File-name of the image 2: the error message, translated
+#. elsewhere
+#: libs/utils.php:308
+msgid "Unknown error, resizing function returned the same filename"
+msgstr "Erreur inconnue, la fonction de redimensionnement a renvoyé le même nom de fichier."
+
+#. translators: %s: File-name of the image
+#: libs/utils.php:229
+msgid "%s is not writable"
+msgstr "le fichier %s n’est pas accessible en écriture"
+
+#: ajax.php:31 ajax.php:62 ajax.php:102 ajax.php:142
+msgid "Access token has expired, please reload the page."
+msgstr "Jeton d’accès expiré, merci de recharger la page."
+
+#: ajax.php:23 ajax.php:134
+msgid "Administrator permission is required"
+msgstr "Une autorisation admin est nécessaire"
+
+#. Description of the plugin
+#: imsanity.php
+msgid "Imsanity stops insanely huge image uploads"
+msgstr "Imsanity réduit les téléversements d’images incroyablement énormes"
+
+#. Plugin URI of the plugin
+#: imsanity.php
+msgid "https://wordpress.org/plugins/imsanity/"
+msgstr "https://wordpress.org/plugins/imsanity/"
+
+#. Plugin Name of the plugin
+#: imsanity.php media.php:15 settings.php:37 settings.php:57
+msgid "Imsanity"
+msgstr "Imsanity"
+
+#: settings.php:835
+msgid "Save Changes"
+msgstr "Enregistrer les modifications"
+
+#: settings.php:811
+msgid "Convert PNG To JPG"
+msgstr "Convertir PNG en JPG"
+
+#: settings.php:802
+msgid "Convert BMP To JPG"
+msgstr "Convertir BMP en JPG"
+
+#: settings.php:738
+msgid "Imsanity settings have been configured by the server administrator. There are no site-specific settings available."
+msgstr "Les réglages d’Imsanity ont été configurés par l’administrateur du serveur. Il n’y a aucun réglage spécifique au site disponible."
+
+#: settings.php:668
+msgid "Bulk Resize Images"
+msgstr "Redimensionner les images en lot"
+
+#: settings.php:631
+msgid "Imsanity Settings"
+msgstr "Réglages Imsanity"
+
+#: settings.php:353
+msgid "Update Settings"
+msgstr "Mettre à jour les réglages"
+
+#: settings.php:310 settings.php:791
+msgid "JPG image quality"
+msgstr "Qualité d’image JPG"
+
+#: settings.php:329
+msgid "Convert PNG to JPG"
+msgstr "Convertir PNG en JPG"
+
+#: settings.php:320
+msgid "Convert BMP to JPG"
+msgstr "Convertir BMP en JPG"
+
+#: settings.php:302 settings.php:781
+msgid "Images uploaded elsewhere (Theme headers, backgrounds, logos, etc)"
+msgstr "Images téléversées ailleurs (en-têtes, arrière-plans, logos du thème, etc)"
+
+#: settings.php:295 settings.php:773
+msgid "Images uploaded directly to the Media Library"
+msgstr "Images téléversées directement dans la bibliothèque des médias"
+
+#: settings.php:287 settings.php:764
+msgid "Images uploaded within a Page/Post"
+msgstr "Images téléversées à l’intérieur d’un·e page/article"
+
+#: settings.php:281
+msgid "Use global Imsanity settings (below) for all sites"
+msgstr "Utiliser les réglages globaux d’Imsanity (ci-dessous) pour tous les sites"
+
+#: settings.php:280
+msgid "Allow each site to configure Imsanity settings"
+msgstr "Permettre à chaque site de configurer les réglages d’Imsanity"
+
+#: settings.php:277
+msgid "Global Settings Override"
+msgstr "Remplacement des réglages globaux"
+
+#: settings.php:406
+msgid "Imsanity network settings saved."
+msgstr "Réglages de réseau Imsanity enregistrés."
+
+#: settings.php:56 settings.php:252
+msgid "Imsanity Network Settings"
+msgstr "Réglages du réseau Imsanity"
+
+#: settings.php:36
+msgid "Imsanity Plugin Settings"
+msgstr "Réglages de l’extension Imsanity"
+
+#. translators: %s: ID number of the image
+#: libs/utils.php:361
+msgid "ERROR: Attachment with ID of %d not found"
+msgstr "ERREUR : la pièce jointe avec l’ID %d est introuvable"
+
+#. translators: %s: File-name of the image
+#: class-imsanity-cli.php:86 libs/utils.php:331
+msgid "SKIPPED: %s (Resize not required)"
+msgstr "Ignoré : %s (redimensionnement non nécessaire)"
+
+#: ajax.php:72 ajax.php:112
+msgid "Missing ID Parameter"
+msgstr "Paramètre d’ID manquant"
