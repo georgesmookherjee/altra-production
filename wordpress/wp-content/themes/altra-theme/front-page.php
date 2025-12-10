@@ -35,13 +35,12 @@ get_header();
     <div class="container">
 
         <?php
-        // Query for projects - order by grid position if available
+        // Query for projects - fallback to date if no grid order
         $args = array(
             'post_type' => 'project',
             'posts_per_page' => 24,
-            'meta_key' => '_altra_grid_order',
-            'orderby' => 'meta_value_num date',
-            'order' => 'ASC',
+            'orderby' => 'date',
+            'order' => 'DESC',
             'paged' => get_query_var('paged') ? get_query_var('paged') : 1,
             'update_post_meta_cache' => true, // Pre-cache meta data to avoid N+1 queries
             'update_post_term_cache' => false, // Disable if not using taxonomies

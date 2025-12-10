@@ -976,9 +976,14 @@ function altra_get_projects_with_grid() {
         $grid_position = null;
 
         if ($grid_pos) {
-            $decoded = json_decode($grid_pos, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $grid_position = $decoded;
+            // Check if it's already an array or a JSON string
+            if (is_string($grid_pos)) {
+                $decoded = json_decode($grid_pos, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $grid_position = $decoded;
+                }
+            } elseif (is_array($grid_pos)) {
+                $grid_position = $grid_pos;
             }
         }
 
