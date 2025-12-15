@@ -12,76 +12,79 @@
         const hero = document.querySelector('.hero-section');
         const heroLogo = document.querySelector('.hero-logo');
         const heroInfo = document.querySelector('.hero-info');
+        const heroNavLeft = document.querySelector('.hero-nav-left');
+        const heroNavRight = document.querySelector('.hero-nav-right');
         const scrollIndicator = document.querySelector('.scroll-indicator');
         const header = document.querySelector('.site-header');
         const headerLogo = document.querySelector('.site-logo');
+        const headerNavLeft = document.querySelector('.nav-left');
+        const headerNavRight = document.querySelector('.nav-right');
 
         if (hero && heroLogo && header) {
             // Distance de scroll pour la transition complète
             let scrollThreshold = window.innerHeight * 0.8;
 
             // PARAMÈTRES DE TIMING pour "Altra Production"
-            // À quel moment (en %) le logo header commence à apparaître (0.0 = début, 1.0 = fin)
-            const headerLogoStartFade = 0.3; // Commence à 60% de la transition
-            // Vitesse du fade-in (plus c'est petit, plus c'est rapide)
-            const headerLogoFadeSpeed = 0.4; // Durée du fade sur 40% de la transition
+            // À quel moment (en %) le logo hero disparaît et le logo header apparaît
+            const switchPoint = 0.99; // À 95% de la transition, switch instantané
 
             // Cacher le logo du header au début (on utilise le hero logo qui se déplace)
             if (headerLogo) {
                 headerLogo.style.opacity = '0';
             }
 
+            // Cacher les nav du header au début (ils apparaîtront avec le header)
+            if (headerNavLeft && headerNavRight) {
+                headerNavLeft.style.opacity = '0';
+                headerNavRight.style.opacity = '0';
+            }
+
             function updateLogoMorphing() {
                 const scrolled = window.pageYOffset || document.documentElement.scrollTop;
                 const progress = Math.min(scrolled / scrollThreshold, 1); // 0 à 1
 
-                // Gérer la visibilité du header
-                if (scrolled > 10) {
-                    header.classList.add('visible');
-                } else {
-                    header.classList.remove('visible');
-                }
-
                 // Gérer le hero logo et pointer events
                 if (scrolled > scrollThreshold) {
                     hero.style.pointerEvents = 'none';
-                    heroLogo.style.opacity = '0';
-                } else {
-                    hero.style.pointerEvents = 'auto';
-                    heroLogo.style.opacity = '1';
                 }
 
-                // Calculer l'opacité progressive du logo header
-                if (headerLogo) {
-                    if (progress < headerLogoStartFade) {
-                        // Avant le début du fade
-                        headerLogo.style.opacity = '0';
-                    } else {
-                        // Calculer le progress du fade (0 à 1)
-                        const fadeProgress = Math.min((progress - headerLogoStartFade) / headerLogoFadeSpeed, 1);
-                        headerLogo.style.opacity = fadeProgress.toString();
-                    }
+                // Switch instantané entre hero et header au switchPoint
+                if (progress < switchPoint) {
+                    // Avant le switch: hero visible, header caché
+                    heroLogo.style.opacity = '1';
+                    if (heroNavLeft) heroNavLeft.style.opacity = '1';
+                    if (heroNavRight) heroNavRight.style.opacity = '1';
+
+                    header.classList.remove('visible');
+                    if (headerLogo) headerLogo.style.opacity = '0';
+                    if (headerNavLeft) headerNavLeft.style.opacity = '0';
+                    if (headerNavRight) headerNavRight.style.opacity = '0';
+                } else {
+                    // Après le switch: hero caché, header visible
+                    heroLogo.style.opacity = '0';
+                    if (heroNavLeft) heroNavLeft.style.opacity = '0';
+                    if (heroNavRight) heroNavRight.style.opacity = '0';
+
+                    header.classList.add('visible');
+                    if (headerLogo) headerLogo.style.opacity = '1';
+                    if (headerNavLeft) headerNavLeft.style.opacity = '1';
+                    if (headerNavRight) headerNavRight.style.opacity = '1';
                 }
 
                 // Calculer la position cible (position du logo dans le header)
-                let translateX = 0;
                 let translateY = 0;
 
                 if (headerLogo) {
                     const logoRect = headerLogo.getBoundingClientRect();
-                    const targetX = logoRect.left + logoRect.width / 2;
                     const targetY = logoRect.top + logoRect.height / 2;
 
                     // Position initiale (centre de l'écran)
-                    const startX = window.innerWidth / 2;
                     const startY = window.innerHeight / 2;
 
-                    // Calculer les déplacements
-                    const deltaX = targetX - startX;
+                    // Calculer le déplacement vertical uniquement
                     const deltaY = targetY - startY;
 
-                    // Appliquer les transformations progressives au logo
-                    translateX = deltaX * progress;
+                    // Appliquer les transformations progressives au logo (seulement vertical)
                     translateY = deltaY * progress;
 
                     // Calculer le scale pour matcher la taille du logo header
@@ -90,7 +93,8 @@
                     const targetScale = headerLogoSize / heroLogoSize;
                     const scale = 1 - (progress * (1 - targetScale));
 
-                    heroLogo.style.transform = `translate(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px)) scale(${scale})`;
+                    // Garder centré horizontalement (-50%), bouger seulement verticalement
+                    heroLogo.style.transform = `translate(-50%, calc(-50% + ${translateY}px)) scale(${scale})`;
                 }
 
                 // Transition de couleur du logo de blanc vers noir
@@ -100,11 +104,37 @@
                 const currentColor = Math.round(white - (white - black) * colorProgress);
                 heroLogo.style.color = `rgb(${currentColor}, ${currentColor}, ${currentColor})`;
 
+                // Transition pour INFOS (nav-left) - seulement vertical
+                if (heroNavLeft && headerNavLeft) {
+                    const navLeftRect = headerNavLeft.getBoundingClientRect();
+                    const targetY = navLeftRect.top + navLeftRect.height / 2;
+
+                    const startY = window.innerHeight / 2;
+                    const deltaY = targetY - startY;
+                    const translateY = deltaY * progress;
+
+                    heroNavLeft.style.transform = `translateY(calc(-50% + ${translateY}px))`;
+                    heroNavLeft.style.color = `rgb(${currentColor}, ${currentColor}, ${currentColor})`;
+                }
+
+                // Transition pour CONTACT (nav-right) - seulement vertical
+                if (heroNavRight && headerNavRight) {
+                    const navRightRect = headerNavRight.getBoundingClientRect();
+                    const targetY = navRightRect.top + navRightRect.height / 2;
+
+                    const startY = window.innerHeight / 2;
+                    const deltaY = targetY - startY;
+                    const translateY = deltaY * progress;
+
+                    heroNavRight.style.transform = `translateY(calc(-50% + ${translateY}px))`;
+                    heroNavRight.style.color = `rgb(${currentColor}, ${currentColor}, ${currentColor})`;
+                }
+
                 // Faire suivre les infos de contact avec le logo
                 if (heroInfo) {
                     heroInfo.style.opacity = 1 - progress;
-                    // Les infos suivent le même déplacement que le logo
-                    heroInfo.style.transform = `translate(calc(-50% + ${translateX}px), calc(-50% + 120px + ${translateY}px))`;
+                    // Les infos suivent le même déplacement vertical que le logo
+                    heroInfo.style.transform = `translate(-50%, calc(-50% + 120px + ${translateY}px))`;
                     // Transition de couleur pour les infos aussi
                     heroInfo.style.color = `rgb(${currentColor}, ${currentColor}, ${currentColor})`;
                 }

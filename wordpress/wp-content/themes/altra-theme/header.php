@@ -10,32 +10,21 @@
 <?php wp_body_open(); ?>
 
 <header class="site-header">
-    <div class="container">
-        <div class="site-logo">
-            <?php if (has_custom_logo()) : ?>
-                <?php the_custom_logo(); ?>
-            <?php else : ?>
-                <a href="<?php echo esc_url(home_url('/')); ?>">
-                    <?php bloginfo('name'); ?>
-                </a>
-            <?php endif; ?>
-        </div>
-        
-        <nav class="main-navigation">
-            <?php
-            wp_nav_menu(array(
-                'theme_location' => 'primary',
-                'menu_class'     => 'primary-menu',
-                'container'      => false,
-                'fallback_cb'    => function() {
-                    echo '<ul>';
-                    echo '<li><a href="' . esc_url(home_url('/')) . '">Projects</a></li>';
-                    echo '<li><a href="' . esc_url(home_url('/about')) . '">About</a></li>';
-                    echo '<li><a href="' . esc_url(home_url('/contact')) . '">Contact</a></li>';
-                    echo '</ul>';
-                }
-            ));
-            ?>
-        </nav>
+    <nav class="nav-left">
+        <a href="<?php echo esc_url(home_url('/infos')); ?>">INFOS</a>
+    </nav>
+
+    <div class="site-logo">
+        <?php if (has_custom_logo()) : ?>
+            <?php the_custom_logo(); ?>
+        <?php else : ?>
+            <a href="<?php echo esc_url(home_url('/')); ?>">
+                <?php bloginfo('name'); ?>
+            </a>
+        <?php endif; ?>
     </div>
+
+    <nav class="nav-right">
+        <a href="<?php echo esc_url(home_url('/contact')); ?>">CONTACT</a>
+    </nav>
 </header>
