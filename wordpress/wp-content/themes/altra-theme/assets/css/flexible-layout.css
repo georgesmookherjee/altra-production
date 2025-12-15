@@ -11,7 +11,7 @@
 /* RESET de la grille actuelle */
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(12, 1fr); /* Grille de 12 colonnes pour plus de flexibilité */
+    grid-template-columns: repeat(4, 1fr); /* Grille de 4 colonnes uniformes */
     gap: var(--spacing-md, 30px);
     row-gap: 100px; /* Espacement vertical entre les lignes */
     padding: var(--spacing-md, 60px) 0;
@@ -19,38 +19,16 @@
     grid-auto-rows: minmax(100px, auto); /* Hauteur minimale des lignes pour Grid Manager */
 }
 
-/* CLASSES DE LARGEUR */
-
-/* Small : 1/3 de la largeur (4 colonnes sur 12) */
-.project-card.project-width-small {
-    grid-column: span 4;
-}
-
-/* Medium : 1/2 de la largeur (6 colonnes sur 12) */
-.project-card.project-width-medium {
-    grid-column: span 6;
-}
-
-/* Large : Pleine largeur (12 colonnes) */
-.project-card.project-width-large {
-    grid-column: span 12;
+/* CLASSES DE LARGEUR - Toutes les cartes prennent 1 colonne */
+.project-card {
+    grid-column: span 1; /* Tous les projets prennent 1 colonne (4 par ligne) */
 }
 
 /* Note: Grid Manager inline styles (grid-column, grid-row) override these classes automatically */
 
-/* AJUSTEMENTS VISUELS selon la largeur */
-
-/* Les projets large ont une hauteur différente */
-.project-card.project-width-large {
-    aspect-ratio: 16/9; /* Plus panoramique */
-}
-
-.project-card.project-width-medium {
-    aspect-ratio: 4/3; /* Format standard */
-}
-
-.project-card.project-width-small {
-    aspect-ratio: 4/3; /* Plus vertical */
+/* AJUSTEMENTS VISUELS - Ratio uniforme pour toutes les cartes */
+.project-card {
+    aspect-ratio: 3/4; /* Ratio portrait uniforme pour tous les projets */
 }
 
 /* Style de la carte projet (garde le style existant) */
@@ -94,16 +72,8 @@
     transform: translateY(0);
 }
 
-/* Ajustement de la taille du texte selon la largeur */
-.project-card.project-width-large .project-title {
-    font-size: 2rem; /* Plus grand pour les projets larges */
-}
-
-.project-card.project-width-medium .project-title {
-    font-size: 1.5rem;
-}
-
-.project-card.project-width-small .project-title {
+/* Ajustement de la taille du texte - Uniforme pour toutes les cartes */
+.project-card .project-title {
     font-size: 1.2rem;
 }
 
@@ -113,22 +83,11 @@
 
 @media (max-width: 1024px) {
     .projects-grid {
-        grid-template-columns: repeat(6, 1fr); /* 6 colonnes sur tablette */
+        grid-template-columns: repeat(2, 1fr); /* 2 colonnes sur tablette */
     }
 
-    /* Small devient 1/2 sur tablette */
-    .project-card.project-width-small {
-        grid-column: span 3; /* 3/6 = 1/2 */
-    }
-
-    /* Medium reste 1/2 */
-    .project-card.project-width-medium {
-        grid-column: span 3; /* 3/6 = 1/2 */
-    }
-
-    /* Large reste pleine largeur */
-    .project-card.project-width-large {
-        grid-column: span 6; /* 6/6 = pleine largeur */
+    .project-card {
+        grid-column: span 1; /* Toutes les cartes prennent 1 colonne */
     }
 }
 
@@ -142,17 +101,9 @@
         gap: var(--spacing-sm, 20px);
     }
 
-    /* Toutes les largeurs deviennent pleine largeur sur mobile */
-    .project-card.project-width-small,
-    .project-card.project-width-medium,
-    .project-card.project-width-large {
-        grid-column: span 1;
-        aspect-ratio: 4/3; /* Ratio uniforme sur mobile */
-    }
-
-    /* Tailles de texte uniformes sur mobile */
-    .project-card .project-title {
-        font-size: 1.2rem;
+    .project-card {
+        grid-column: span 1; /* Pleine largeur sur mobile */
+        aspect-ratio: 3/4; /* Ratio portrait uniforme */
     }
 }
 

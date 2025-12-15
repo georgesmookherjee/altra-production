@@ -24,11 +24,11 @@ export default function ImageZoomControl({ zoom, onZoomChange }) {
 					type="range"
 					min="1"
 					max="2.5"
-					step="0.1"
+					step="0.01"
 					value={zoom}
 					onChange={(e) => onZoomChange(parseFloat(e.target.value))}
 				/>
-				<span className="zoom-value">{zoom.toFixed(1)}x</span>
+				<span className="zoom-value">{zoom.toFixed(2)}x</span>
 			</div>
 
 			<div className="zoom-presets">

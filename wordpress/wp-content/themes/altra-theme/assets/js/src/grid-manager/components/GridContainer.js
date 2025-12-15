@@ -1,29 +1,30 @@
 /**
  * Grid Container Component
  * Manages GridStack instance for drag & drop project positioning
+ * Simple 4-column grid with uniform sizing
  */
 import { useEffect, useRef } from '@wordpress/element';
 import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.min.css';
 import ProjectTile from './ProjectTile';
 
-export default function GridContainer({ items, onLayoutChange, onWidthChange, onRemove }) {
+export default function GridContainer({ items, onLayoutChange, onRemove }) {
 	const gridRef = useRef(null);
 	const gridInstanceRef = useRef(null);
 
 	useEffect(() => {
 		if (!gridRef.current) return;
 
-		// Initialize GridStack
+		// Initialize GridStack with 4 columns
 		gridInstanceRef.current = GridStack.init({
-			column: 12,
+			column: 4, // 4 columns grid
 			cellHeight: 100,
 			margin: 10,
 			float: false, // Items don't float up
 			disableOneColumnMode: true,
 			animate: true,
 			removeTimeout: 100,
-			disableResize: true, // Disable manual resize - use S/M/L buttons only
+			disableResize: true, // All items are same size (1 column each)
 		}, gridRef.current);
 
 		console.log('GridStack initialized');
@@ -96,27 +97,8 @@ export default function GridContainer({ items, onLayoutChange, onWidthChange, on
 		});
 	}, [items]);
 
-	function getWidthColumns(width) {
-		const widthMap = {
-			small: 4,
-			medium: 6,
-			large: 12,
-		};
-		return widthMap[width] || 6;
-	}
-
-	function handleWidthChange(projectId, newWidth) {
-		const newColumns = getWidthColumns(newWidth);
-
-		// Find the grid item
-		const gridItem = gridInstanceRef.current.engine.nodes.find(
-			node => parseInt(node.el.dataset.projectId) === projectId
-		);
-
-		if (gridItem) {
-			gridInstanceRef.current.update(gridItem.el, { w: newColumns });
-			onWidthChange(projectId, newWidth);
-		}
+	function getWidthColumns() {
+		return 1; // All items take 1 column in a 4-column grid
 	}
 
 	function handleRemove(projectId) {
@@ -141,7 +123,6 @@ export default function GridContainer({ items, onLayoutChange, onWidthChange, on
 						<div className="grid-stack-item-content">
 							<ProjectTile
 								project={item}
-								onWidthChange={(newWidth) => handleWidthChange(item.id, newWidth)}
 								onRemove={() => handleRemove(item.id)}
 							/>
 						</div>

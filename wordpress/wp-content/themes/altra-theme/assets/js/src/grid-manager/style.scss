@@ -249,9 +249,17 @@
 	border: 1px dashed #333;
 	position: relative;
 	overflow-y: auto;
+	display: flex;
+	justify-content: center;
 }
 
 .grid-stack {
+	// Constrain to max-width to show 4 columns properly
+	max-width: 1400px; // Same as frontend container
+	width: 100%;
+	margin: 0 auto;
+
+	// Grid background with 4 columns visible
 	background-image:
 		repeating-linear-gradient(0deg, transparent, transparent 99px, #222 99px, #222 100px),
 		repeating-linear-gradient(90deg, transparent, transparent 99px, #222 99px, #222 100px);

@@ -66,31 +66,8 @@ export default function GridManagerApp() {
 		});
 	}
 
-	function handleWidthChange(projectId, newWidth) {
-		// Map width to columns
-		const widthMap = {
-			small: 4,
-			medium: 6,
-			large: 12,
-		};
-		const newColumns = widthMap[newWidth] || 6;
-
-		setGridItems(prevItems =>
-			prevItems.map(item => {
-				if (item.id === projectId) {
-					return {
-						...item,
-						width: newWidth,
-						gridPosition: {
-							...item.gridPosition,
-							w: newColumns, // Update grid width too!
-						},
-					};
-				}
-				return item;
-			})
-		);
-	}
+	// Width is now uniform - all items take 1 column in 4-column grid
+	// No need for handleWidthChange anymore
 
 	function handleAddToGrid(project) {
 		if (gridItems.find(item => item.id === project.id)) {
@@ -132,7 +109,7 @@ export default function GridManagerApp() {
 				id: item.id,
 				x: item.gridPosition?.x || 0,
 				y: item.gridPosition?.y || 0,
-				w: item.gridPosition?.w || (item.width === 'small' ? 4 : item.width === 'large' ? 12 : 6),
+				w: item.gridPosition?.w || 1, // All items are 1 column wide in 4-column grid
 				h: item.gridPosition?.h || 2,
 				order: index, // Now index represents visual order
 			}));
@@ -221,7 +198,6 @@ export default function GridManagerApp() {
 						<GridContainer
 							items={gridItems}
 							onLayoutChange={handleLayoutChange}
-							onWidthChange={handleWidthChange}
 							onRemove={handleRemoveFromGrid}
 						/>
 					</div>

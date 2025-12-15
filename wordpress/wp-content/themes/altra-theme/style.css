@@ -197,7 +197,7 @@ p {
 .hero-nav-left,
 .hero-nav-right {
     position: fixed;
-    top: 51%;
+    top: 50.7%;
     z-index: 1001;
     will-change: transform;
     transition: opacity 0.3s ease;
