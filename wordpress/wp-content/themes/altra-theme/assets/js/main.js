@@ -26,7 +26,7 @@
 
             // PARAMÈTRES DE TIMING pour "Altra Production"
             // À quel moment (en %) le logo hero disparaît et le logo header apparaît
-            const switchPoint = 0.99; // À 95% de la transition, switch instantané
+            const switchPoint = 0.9999; // À 95% de la transition, switch instantané
 
             // Cacher le logo du header au début (on utilise le hero logo qui se déplace)
             if (headerLogo) {
@@ -50,7 +50,7 @@
 
                 // Switch instantané entre hero et header au switchPoint
                 if (progress < switchPoint) {
-                    // Avant le switch: hero visible, header caché
+                    // Avant le switch: textes hero visibles, header caché
                     heroLogo.style.opacity = '1';
                     if (heroNavLeft) heroNavLeft.style.opacity = '1';
                     if (heroNavRight) heroNavRight.style.opacity = '1';
@@ -60,7 +60,7 @@
                     if (headerNavLeft) headerNavLeft.style.opacity = '0';
                     if (headerNavRight) headerNavRight.style.opacity = '0';
                 } else {
-                    // Après le switch: hero caché, header visible
+                    // Après le switch: textes hero cachés, header visible
                     heroLogo.style.opacity = '0';
                     if (heroNavLeft) heroNavLeft.style.opacity = '0';
                     if (heroNavRight) heroNavRight.style.opacity = '0';
@@ -142,8 +142,10 @@
                     scrollIndicator.style.opacity = 1 - (progress * 2); // Disparaît plus vite
                 }
 
-                // Ajuster l'opacité du background du hero
-                hero.style.backgroundColor = `rgba(0, 0, 0, ${1 - progress})`;
+                // Transition progressive du background du hero (indépendante du switch des textes)
+                // Le background commence à disparaître dès le début et finit à 100%
+                const bgOpacity = 1 - progress;
+                hero.style.backgroundColor = `rgba(255, 255, 255, ${bgOpacity})`;
             }
 
             // Initialiser l'état au chargement
