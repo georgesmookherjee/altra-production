@@ -60,6 +60,18 @@ if (!empty($visual_settings) && is_array($visual_settings)) {
 ?>
 
 <article class="project-card <?php echo esc_attr($width_class); ?>" <?php if ($grid_styles) echo 'style="' . esc_attr($grid_styles) . '"'; ?>>
+    <?php if (current_user_can('edit_posts')) : ?>
+        <button
+            type="button"
+            class="edit-card-button"
+            onclick="altraOpenCardEditor(<?php echo get_the_ID(); ?>)"
+            aria-label="Edit card visual settings"
+        >
+            <span class="dashicons dashicons-admin-customizer"></span>
+            Edit Card
+        </button>
+    <?php endif; ?>
+
     <a href="<?php the_permalink(); ?>">
         <?php if (has_post_thumbnail()) : ?>
             <?php

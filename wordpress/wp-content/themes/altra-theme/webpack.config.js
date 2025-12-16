@@ -10,6 +10,7 @@ module.exports = {
 	entry: {
 		'grid-manager': path.resolve(__dirname, 'assets/js/src/grid-manager/index.js'),
 		'card-editor': path.resolve(__dirname, 'assets/js/src/card-editor/index.js'),
+		'card-editor-frontend': path.resolve(__dirname, 'assets/js/src/card-editor-frontend/index.js'),
 	},
 	output: {
 		path: path.resolve(__dirname, 'build'),

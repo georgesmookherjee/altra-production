@@ -39,6 +39,44 @@
     background-color: #ffff; /* Fond noir pour les espaces vides */
 }
 
+/* Edit Card Button (visible uniquement pour les utilisateurs connectés) */
+.edit-card-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.3s ease, background 0.2s ease;
+    backdrop-filter: blur(10px);
+}
+
+.project-card:hover .edit-card-button {
+    opacity: 1;
+}
+
+.edit-card-button:hover {
+    background: rgba(255, 255, 255, 0.95);
+    color: #000;
+    border-color: #fff;
+}
+
+.edit-card-button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
 .project-card img {
     width: 100%;
     height: 100%;

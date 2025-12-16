@@ -189,6 +189,47 @@ function altra_enqueue_card_editor() {
 add_action('admin_enqueue_scripts', 'altra_enqueue_card_editor');
 
 /**
+ * Enqueue Card Editor Frontend assets (frontend - homepage only)
+ */
+function altra_enqueue_card_editor_frontend() {
+    // Only on homepage, only for logged in users with edit permissions
+    if (!is_front_page() || !current_user_can('edit_posts')) {
+        return;
+    }
+
+    $theme_dir = get_template_directory();
+    $asset_file_path = $theme_dir . '/build/card-editor-frontend.asset.php';
+
+    if (!file_exists($asset_file_path)) {
+        return;
+    }
+
+    $asset_file = include $asset_file_path;
+
+    // Enqueue dashicons for the edit button icon
+    wp_enqueue_style('dashicons');
+
+    wp_enqueue_script(
+        'altra-card-editor-frontend',
+        get_template_directory_uri() . '/build/card-editor-frontend.js',
+        $asset_file['dependencies'],
+        $asset_file['version'],
+        true
+    );
+
+    // Enqueue card editor frontend styles
+    if (file_exists($theme_dir . '/build/style-card-editor-frontend.css')) {
+        wp_enqueue_style(
+            'altra-card-editor-frontend',
+            get_template_directory_uri() . '/build/style-card-editor-frontend.css',
+            array(),
+            $asset_file['version']
+        );
+    }
+}
+add_action('wp_enqueue_scripts', 'altra_enqueue_card_editor_frontend');
+
+/**
  * Register Custom Post Type: Projects
  */
 function altra_register_project_post_type() {
@@ -944,6 +985,41 @@ function altra_register_rest_api_endpoints() {
             ),
         ),
     ));
+
+    // GET /wp-json/altra/v1/project/{id}/visual-settings
+    // Returns visual settings for a specific project
+    register_rest_route('altra/v1', '/project/(?P<id>\d+)/visual-settings', array(
+        'methods' => 'GET',
+        'callback' => 'altra_get_project_visual_settings',
+        'permission_callback' => 'altra_check_edit_permission',
+        'args' => array(
+            'id' => array(
+                'required' => true,
+                'type' => 'integer',
+                'description' => 'Project ID',
+            ),
+        ),
+    ));
+
+    // POST /wp-json/altra/v1/project/{id}/visual-settings
+    // Saves visual settings for a specific project
+    register_rest_route('altra/v1', '/project/(?P<id>\d+)/visual-settings', array(
+        'methods' => 'POST',
+        'callback' => 'altra_save_project_visual_settings',
+        'permission_callback' => 'altra_check_edit_permission',
+        'args' => array(
+            'id' => array(
+                'required' => true,
+                'type' => 'integer',
+                'description' => 'Project ID',
+            ),
+            'visualSettings' => array(
+                'required' => true,
+                'type' => 'object',
+                'description' => 'Visual settings object with focalPoint, zoom, textLayers',
+            ),
+        ),
+    ));
 }
 add_action('rest_api_init', 'altra_register_rest_api_endpoints');
 
@@ -1100,6 +1176,115 @@ function altra_save_grid_positions($request) {
             'success' => true,
             'message' => sprintf('Grid positions saved for %d projects', $saved_count),
             'saved_count' => $saved_count,
+        ),
+        200
+    );
+}
+
+/**
+ * GET /wp-json/altra/v1/project/{id}/visual-settings
+ * Returns visual settings for a specific project
+ */
+function altra_get_project_visual_settings($request) {
+    $project_id = $request->get_param('id');
+
+    // Verify post exists and is a project
+    if (get_post_type($project_id) !== 'project') {
+        return new WP_Error(
+            'invalid_project',
+            'Invalid project ID',
+            array('status' => 404)
+        );
+    }
+
+    // Get visual settings
+    $visual_settings = get_post_meta($project_id, '_altra_visual_settings', true);
+
+    // Default settings if none exist
+    if (empty($visual_settings)) {
+        $visual_settings = array(
+            'focalPoint' => array('x' => 50, 'y' => 50),
+            'zoom' => 1.0,
+            'textLayers' => array()
+        );
+    }
+
+    // Get featured image
+    $featured_image = '';
+    if (has_post_thumbnail($project_id)) {
+        $featured_image = get_the_post_thumbnail_url($project_id, 'full');
+    }
+
+    // Get project title
+    $project_title = get_the_title($project_id);
+
+    return new WP_REST_Response(
+        array(
+            'projectId' => $project_id,
+            'projectTitle' => $project_title,
+            'featuredImage' => $featured_image,
+            'currentSettings' => $visual_settings,
+        ),
+        200
+    );
+}
+
+/**
+ * POST /wp-json/altra/v1/project/{id}/visual-settings
+ * Saves visual settings for a specific project
+ */
+function altra_save_project_visual_settings($request) {
+    $project_id = $request->get_param('id');
+    $visual_settings = $request->get_param('visualSettings');
+
+    // Verify post exists and is a project
+    if (get_post_type($project_id) !== 'project') {
+        return new WP_Error(
+            'invalid_project',
+            'Invalid project ID',
+            array('status' => 404)
+        );
+    }
+
+    // Sanitize values
+    $sanitized = array();
+
+    // Focal point
+    if (isset($visual_settings['focalPoint'])) {
+        $sanitized['focalPoint'] = array(
+            'x' => floatval($visual_settings['focalPoint']['x']),
+            'y' => floatval($visual_settings['focalPoint']['y']),
+        );
+    }
+
+    // Zoom
+    if (isset($visual_settings['zoom'])) {
+        $sanitized['zoom'] = floatval($visual_settings['zoom']);
+    }
+
+    // Text layers
+    if (isset($visual_settings['textLayers']) && is_array($visual_settings['textLayers'])) {
+        $sanitized['textLayers'] = array_map(function($layer) {
+            return array(
+                'id' => sanitize_text_field($layer['id']),
+                'visible' => (bool)$layer['visible'],
+                'size' => sanitize_text_field($layer['size']),
+                'position' => array(
+                    'x' => floatval($layer['position']['x']),
+                    'y' => floatval($layer['position']['y']),
+                ),
+            );
+        }, $visual_settings['textLayers']);
+    }
+
+    // Update post meta
+    update_post_meta($project_id, '_altra_visual_settings', $sanitized);
+
+    return new WP_REST_Response(
+        array(
+            'success' => true,
+            'message' => 'Visual settings saved successfully',
+            'settings' => $sanitized,
         ),
         200
     );

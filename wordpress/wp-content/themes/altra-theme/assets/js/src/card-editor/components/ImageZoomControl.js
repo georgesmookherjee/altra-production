@@ -22,7 +22,7 @@ export default function ImageZoomControl({ zoom, onZoomChange }) {
 			<div className="zoom-slider">
 				<input
 					type="range"
-					min="1"
+					min="0.50"
 					max="2.5"
 					step="0.01"
 					value={zoom}
