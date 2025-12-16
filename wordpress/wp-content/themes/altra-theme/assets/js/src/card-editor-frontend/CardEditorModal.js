@@ -56,7 +56,7 @@ export default function CardEditorModal({ projectId, projectData, onClose }) {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'X-WP-Nonce': window.altraGridData?.nonce || '',
+					'X-WP-Nonce': window.altraCardEditorData?.nonce || '',
 				},
 				body: JSON.stringify({ visualSettings: settings }),
 			});

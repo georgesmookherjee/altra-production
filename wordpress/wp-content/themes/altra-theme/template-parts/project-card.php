@@ -72,38 +72,35 @@ if (!empty($visual_settings) && is_array($visual_settings)) {
         </button>
     <?php endif; ?>
 
-    <a href="<?php the_permalink(); ?>">
-        <?php if (has_post_thumbnail()) : ?>
-            <?php
-            $thumbnail_attrs = array(
-                'loading' => 'lazy',
-                'decoding' => 'async',
-                'alt' => esc_attr(get_the_title())
-            );
-            // Apply visual settings to image if available
-            if ($image_style) {
-                $thumbnail_attrs['style'] = $image_style;
-            }
-            the_post_thumbnail('project-thumbnail', $thumbnail_attrs);
-            ?>
-        <?php else : ?>
-            <img src="<?php echo get_template_directory_uri(); ?>/assets/images/placeholder.jpg"
-                 alt="<?php the_title_attribute(); ?>"
-                 loading="lazy"
-                 decoding="async"
-                 <?php if ($image_style) echo 'style="' . esc_attr($image_style) . '"'; ?>>
-        <?php endif; ?>
+    <a href="<?php the_permalink(); ?>" class="project-link">
+        <div class="project-image">
+            <?php if (has_post_thumbnail()) : ?>
+                <?php
+                $thumbnail_attrs = array(
+                    'loading' => 'lazy',
+                    'decoding' => 'async',
+                    'alt' => esc_attr(get_the_title())
+                );
+                // Apply visual settings to image if available
+                if ($image_style) {
+                    $thumbnail_attrs['style'] = $image_style;
+                }
+                the_post_thumbnail('project-thumbnail', $thumbnail_attrs);
+                ?>
+            <?php else : ?>
+                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/placeholder.jpg"
+                     alt="<?php the_title_attribute(); ?>"
+                     loading="lazy"
+                     decoding="async"
+                     <?php if ($image_style) echo 'style="' . esc_attr($image_style) . '"'; ?>>
+            <?php endif; ?>
+        </div>
 
         <div class="project-info">
             <h2 class="project-title"><?php the_title(); ?></h2>
-            <div class="project-meta">
-                <?php if ($client) : ?>
-                    <span class="project-client"><?php echo esc_html($client); ?></span>
-                <?php endif; ?>
-                <?php if ($photographer) : ?>
-                    <span class="project-photographer"> • <?php echo esc_html($photographer); ?></span>
-                <?php endif; ?>
-            </div>
+            <?php if ($photographer) : ?>
+                <p class="project-photographer"><?php echo esc_html($photographer); ?></p>
+            <?php endif; ?>
         </div>
     </a>
 </article>

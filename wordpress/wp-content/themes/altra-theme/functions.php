@@ -217,6 +217,12 @@ function altra_enqueue_card_editor_frontend() {
         true
     );
 
+    // Pass REST API data to JavaScript
+    wp_localize_script('altra-card-editor-frontend', 'altraCardEditorData', array(
+        'restUrl' => rest_url('altra/v1/'),
+        'nonce' => wp_create_nonce('wp_rest'),
+    ));
+
     // Enqueue card editor frontend styles
     if (file_exists($theme_dir . '/build/style-card-editor-frontend.css')) {
         wp_enqueue_style(
