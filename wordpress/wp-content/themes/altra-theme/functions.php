@@ -189,16 +189,16 @@ function altra_enqueue_card_editor() {
 add_action('admin_enqueue_scripts', 'altra_enqueue_card_editor');
 
 /**
- * Enqueue Card Editor Frontend assets (frontend - homepage only)
+ * Enqueue Inline Card Editor assets (frontend - homepage only)
  */
-function altra_enqueue_card_editor_frontend() {
+function altra_enqueue_card_editor_inline() {
     // Only on homepage, only for logged in users with edit permissions
     if (!is_front_page() || !current_user_can('edit_posts')) {
         return;
     }
 
     $theme_dir = get_template_directory();
-    $asset_file_path = $theme_dir . '/build/card-editor-frontend.asset.php';
+    $asset_file_path = $theme_dir . '/build/card-editor-inline.asset.php';
 
     if (!file_exists($asset_file_path)) {
         return;
@@ -206,34 +206,34 @@ function altra_enqueue_card_editor_frontend() {
 
     $asset_file = include $asset_file_path;
 
-    // Enqueue dashicons for the edit button icon
+    // Enqueue dashicons for the buttons
     wp_enqueue_style('dashicons');
 
     wp_enqueue_script(
-        'altra-card-editor-frontend',
-        get_template_directory_uri() . '/build/card-editor-frontend.js',
+        'altra-card-editor-inline',
+        get_template_directory_uri() . '/build/card-editor-inline.js',
         $asset_file['dependencies'],
         $asset_file['version'],
         true
     );
 
     // Pass REST API data to JavaScript
-    wp_localize_script('altra-card-editor-frontend', 'altraCardEditorData', array(
+    wp_localize_script('altra-card-editor-inline', 'altraCardEditorData', array(
         'restUrl' => rest_url('altra/v1/'),
         'nonce' => wp_create_nonce('wp_rest'),
     ));
 
-    // Enqueue card editor frontend styles
-    if (file_exists($theme_dir . '/build/style-card-editor-frontend.css')) {
+    // Enqueue inline card editor styles
+    if (file_exists($theme_dir . '/build/style-card-editor-inline.css')) {
         wp_enqueue_style(
-            'altra-card-editor-frontend',
-            get_template_directory_uri() . '/build/style-card-editor-frontend.css',
+            'altra-card-editor-inline',
+            get_template_directory_uri() . '/build/style-card-editor-inline.css',
             array(),
             $asset_file['version']
         );
     }
 }
-add_action('wp_enqueue_scripts', 'altra_enqueue_card_editor_frontend');
+add_action('wp_enqueue_scripts', 'altra_enqueue_card_editor_inline');
 
 /**
  * Register Custom Post Type: Projects

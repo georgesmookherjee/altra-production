@@ -59,18 +59,12 @@ if (!empty($visual_settings) && is_array($visual_settings)) {
 }
 ?>
 
-<article class="project-card <?php echo esc_attr($width_class); ?>" <?php if ($grid_styles) echo 'style="' . esc_attr($grid_styles) . '"'; ?>>
-    <?php if (current_user_can('edit_posts')) : ?>
-        <button
-            type="button"
-            class="edit-card-button"
-            onclick="altraOpenCardEditor(<?php echo get_the_ID(); ?>)"
-            aria-label="Edit card visual settings"
-        >
-            <span class="dashicons dashicons-admin-customizer"></span>
-            Edit Card
-        </button>
-    <?php endif; ?>
+<article class="project-card <?php echo esc_attr($width_class); ?>"
+         data-project-id="<?php echo get_the_ID(); ?>"
+         data-focal-x="<?php echo isset($visual_settings['focalPoint']['x']) ? esc_attr($visual_settings['focalPoint']['x']) : '50'; ?>"
+         data-focal-y="<?php echo isset($visual_settings['focalPoint']['y']) ? esc_attr($visual_settings['focalPoint']['y']) : '50'; ?>"
+         data-zoom="<?php echo isset($visual_settings['zoom']) ? esc_attr($visual_settings['zoom']) : '1.0'; ?>"
+         <?php if ($grid_styles) echo 'style="' . esc_attr($grid_styles) . '"'; ?>>
 
     <a href="<?php the_permalink(); ?>" class="project-link">
         <div class="project-image">
