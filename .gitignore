@@ -3,6 +3,9 @@ credentials-wordpress-altra.txt
 credentials-ovh.jpeg
 Altra2025.pdf
 
+# Dossier de contenu (images de travail)
+Altra contenu/
+
 # Base de données MySQL (volumes Docker)
 mysql/
 *.sql
