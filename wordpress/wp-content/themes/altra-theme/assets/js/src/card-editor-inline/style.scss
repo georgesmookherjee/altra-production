@@ -10,9 +10,9 @@
 	right: 30px;
 	z-index: 9999;
 	padding: 14px 24px;
-	background: #000;
-	color: #fff;
-	border: 2px solid #fff;
+	background: #f9f9f9;
+	color: #000000;
+	border: 2px solid #000000;
 	border-radius: 6px;
 	font-size: 15px;
 	font-weight: 600;
@@ -49,7 +49,7 @@
 	&:hover {
 		background: #27ae60;
 		color: #fff;
-		border-color: #fff;
+		border-color: #1bd653;
 	}
 
 	&:disabled {
@@ -62,8 +62,8 @@
 // Edit mode active state
 body.altra-card-edit-mode {
 	.altra-fixed-button {
-		background: #fff;
-		color: #000;
+		background: rgba(0, 0, 0, 0.1);
+		//color: #000;
 	}
 
 	.project-link {
@@ -74,6 +74,15 @@ body.altra-card-edit-mode {
 	.project-card {
 		outline: 2px dashed transparent;
 		transition: outline 0.2s ease;
+
+		img {
+			user-select: none;
+			-webkit-user-drag: none;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			pointer-events: auto;
+		}
 	}
 
 	.project-card:hover {
@@ -96,7 +105,7 @@ body.altra-card-edit-mode {
 
 	.project-card:hover & {
 		opacity: 1;
-		background: rgba(0, 0, 0, 0.75);
+		background: rgba(0, 0, 0, 0.1);
 		pointer-events: auto;
 	}
 }
@@ -109,14 +118,28 @@ body.altra-card-edit-mode {
 	height: 100%;
 }
 
+// Edit hint (Alt + Click instruction)
+.edit-hint {
+	background: rgba(52, 152, 219, 0.95);
+	color: #fff;
+	padding: 8px 12px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 600;
+	text-align: center;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 // Focal Point Picker
 .focal-point-picker {
 	flex: 1;
 	position: relative;
-	border: 2px solid rgba(255, 255, 255, 0.3);
+	border: 2px solid rgba(1, 1, 1, 0.3);
 	border-radius: 4px;
 	cursor: crosshair;
-	background: rgba(255, 255, 255, 0.05);
+	background: rgba(0, 0, 0, 0);
 
 	&:hover {
 		border-color: rgba(255, 255, 255, 0.6);
@@ -135,7 +158,7 @@ body.altra-card-edit-mode {
 	&::after {
 		content: '';
 		position: absolute;
-		background: #fff;
+		background: #ffffff4e;
 		box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
 	}
 
@@ -156,17 +179,24 @@ body.altra-card-edit-mode {
 	}
 }
 
-// Zoom Control
-.zoom-control {
-	background: rgba(0, 0, 0, 0.9);
+// Zoom Control (inline in project-info)
+.zoom-control-inline {
+	display: none; // Hidden by default
+	margin-top: 15px;
 	padding: 12px 15px;
+	background: rgba(0, 0, 0, 0.05);
 	border-radius: 6px;
-	border: 1px solid rgba(255, 255, 255, 0.2);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+
+	body.altra-card-edit-mode & {
+		display: block;
+		pointer-events: auto; // Re-enable pointer events even though parent has none
+	}
 
 	label {
 		display: block;
-		color: #fff;
-		font-size: 12px;
+		color: #000;
+		font-size: 11px;
 		font-weight: 600;
 		margin-bottom: 8px;
 		text-transform: uppercase;
@@ -177,7 +207,7 @@ body.altra-card-edit-mode {
 		width: 100%;
 		height: 6px;
 		border-radius: 3px;
-		background: rgba(255, 255, 255, 0.2);
+		background: rgba(0, 0, 0, 0.15);
 		outline: none;
 		-webkit-appearance: none;
 		margin-bottom: 8px;
@@ -188,9 +218,9 @@ body.altra-card-edit-mode {
 			width: 18px;
 			height: 18px;
 			border-radius: 50%;
-			background: #fff;
+			background: #000;
 			cursor: pointer;
-			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 
 			&:hover {
 				background: #3498db;
@@ -201,10 +231,10 @@ body.altra-card-edit-mode {
 			width: 18px;
 			height: 18px;
 			border-radius: 50%;
-			background: #fff;
+			background: #000;
 			cursor: pointer;
 			border: none;
-			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 
 			&:hover {
 				background: #3498db;
@@ -214,8 +244,8 @@ body.altra-card-edit-mode {
 
 	.zoom-value {
 		display: block;
-		color: #fff;
-		font-size: 14px;
+		color: #000;
+		font-size: 12px;
 		font-weight: 600;
 		text-align: center;
 	}

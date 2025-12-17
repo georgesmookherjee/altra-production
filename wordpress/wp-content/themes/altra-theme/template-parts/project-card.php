@@ -57,14 +57,42 @@ if (!empty($visual_settings) && is_array($visual_settings)) {
         $zoom
     );
 }
+
+// Detect image orientation (landscape vs portrait)
+$image_orientation = 'portrait'; // Default
+$orientation_class = 'project-portrait';
+
+if (has_post_thumbnail()) {
+    $thumbnail_id = get_post_thumbnail_id();
+    $image_meta = wp_get_attachment_metadata($thumbnail_id);
+
+    if ($image_meta && isset($image_meta['width']) && isset($image_meta['height'])) {
+        $width_img = $image_meta['width'];
+        $height_img = $image_meta['height'];
+
+        // If width > height, it's landscape
+        if ($width_img > $height_img) {
+            $image_orientation = 'landscape';
+            $orientation_class = 'project-landscape';
+        }
+    }
+}
+
+// Build inline styles
+$card_styles = $grid_styles;
+
+// Add column span for landscape images (only if Grid Manager hasn't set position)
+if ($image_orientation === 'landscape' && empty($grid_position)) {
+    $card_styles .= ' grid-column: span 2;';
+}
 ?>
 
-<article class="project-card <?php echo esc_attr($width_class); ?>"
+<article class="project-card <?php echo esc_attr($width_class . ' ' . $orientation_class); ?>"
          data-project-id="<?php echo get_the_ID(); ?>"
          data-focal-x="<?php echo isset($visual_settings['focalPoint']['x']) ? esc_attr($visual_settings['focalPoint']['x']) : '50'; ?>"
          data-focal-y="<?php echo isset($visual_settings['focalPoint']['y']) ? esc_attr($visual_settings['focalPoint']['y']) : '50'; ?>"
          data-zoom="<?php echo isset($visual_settings['zoom']) ? esc_attr($visual_settings['zoom']) : '1.0'; ?>"
-         <?php if ($grid_styles) echo 'style="' . esc_attr($grid_styles) . '"'; ?>>
+         <?php if ($card_styles) echo 'style="' . esc_attr($card_styles) . '"'; ?>>
 
     <a href="<?php the_permalink(); ?>" class="project-link">
         <div class="project-image">

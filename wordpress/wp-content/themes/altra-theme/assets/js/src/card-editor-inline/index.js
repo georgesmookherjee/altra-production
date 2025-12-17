@@ -71,6 +71,9 @@ class InlineCardEditor {
 		// Remove all overlays
 		document.querySelectorAll('.card-edit-overlay').forEach(el => el.remove());
 
+		// Remove all zoom controls
+		document.querySelectorAll('.zoom-control-inline').forEach(el => el.remove());
+
 		// Re-enable project links
 		const links = document.querySelectorAll('.project-link');
 		links.forEach(link => {
@@ -92,23 +95,30 @@ class InlineCardEditor {
 
 		if (!img) return;
 
-		// Create overlay
+		// Create overlay for image
 		const overlay = document.createElement('div');
 		overlay.className = 'card-edit-overlay';
 		overlay.innerHTML = `
 			<div class="edit-controls">
+				<div class="edit-hint">Alt + Click to set focal point</div>
 				<div class="focal-point-picker">
 					<div class="focal-point-crosshair"></div>
-				</div>
-				<div class="zoom-control">
-					<label>Zoom</label>
-					<input type="range" min="0.5" max="2.5" step="0.01" value="${card.dataset.zoom}" class="zoom-slider">
-					<span class="zoom-value">${parseFloat(card.dataset.zoom).toFixed(2)}x</span>
 				</div>
 			</div>
 		`;
 
 		imageContainer.appendChild(overlay);
+
+		// Create zoom control in project-info section
+		const projectInfo = card.querySelector('.project-info');
+		const zoomControl = document.createElement('div');
+		zoomControl.className = 'zoom-control-inline';
+		zoomControl.innerHTML = `
+			<label>Zoom</label>
+			<input type="range" min="0.5" max="2.5" step="0.01" value="${card.dataset.zoom}" class="zoom-slider">
+			<span class="zoom-value">${parseFloat(card.dataset.zoom).toFixed(2)}x</span>
+		`;
+		projectInfo.appendChild(zoomControl);
 
 		// Setup focal point picker
 		const picker = overlay.querySelector('.focal-point-picker');
@@ -118,6 +128,14 @@ class InlineCardEditor {
 		this.updateCrosshairPosition(crosshair, card.dataset.focalX, card.dataset.focalY);
 
 		picker.addEventListener('click', (e) => {
+			// Only allow editing when Alt key is pressed
+			if (!e.altKey) {
+				return;
+			}
+
+			e.preventDefault();
+			e.stopPropagation();
+
 			const rect = picker.getBoundingClientRect();
 			const x = ((e.clientX - rect.left) / rect.width) * 100;
 			const y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -127,10 +145,11 @@ class InlineCardEditor {
 			this.trackChange(projectId, card);
 		});
 
-		// Setup zoom control
-		const zoomSlider = overlay.querySelector('.zoom-slider');
-		const zoomValue = overlay.querySelector('.zoom-value');
+		// Setup zoom control (now in project-info)
+		const zoomSlider = zoomControl.querySelector('.zoom-slider');
+		const zoomValue = zoomControl.querySelector('.zoom-value');
 
+		// Zoom slider works directly without Alt key since it's in the info section
 		zoomSlider.addEventListener('input', (e) => {
 			const zoom = parseFloat(e.target.value);
 			this.updateZoom(card, img, zoom);
