@@ -8,13 +8,6 @@
 $client = get_post_meta(get_the_ID(), '_altra_project_client', true);
 $photographer = get_post_meta(get_the_ID(), '_altra_project_photographer', true);
 
-// Get project width setting
-$width = get_post_meta(get_the_ID(), '_altra_project_width', true);
-if (empty($width)) {
-    $width = 'medium'; // Default value
-}
-$width_class = 'project-width-' . $width;
-
 // Get grid position if saved by Grid Manager
 $grid_position = get_post_meta(get_the_ID(), '_altra_grid_position', true);
 $grid_styles = '';
@@ -87,7 +80,7 @@ if ($image_orientation === 'landscape' && empty($grid_position)) {
 }
 ?>
 
-<article class="project-card <?php echo esc_attr($width_class . ' ' . $orientation_class); ?>"
+<article class="project-card <?php echo esc_attr($orientation_class); ?>"
          data-project-id="<?php echo get_the_ID(); ?>"
          data-focal-x="<?php echo isset($visual_settings['focalPoint']['x']) ? esc_attr($visual_settings['focalPoint']['x']) : '50'; ?>"
          data-focal-y="<?php echo isset($visual_settings['focalPoint']['y']) ? esc_attr($visual_settings['focalPoint']['y']) : '50'; ?>"

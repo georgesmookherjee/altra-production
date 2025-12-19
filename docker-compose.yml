@@ -5,7 +5,7 @@ services:
   db:
     image: mysql:8.0
     container_name: altra_mysql
-    restart: always
+    restart: "no"
     environment:
       MYSQL_DATABASE: altra_wordpress
       MYSQL_USER: altra_user
@@ -20,7 +20,7 @@ services:
   wordpress:
     image: wordpress:latest
     container_name: altra_wordpress
-    restart: always
+    restart: "no"
     depends_on:
       - db
     ports:

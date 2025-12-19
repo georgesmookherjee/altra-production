@@ -2,16 +2,20 @@
  * Preview Card Component
  * Shows a live preview of how the card will look with current settings
  */
-export default function PreviewCard({ image, title, focalPoint, zoom, textLayers }) {
+export default function PreviewCard({ image, title, focalPoint, zoom, textLayers, aspectRatio = 3 / 4 }) {
 	const imageStyle = {
 		transformOrigin: `${focalPoint.x}% ${focalPoint.y}%`,
 		transform: `scale(${zoom})`,
 		objectFit: 'contain',
 	};
 
+	const containerStyle = {
+		aspectRatio: aspectRatio.toString(),
+	};
+
 	return (
 		<div className="preview-card-container">
-			<div className="preview-card">
+			<div className="preview-card" style={containerStyle}>
 				<div className="preview-card-image">
 					<img
 						src={image}

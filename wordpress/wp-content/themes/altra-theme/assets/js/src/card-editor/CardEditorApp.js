@@ -5,7 +5,6 @@
 import { useState, useEffect } from '@wordpress/element';
 import FocalPointPicker from './components/FocalPointPicker';
 import ImageZoomControl from './components/ImageZoomControl';
-import TextLayerEditor from './components/TextLayerEditor';
 import PreviewCard from './components/PreviewCard';
 
 export default function CardEditorApp() {
@@ -21,6 +20,10 @@ export default function CardEditorApp() {
 	const [textLayers, setTextLayers] = useState(
 		editorData.currentSettings?.textLayers || []
 	);
+
+	// Detect image orientation for proper aspect ratio
+	const imageOrientation = editorData.imageOrientation || 'portrait';
+	const aspectRatio = imageOrientation === 'landscape' ? 3 / 1.9 : 3 / 4;
 
 	// Update hidden input whenever settings change
 	useEffect(() => {
@@ -56,13 +59,14 @@ export default function CardEditorApp() {
 			<div className="card-editor-layout">
 				{/* Left: Preview */}
 				<div className="card-editor-preview">
-					<h3>Preview</h3>
+					<h3>Preview ({imageOrientation})</h3>
 					<PreviewCard
 						image={editorData.featuredImage}
 						title={editorData.projectTitle}
 						focalPoint={focalPoint}
 						zoom={zoom}
 						textLayers={textLayers}
+						aspectRatio={aspectRatio}
 					/>
 				</div>
 
@@ -75,19 +79,12 @@ export default function CardEditorApp() {
 							image={editorData.featuredImage}
 							focalPoint={focalPoint}
 							onFocalPointChange={setFocalPoint}
+							aspectRatio={aspectRatio}
 						/>
 
 						<ImageZoomControl
 							zoom={zoom}
 							onZoomChange={setZoom}
-						/>
-					</div>
-
-					<div className="control-section">
-						<h3>Text Layers</h3>
-						<TextLayerEditor
-							layers={textLayers}
-							onLayersChange={setTextLayers}
 						/>
 					</div>
 

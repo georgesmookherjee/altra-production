@@ -171,11 +171,6 @@
     100% { background-position: -200% 0; }
 }
 
-/* Hover state amélioré pour les grands projets */
-.project-card.project-width-large:hover {
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-}
-
 /* ==========================================================================
    UTILITAIRES
    ========================================================================== */

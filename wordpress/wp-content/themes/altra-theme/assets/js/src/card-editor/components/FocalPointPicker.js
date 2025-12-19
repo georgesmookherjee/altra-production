@@ -5,16 +5,15 @@
 import { useState, useCallback } from '@wordpress/element';
 import Cropper from 'react-easy-crop';
 
-export default function FocalPointPicker({ image, focalPoint, onFocalPointChange }) {
+export default function FocalPointPicker({ image, focalPoint, onFocalPointChange, aspectRatio = 3 / 4 }) {
 	const [crop, setCrop] = useState({ x: 0, y: 0 });
 	const [zoom, setZoom] = useState(1);
 
 	const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
-		// Calculate focal point from crop center
-		// croppedAreaPixels gives us the position in pixels
-		// We want to express it as a percentage of the image
-		const focalX = ((croppedAreaPixels.x + croppedAreaPixels.width / 2) / croppedAreaPixels.width) * 100;
-		const focalY = ((croppedAreaPixels.y + croppedAreaPixels.height / 2) / croppedAreaPixels.height) * 100;
+		// croppedArea gives us percentages relative to the full image
+		// This is what we need for the focal point!
+		const focalX = croppedArea.x + (croppedArea.width / 2);
+		const focalY = croppedArea.y + (croppedArea.height / 2);
 
 		onFocalPointChange({
 			x: Math.round(focalX * 10) / 10,
@@ -36,7 +35,7 @@ export default function FocalPointPicker({ image, focalPoint, onFocalPointChange
 					image={image}
 					crop={crop}
 					zoom={zoom}
-					aspect={4 / 3}
+					aspect={aspectRatio}
 					onCropChange={setCrop}
 					onCropComplete={onCropComplete}
 					onZoomChange={setZoom}
