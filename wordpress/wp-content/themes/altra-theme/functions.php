@@ -319,16 +319,6 @@ function altra_add_project_meta_boxes() {
         'high'
     );
 
-    // Project Width meta box
-    add_meta_box(
-        'altra_project_width',
-        __('Project Display Width', 'altra'),
-        'altra_project_width_callback',
-        'project',
-        'side',
-        'high'
-    );
-
     // Visual Card Editor meta box
     add_meta_box(
         'altra_visual_card_editor',
@@ -625,16 +615,6 @@ function altra_save_project_meta($post_id) {
         }
     }
 
-    // Save Project Width
-    if (isset($_POST['altra_project_width'])) {
-        $width = sanitize_text_field($_POST['altra_project_width']);
-
-        // Validate that it's an accepted value
-        if (in_array($width, array('small', 'medium', 'large'))) {
-            update_post_meta($post_id, '_altra_project_width', $width);
-        }
-    }
-
     // Save Visual Card Settings
     if (isset($_POST['altra_visual_settings'])) {
         $visual_settings_json = stripslashes($_POST['altra_visual_settings']);
@@ -760,51 +740,6 @@ add_action('wp_before_admin_bar_render', 'altra_remove_admin_bar_links');
  * ==========================================================================
  */
 
-/**
- * Project Width meta box callback
- */
-function altra_project_width_callback($post) {
-    // Note: Nonce is already added in Project Details meta box
-
-    // Get current value
-    $width = get_post_meta($post->ID, '_altra_project_width', true);
-    if (empty($width)) {
-        $width = 'medium'; // Default value
-    }
-
-    ?>
-    <div class="altra-width-selector">
-        <p><strong><?php _e('Choose how wide this project should display on the homepage:', 'altra'); ?></strong></p>
-
-        <label>
-            <input type="radio" name="altra_project_width" value="small" <?php checked($width, 'small'); ?>>
-            <strong><?php _e('Small', 'altra'); ?></strong> - <?php _e('1/3 width (3 projects per row)', 'altra'); ?>
-        </label>
-
-        <label>
-            <input type="radio" name="altra_project_width" value="medium" <?php checked($width, 'medium'); ?>>
-            <strong><?php _e('Medium', 'altra'); ?></strong> - <?php _e('1/2 width (2 projects per row)', 'altra'); ?>
-        </label>
-
-        <label>
-            <input type="radio" name="altra_project_width" value="large" <?php checked($width, 'large'); ?>>
-            <strong><?php _e('Large', 'altra'); ?></strong> - <?php _e('Full width (1 project per row)', 'altra'); ?>
-        </label>
-
-        <div class="tip-box">
-            <p>
-                <strong><?php _e('Tip:', 'altra'); ?></strong>
-                <?php _e('Mix different widths to create an interesting visual rhythm!', 'altra'); ?>
-            </p>
-        </div>
-
-        <div class="preview-box">
-            <p><?php _e('Visual Preview:', 'altra'); ?></p>
-            <div id="width-preview"></div>
-        </div>
-    </div>
-    <?php
-}
 
 /**
  * Visual Card Editor Callback
@@ -825,8 +760,23 @@ function altra_visual_card_editor_callback($post) {
 
     // Get featured image for preview
     $featured_image = '';
+    $image_orientation = 'portrait'; // Default
+
     if (has_post_thumbnail($post->ID)) {
         $featured_image = get_the_post_thumbnail_url($post->ID, 'full');
+
+        // Detect orientation
+        $thumbnail_id = get_post_thumbnail_id($post->ID);
+        $image_meta = wp_get_attachment_metadata($thumbnail_id);
+
+        if ($image_meta && isset($image_meta['width']) && isset($image_meta['height'])) {
+            $width_img = $image_meta['width'];
+            $height_img = $image_meta['height'];
+
+            if ($width_img > $height_img) {
+                $image_orientation = 'landscape';
+            }
+        }
     }
 
     ?>
@@ -843,80 +793,13 @@ function altra_visual_card_editor_callback($post) {
             featuredImage: <?php echo wp_json_encode($featured_image); ?>,
             currentSettings: <?php echo wp_json_encode($visual_settings); ?>,
             projectTitle: <?php echo wp_json_encode(get_the_title($post->ID)); ?>,
+            imageOrientation: <?php echo wp_json_encode($image_orientation); ?>,
             nonce: '<?php echo wp_create_nonce('wp_rest'); ?>'
         };
     </script>
     <?php
 }
 
-/**
- * Add width column in projects list
- */
-function altra_add_width_column($columns) {
-    $new_columns = array();
-
-    foreach ($columns as $key => $value) {
-        $new_columns[$key] = $value;
-
-        // Add column after title
-        if ($key === 'title') {
-            $new_columns['project_width'] = __('Display Width', 'altra');
-        }
-    }
-
-    return $new_columns;
-}
-add_filter('manage_project_posts_columns', 'altra_add_width_column');
-
-/**
- * Display value in the column
- */
-function altra_display_width_column($column, $post_id) {
-    if ($column === 'project_width') {
-        $width = get_post_meta($post_id, '_altra_project_width', true);
-
-        if (empty($width)) {
-            $width = 'medium';
-        }
-
-        $labels = array(
-            'small'  => 'Small (1/3)',
-            'medium' => 'Medium (1/2)',
-            'large'  => 'Large (Full)'
-        );
-
-        echo '<strong>' . esc_html($labels[$width]) . '</strong>';
-    }
-}
-add_action('manage_project_posts_custom_column', 'altra_display_width_column', 10, 2);
-
-/**
- * Make width column sortable
- */
-function altra_make_width_column_sortable($columns) {
-    $columns['project_width'] = 'project_width';
-    return $columns;
-}
-add_filter('manage_edit-project_sortable_columns', 'altra_make_width_column_sortable');
-
-/**
- * Helper function to get CSS class based on width
- */
-function altra_get_project_width_class($post_id) {
-    $width = get_post_meta($post_id, '_altra_project_width', true);
-
-    if (empty($width)) {
-        $width = 'medium';
-    }
-
-    $classes = array(
-        'small'  => 'project-width-small',   // 1/3 width
-        'medium' => 'project-width-medium',  // 1/2 width
-        'large'  => 'project-width-large'    // Full width
-    );
-
-    return $classes[$width];
-}
 
 /**
  * Move content editor below custom meta boxes for projects
@@ -1069,25 +952,32 @@ function altra_get_projects_with_grid() {
             }
         }
 
-        // Get width setting
-        $width = get_post_meta($project->ID, '_altra_project_width', true);
-        if (empty($width)) {
-            $width = 'medium';
-        }
-
         // Get thumbnail
         $thumbnail_url = get_the_post_thumbnail_url($project->ID, 'medium');
         if (!$thumbnail_url) {
             $thumbnail_url = get_template_directory_uri() . '/assets/images/placeholder.jpg';
         }
 
+        // Detect image orientation (landscape vs portrait)
+        $image_orientation = 'portrait'; // Default
+        if (has_post_thumbnail($project->ID)) {
+            $thumbnail_id = get_post_thumbnail_id($project->ID);
+            $image_meta = wp_get_attachment_metadata($thumbnail_id);
+
+            if ($image_meta && isset($image_meta['width']) && isset($image_meta['height'])) {
+                if ($image_meta['width'] > $image_meta['height']) {
+                    $image_orientation = 'landscape';
+                }
+            }
+        }
+
         $result[] = array(
             'id' => $project->ID,
             'title' => $project->post_title,
             'thumbnail' => $thumbnail_url,
-            'width' => $width,
             'gridPosition' => $grid_position,
             'url' => get_permalink($project->ID),
+            'orientation' => $image_orientation,
         );
     }
 
@@ -1137,7 +1027,6 @@ function altra_save_grid_positions($request) {
     }
 
     $saved_count = 0;
-    $width_map = array(4 => 'small', 6 => 'medium', 12 => 'large');
 
     foreach ($positions as $item) {
         if (!isset($item['id'])) {
@@ -1162,11 +1051,6 @@ function altra_save_grid_positions($request) {
 
         // Save grid position as JSON
         update_post_meta($post_id, '_altra_grid_position', wp_json_encode($position));
-
-        // Also update width meta for backward compatibility
-        if (isset($width_map[$item['w']])) {
-            update_post_meta($post_id, '_altra_project_width', $width_map[$item['w']]);
-        }
 
         // Update menu_order for fallback sorting
         wp_update_post(array(

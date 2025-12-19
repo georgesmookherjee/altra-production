@@ -24,15 +24,12 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 			disableOneColumnMode: true,
 			animate: true,
 			removeTimeout: 100,
-			disableResize: true, // All items are same size (1 column each)
+			disableResize: true, // Prevent manual resizing (landscape=2 cols, portrait=1 col set via code)
 		}, gridRef.current);
 
-		console.log('GridStack initialized');
-
 		// Listen to changes
-		gridInstanceRef.current.on('change', (event, changedItems) => {
+		gridInstanceRef.current.on('change', (_event, changedItems) => {
 			if (changedItems && changedItems.length > 0) {
-				console.log('Grid changed:', changedItems);
 
 				// Get all current items with their positions
 				const allItems = gridInstanceRef.current.engine.nodes.map(node => ({
@@ -79,7 +76,7 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 			);
 
 			if (node) {
-				const targetW = item.gridPosition?.w || getWidthColumns(item.width);
+				const targetW = item.gridPosition?.w || getWidthColumns(item.orientation);
 				const targetX = item.gridPosition?.x || 0;
 				const targetY = item.gridPosition?.y || 0;
 				const targetH = item.gridPosition?.h || 2;
@@ -97,8 +94,9 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 		});
 	}, [items]);
 
-	function getWidthColumns() {
-		return 1; // All items take 1 column in a 4-column grid
+	function getWidthColumns(orientation) {
+		// Landscape images take 2 columns, portrait takes 1 column
+		return orientation === 'landscape' ? 2 : 1;
 	}
 
 	function handleRemove(projectId) {
@@ -117,7 +115,7 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 						data-project-id={item.id}
 						data-gs-x={item.gridPosition?.x || 0}
 						data-gs-y={item.gridPosition?.y || 0}
-						data-gs-w={item.gridPosition?.w || getWidthColumns(item.width)}
+						data-gs-w={item.gridPosition?.w || getWidthColumns(item.orientation)}
 						data-gs-h={item.gridPosition?.h || 2}
 					>
 						<div className="grid-stack-item-content">
