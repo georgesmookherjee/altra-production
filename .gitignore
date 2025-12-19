@@ -24,6 +24,9 @@ wordpress/wp-content/backups/
 wordpress/wp-content/blogs.dir/
 wordpress/wp-content/w3tc-config/
 
+# WordPress language files (auto-generated)
+wordpress/wp-content/languages/
+
 # WordPress plugins et thèmes par défaut (garder seulement notre thème)
 wordpress/wp-content/plugins/
 wordpress/wp-content/themes/*
@@ -53,3 +56,4 @@ desktop.ini
 node_modules/
 package-lock.json
 yarn.lock
+tempo pour claude code.txt
