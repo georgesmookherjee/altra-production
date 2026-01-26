@@ -95,32 +95,24 @@
 }
 
 /* ==========================================================================
-   RESPONSIVE : TABLETTE
+   RESPONSIVE : TABLETTE & MOBILE
+   Note: Responsive disabled for logged-in users (admin mode)
+   Same behavior for both: 2 columns, portrait=1col, landscape=2cols
    ========================================================================== */
 
 @media (max-width: 1024px) {
-    .projects-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 colonnes sur tablette */
+    body:not(.logged-in) .projects-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 colonnes */
     }
 
-    .project-card {
-        grid-column: span 1; /* Toutes les cartes prennent 1 colonne */
-    }
-}
-
-/* ==========================================================================
-   RESPONSIVE : MOBILE
-   ========================================================================== */
-
-@media (max-width: 768px) {
-    .projects-grid {
-        grid-template-columns: 1fr; /* Une seule colonne sur mobile */
-        gap: var(--spacing-sm, 20px);
+    /* Portrait cards take 1 column */
+    body:not(.logged-in) .project-card {
+        grid-column: span 1;
     }
 
-    .project-card {
-        grid-column: span 1; /* Pleine largeur sur mobile */
-        aspect-ratio: 3/4; /* Ratio portrait uniforme */
+    /* Landscape cards still take 2 columns (full row) */
+    body:not(.logged-in) .project-card.project-landscape {
+        grid-column: span 2;
     }
 }
 
