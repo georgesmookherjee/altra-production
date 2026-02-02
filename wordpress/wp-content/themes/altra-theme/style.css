@@ -309,7 +309,7 @@ body:not(.logged-in) .hero-nav-right a {
 
 /* Adaptive logo size for non-logged-in users */
 body:not(.logged-in) .site-logo {
-    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-size: clamp(2rem, 4vw, 3rem);
 }
 
 .nav-left {
