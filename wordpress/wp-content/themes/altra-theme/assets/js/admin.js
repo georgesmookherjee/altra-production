@@ -47,22 +47,18 @@ jQuery(document).ready(function($) {
 
     /**
      * PROJECT GALLERY
-     * Handles media library integration for project gallery
+     * Handles media library integration — stores items as JSON array
+     * Each item: {type:'image',id:42} or {type:'video',url:'...',orientation:'landscape'}
      */
 
-    /**
-     * DRAG & DROP REORDERING
-     * Enable sortable gallery with visual feedback
-     */
     function initGallerySortable() {
         $('.altra-gallery-sortable').sortable({
-            items: '.gallery-image',
-            handle: '.drag-handle', // Only drag by the handle icon
+            items: '.gallery-item',
+            handle: '.drag-handle',
             cursor: 'move',
             opacity: 0.7,
-            placeholder: 'gallery-image-placeholder',
+            placeholder: 'gallery-item-placeholder',
             update: function() {
-                // Update hidden fields with new order
                 updateGalleryOrder();
             },
             start: function(_event, ui) {
@@ -71,18 +67,21 @@ jQuery(document).ready(function($) {
         });
     }
 
-    // Update gallery order after drag & drop
     function updateGalleryOrder() {
-        var ids = [];
-        $('.altra-gallery-preview .gallery-image').each(function() {
-            ids.push($(this).data('id'));
+        var items = [];
+        $('.altra-gallery-preview .gallery-item').each(function() {
+            var type = $(this).data('type');
+            if (type === 'image') {
+                items.push({ type: 'image', id: parseInt($(this).data('id'), 10) });
+            } else if (type === 'video') {
+                items.push({
+                    type: 'video',
+                    url: $(this).data('url'),
+                    orientation: $(this).data('orientation') || 'landscape'
+                });
+            }
         });
-
-        var newValue = ids.join(',');
-        $('#altra_project_gallery_hidden').val(newValue);
-        $('#altra_project_gallery_display').val(newValue);
-
-        console.log('Gallery reordered:', newValue);
+        $('#altra_project_gallery_hidden').val(JSON.stringify(items));
     }
 
     // Add images to gallery
@@ -91,74 +90,94 @@ jQuery(document).ready(function($) {
 
         var galleryFrame = wp.media({
             title: altraAdminData.selectImages,
-            button: {
-                text: altraAdminData.addToGallery
-            },
+            button: { text: altraAdminData.addToGallery },
             multiple: true
         });
 
         galleryFrame.on('select', function() {
             var selection = galleryFrame.state().get('selection');
-            var $hiddenField = $('#altra_project_gallery_hidden');
-            var $displayField = $('#altra_project_gallery_display');
-            var ids = $hiddenField.val();
-            var idsArray = ids ? ids.split(',').filter(function(id) { return id.trim() !== ''; }) : [];
 
-            // Destroy sortable before adding new images
             if ($('.altra-gallery-sortable').hasClass('ui-sortable')) {
                 $('.altra-gallery-sortable').sortable('destroy');
             }
 
             selection.each(function(attachment) {
                 attachment = attachment.toJSON();
-                idsArray.push(attachment.id);
+                var thumbUrl = attachment.sizes && attachment.sizes.thumbnail
+                    ? attachment.sizes.thumbnail.url
+                    : attachment.url;
 
                 $('.altra-gallery-preview').append(
-                    '<div class="gallery-image" data-id="' + attachment.id + '">' +
+                    '<div class="gallery-item gallery-image" data-type="image" data-id="' + attachment.id + '">' +
                     '<span class="dashicons dashicons-move drag-handle" title="Drag to reorder"></span>' +
-                    '<img src="' + attachment.sizes.thumbnail.url + '">' +
-                    '<button type="button" class="button button-small remove-gallery-image">×</button>' +
+                    '<img src="' + thumbUrl + '">' +
+                    '<button type="button" class="button button-small remove-gallery-item">\u00d7</button>' +
                     '</div>'
                 );
             });
 
-            var newValue = idsArray.join(',');
-
-            // Update both the hidden field (for form submission) and display field (for user visibility)
-            $hiddenField.val(newValue);
-            $displayField.val(newValue);
-
-            console.log('Gallery updated:', newValue);
-
-            // Re-initialize sortable after adding images
-            setTimeout(function() {
-                initGallerySortable();
-            }, 100);
+            updateGalleryOrder();
+            setTimeout(function() { initGallerySortable(); }, 100);
         });
 
         galleryFrame.open();
     });
 
-    // Remove image from gallery
-    $(document).on('click', '.remove-gallery-image', function(e) {
+    // Show/hide Add Vimeo form
+    $('.altra-add-video-gallery').on('click', function(e) {
         e.preventDefault();
-        var $image = $(this).closest('.gallery-image');
-        var id = $image.data('id');
-        var $hiddenField = $('#altra_project_gallery_hidden');
-        var $displayField = $('#altra_project_gallery_display');
-        var ids = $hiddenField.val().split(',');
+        $('#altra-add-video-form').show();
+    });
 
-        ids = ids.filter(function(item) {
-            return item != id;
-        });
+    $('.altra-cancel-add-video').on('click', function(e) {
+        e.preventDefault();
+        $('#altra-add-video-form').hide();
+        $('#altra-video-url-input').val('');
+    });
 
-        var newValue = ids.join(',');
+    // Confirm add Vimeo video
+    $('.altra-confirm-add-video').on('click', function(e) {
+        e.preventDefault();
+        var url = $('#altra-video-url-input').val().trim();
+        var orientation = $('input[name="altra_new_video_orientation"]:checked').val();
 
-        // Update both fields
-        $hiddenField.val(newValue);
-        $displayField.val(newValue);
+        if (!url || !url.match(/vimeo\.com\/\d+/)) {
+            alert(altraAdminData.invalidVimeoUrl);
+            return;
+        }
 
-        $image.remove();
+        if ($('.altra-gallery-sortable').hasClass('ui-sortable')) {
+            $('.altra-gallery-sortable').sortable('destroy');
+        }
+
+        var orientationLabel = orientation === 'landscape'
+            ? altraAdminData.orientationLandscape
+            : altraAdminData.orientationPortrait;
+
+        $('.altra-gallery-preview').append(
+            '<div class="gallery-item gallery-video" data-type="video" data-url="' + url + '" data-orientation="' + orientation + '">' +
+            '<span class="dashicons dashicons-move drag-handle" title="Drag to reorder"></span>' +
+            '<div class="video-preview-thumb">' +
+            '<span class="dashicons dashicons-video-alt3"></span>' +
+            '<span class="video-url-display">' + url + '</span>' +
+            '<span class="video-orientation-badge">' + orientationLabel + '</span>' +
+            '</div>' +
+            '<button type="button" class="button button-small remove-gallery-item">\u00d7</button>' +
+            '</div>'
+        );
+
+        updateGalleryOrder();
+        setTimeout(function() { initGallerySortable(); }, 100);
+
+        $('#altra-add-video-form').hide();
+        $('#altra-video-url-input').val('');
+    });
+
+    // Remove gallery item (image or video)
+    $(document).on('click', '.remove-gallery-item', function(e) {
+        e.preventDefault();
+        $(this).closest('.gallery-item').remove();
+        updateGalleryOrder();
     });
 
     // Initialize sortable on page load

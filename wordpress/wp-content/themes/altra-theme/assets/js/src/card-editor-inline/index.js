@@ -92,8 +92,11 @@ class InlineCardEditor {
 		const projectId = card.dataset.projectId;
 		const imageContainer = card.querySelector('.project-image');
 		const img = imageContainer.querySelector('img');
+		const videoWrapper = imageContainer.querySelector('.project-video-wrapper');
 
-		if (!img) return;
+		// For images use <img>, for videos use the wrapper div as the transform target
+		const transformTarget = img || videoWrapper;
+		if (!transformTarget) return;
 
 		// Create overlay for image
 		const overlay = document.createElement('div');
@@ -140,7 +143,7 @@ class InlineCardEditor {
 			const x = ((e.clientX - rect.left) / rect.width) * 100;
 			const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-			this.updateFocalPoint(card, img, x, y);
+			this.updateFocalPoint(card, transformTarget, x, y);
 			this.updateCrosshairPosition(crosshair, x, y);
 			this.trackChange(projectId, card);
 		});
@@ -152,7 +155,7 @@ class InlineCardEditor {
 		// Zoom slider works directly without Alt key since it's in the info section
 		zoomSlider.addEventListener('input', (e) => {
 			const zoom = parseFloat(e.target.value);
-			this.updateZoom(card, img, zoom);
+			this.updateZoom(card, transformTarget, zoom);
 			zoomValue.textContent = zoom.toFixed(2) + 'x';
 			this.trackChange(projectId, card);
 		});
@@ -163,21 +166,21 @@ class InlineCardEditor {
 		crosshair.style.top = y + '%';
 	}
 
-	updateFocalPoint(card, img, x, y) {
+	updateFocalPoint(card, target, x, y) {
 		card.dataset.focalX = x;
 		card.dataset.focalY = y;
-		img.style.transformOrigin = `${x}% ${y}%`;
+		target.style.transformOrigin = `${x}% ${y}%`;
 	}
 
-	updateZoom(card, img, zoom) {
+	updateZoom(card, target, zoom) {
 		card.dataset.zoom = zoom;
-		const currentTransform = img.style.transform || '';
+		const currentTransform = target.style.transform || '';
 		const scaleRegex = /scale\([^)]+\)/;
 
 		if (scaleRegex.test(currentTransform)) {
-			img.style.transform = currentTransform.replace(scaleRegex, `scale(${zoom})`);
+			target.style.transform = currentTransform.replace(scaleRegex, `scale(${zoom})`);
 		} else {
-			img.style.transform = `scale(${zoom})`;
+			target.style.transform = `scale(${zoom})`;
 		}
 	}
 

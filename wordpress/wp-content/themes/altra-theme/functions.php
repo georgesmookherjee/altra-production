@@ -319,6 +319,16 @@ function altra_add_project_meta_boxes() {
         'high'
     );
 
+    // Cover Media meta box (image vs video toggle)
+    add_meta_box(
+        'altra_cover_media',
+        __('Cover Media', 'altra'),
+        'altra_cover_media_callback',
+        'project',
+        'side',
+        'high'
+    );
+
     // Visual Card Editor meta box
     add_meta_box(
         'altra_visual_card_editor',
@@ -444,6 +454,30 @@ function altra_get_field_visibility($post_id) {
 }
 
 /**
+ * Get gallery items for a project (supports both old comma-separated and new JSON format)
+ * Returns array of items: [['type'=>'image','id'=>42], ['type'=>'video','url'=>'...','orientation'=>'landscape']]
+ */
+function altra_get_gallery_items($post_id) {
+    $gallery_value = get_post_meta($post_id, '_altra_project_gallery', true);
+
+    if (empty($gallery_value)) {
+        return array();
+    }
+
+    // Try new JSON format first
+    $decoded = json_decode($gallery_value, true);
+    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        return $decoded;
+    }
+
+    // Migrate old comma-separated IDs format
+    $ids = array_filter(array_map('intval', explode(',', $gallery_value)));
+    return array_map(function($id) {
+        return array('type' => 'image', 'id' => $id);
+    }, array_values($ids));
+}
+
+/**
  * Project Details Meta Box Callback
  */
 function altra_project_details_callback($post) {
@@ -512,41 +546,127 @@ function altra_project_details_callback($post) {
 }
 
 /**
+ * Cover Media Meta Box Callback
+ * Toggle between featured image and Vimeo video for homepage card
+ */
+function altra_cover_media_callback($post) {
+    $media_type        = get_post_meta($post->ID, '_altra_featured_media_type', true) ?: 'image';
+    $video_url         = get_post_meta($post->ID, '_altra_featured_video_url', true) ?: '';
+    $video_orientation = get_post_meta($post->ID, '_altra_featured_video_orientation', true) ?: 'portrait';
+    ?>
+    <div class="altra-cover-media">
+        <p style="margin-bottom: 10px; font-weight: 600;"><?php _e('Média affiché sur la page d\'accueil :', 'altra'); ?></p>
+
+        <label style="display: block; margin-bottom: 8px; cursor: pointer;">
+            <input type="radio" name="altra_featured_media_type" value="image"
+                   <?php checked($media_type, 'image'); ?> />
+            <?php _e('Image (Featured Image)', 'altra'); ?>
+        </label>
+
+        <label style="display: block; margin-bottom: 12px; cursor: pointer;">
+            <input type="radio" name="altra_featured_media_type" value="video"
+                   <?php checked($media_type, 'video'); ?> />
+            <?php _e('Vidéo Vimeo', 'altra'); ?>
+        </label>
+
+        <div id="altra-video-cover-fields" style="<?php echo $media_type === 'video' ? '' : 'display:none;'; ?>border-top: 1px solid #ddd; padding-top: 12px;">
+            <label for="altra_featured_video_url" style="display: block; font-weight: 600; margin-bottom: 5px;">
+                <?php _e('URL Vimeo :', 'altra'); ?>
+            </label>
+            <input type="url"
+                   id="altra_featured_video_url"
+                   name="altra_featured_video_url"
+                   value="<?php echo esc_attr($video_url); ?>"
+                   class="widefat"
+                   placeholder="https://vimeo.com/123456789" />
+
+            <p style="margin-top: 12px; margin-bottom: 6px; font-weight: 600;"><?php _e('Orientation :', 'altra'); ?></p>
+            <label style="display: block; margin-bottom: 6px; cursor: pointer;">
+                <input type="radio" name="altra_featured_video_orientation" value="portrait"
+                       <?php checked($video_orientation, 'portrait'); ?> />
+                <?php _e('Portrait (1 colonne)', 'altra'); ?>
+            </label>
+            <label style="display: block; cursor: pointer;">
+                <input type="radio" name="altra_featured_video_orientation" value="landscape"
+                       <?php checked($video_orientation, 'landscape'); ?> />
+                <?php _e('Paysage (4 colonnes)', 'altra'); ?>
+            </label>
+        </div>
+    </div>
+    <script>
+    jQuery(document).ready(function($) {
+        $('input[name="altra_featured_media_type"]').on('change', function() {
+            if ($(this).val() === 'video') {
+                $('#altra-video-cover-fields').show();
+            } else {
+                $('#altra-video-cover-fields').hide();
+            }
+        });
+    });
+    </script>
+    <?php
+}
+
+/**
  * Project Gallery Meta Box Callback
  */
 function altra_project_gallery_callback($post) {
-    // Note: Nonce is already added in Project Details meta box
-    $gallery_ids = get_post_meta($post->ID, '_altra_project_gallery', true);
-
+    $items = altra_get_gallery_items($post->ID);
+    $gallery_json = wp_json_encode($items);
     ?>
     <div class="altra-gallery-container">
-        <!-- Hidden field that will be submitted with the form -->
-        <input type="hidden" id="altra_project_gallery_hidden" name="altra_project_gallery" value="<?php echo esc_attr($gallery_ids); ?>" />
+        <input type="hidden" id="altra_project_gallery_hidden" name="altra_project_gallery" value="<?php echo esc_attr($gallery_json); ?>" />
 
-        <p style="margin-bottom: 10px;">
-            <label for="altra_project_gallery_display" style="display: block; margin-bottom: 5px;"><?php _e('Gallery IDs (comma separated):', 'altra'); ?></label>
-            <input type="text" id="altra_project_gallery_display" value="<?php echo esc_attr($gallery_ids); ?>" class="widefat" readonly style="background-color: #f0f0f0;" />
-            <span class="description"><?php _e('This field is automatically updated when you add/remove/reorder images below', 'altra'); ?></span>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <button type="button" class="button altra-add-gallery"><?php _e('Add Images', 'altra'); ?></button>
+            <button type="button" class="button altra-add-video-gallery"><?php _e('Add Vimeo Video', 'altra'); ?></button>
+        </div>
+
+        <div id="altra-add-video-form" style="display:none; margin-bottom: 12px; background: #f9f9f9; padding: 12px; border: 1px solid #ddd; border-radius: 4px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 5px;"><?php _e('Vimeo URL :', 'altra'); ?></label>
+            <input type="url" id="altra-video-url-input" class="widefat" placeholder="https://vimeo.com/123456789" style="margin-bottom: 10px;" />
+            <p style="font-weight: 600; margin-bottom: 6px;"><?php _e('Orientation :', 'altra'); ?></p>
+            <label style="margin-right: 15px; cursor: pointer;">
+                <input type="radio" name="altra_new_video_orientation" value="landscape" checked />
+                <?php _e('Paysage (4 colonnes)', 'altra'); ?>
+            </label>
+            <label style="cursor: pointer;">
+                <input type="radio" name="altra_new_video_orientation" value="portrait" />
+                <?php _e('Portrait (1 colonne)', 'altra'); ?>
+            </label>
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+                <button type="button" class="button button-primary altra-confirm-add-video"><?php _e('Ajouter', 'altra'); ?></button>
+                <button type="button" class="button altra-cancel-add-video"><?php _e('Annuler', 'altra'); ?></button>
+            </div>
+        </div>
+
+        <p class="description" style="margin-bottom: 10px; font-style: italic;">
+            <?php _e('💡 Tip: Drag and drop to reorder', 'altra'); ?>
         </p>
-        <button type="button" class="button altra-add-gallery"><?php _e('Add Images to Gallery', 'altra'); ?></button>
-        <p class="description" style="margin-top: 10px; font-style: italic;">
-            <?php _e('💡 Tip: Drag and drop images to reorder them', 'altra'); ?>
-        </p>
+
         <div class="altra-gallery-preview altra-gallery-sortable">
-            <?php
-            if ($gallery_ids) {
-                $ids = explode(',', $gallery_ids);
-                foreach ($ids as $id) {
-                    if ($id) {
-                        echo '<div class="gallery-image" data-id="' . esc_attr($id) . '">';
-                        echo '<span class="dashicons dashicons-move drag-handle" title="' . esc_attr__('Drag to reorder', 'altra') . '"></span>';
-                        echo wp_get_attachment_image($id, 'thumbnail');
-                        echo '<button type="button" class="button button-small remove-gallery-image">×</button>';
-                        echo '</div>';
-                    }
-                }
-            }
-            ?>
+            <?php foreach ($items as $item) : ?>
+                <?php if ($item['type'] === 'image') : ?>
+                    <div class="gallery-item gallery-image" data-type="image" data-id="<?php echo esc_attr($item['id']); ?>">
+                        <span class="dashicons dashicons-move drag-handle" title="<?php esc_attr_e('Drag to reorder', 'altra'); ?>"></span>
+                        <?php echo wp_get_attachment_image($item['id'], 'thumbnail'); ?>
+                        <button type="button" class="button button-small remove-gallery-item">×</button>
+                    </div>
+                <?php elseif ($item['type'] === 'video') : ?>
+                    <div class="gallery-item gallery-video"
+                         data-type="video"
+                         data-url="<?php echo esc_attr($item['url']); ?>"
+                         data-orientation="<?php echo esc_attr($item['orientation'] ?? 'landscape'); ?>">
+                        <span class="dashicons dashicons-move drag-handle" title="<?php esc_attr_e('Drag to reorder', 'altra'); ?>"></span>
+                        <div class="video-preview-thumb">
+                            <span class="dashicons dashicons-video-alt3"></span>
+                            <span class="video-url-display"><?php echo esc_html($item['url']); ?></span>
+                            <span class="video-orientation-badge"><?php echo $item['orientation'] === 'landscape' ? __('Paysage', 'altra') : __('Portrait', 'altra'); ?></span>
+                        </div>
+                        <button type="button" class="button button-small remove-gallery-item">×</button>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
         </div>
     </div>
     <?php
@@ -603,15 +723,62 @@ function altra_save_project_meta($post_id) {
     }
     update_post_meta($post_id, '_altra_project_fields_visibility', $visibility);
 
-    // Save Gallery (liste d'IDs séparés par des virgules)
-    if (isset($_POST['altra_project_gallery'])) {
-        $gallery_value = sanitize_text_field($_POST['altra_project_gallery']);
+    // Save featured media type (image or video)
+    if (isset($_POST['altra_featured_media_type'])) {
+        $media_type = sanitize_text_field($_POST['altra_featured_media_type']);
+        if (in_array($media_type, array('image', 'video'))) {
+            update_post_meta($post_id, '_altra_featured_media_type', $media_type);
+        }
+    }
 
-        // Si la valeur est vide, on supprime la meta pour nettoyer
+    // Save featured video URL
+    if (isset($_POST['altra_featured_video_url'])) {
+        $video_url = esc_url_raw(trim($_POST['altra_featured_video_url']));
+        update_post_meta($post_id, '_altra_featured_video_url', $video_url);
+    }
+
+    // Save featured video orientation
+    if (isset($_POST['altra_featured_video_orientation'])) {
+        $video_orientation = sanitize_text_field($_POST['altra_featured_video_orientation']);
+        if (in_array($video_orientation, array('portrait', 'landscape'))) {
+            update_post_meta($post_id, '_altra_featured_video_orientation', $video_orientation);
+        }
+    }
+
+    // Save Gallery (new JSON format, with auto-migration from old comma-separated format)
+    if (isset($_POST['altra_project_gallery'])) {
+        $gallery_value = stripslashes($_POST['altra_project_gallery']);
+
         if (empty($gallery_value)) {
             delete_post_meta($post_id, '_altra_project_gallery');
         } else {
-            update_post_meta($post_id, '_altra_project_gallery', $gallery_value);
+            $decoded = json_decode($gallery_value, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                // New JSON format — sanitize each item
+                $sanitized = array();
+                foreach ($decoded as $item) {
+                    if (!isset($item['type'])) continue;
+                    if ($item['type'] === 'image' && isset($item['id'])) {
+                        $sanitized[] = array('type' => 'image', 'id' => intval($item['id']));
+                    } elseif ($item['type'] === 'video' && isset($item['url'])) {
+                        $orientation = isset($item['orientation']) && in_array($item['orientation'], array('portrait', 'landscape'))
+                            ? $item['orientation'] : 'landscape';
+                        $sanitized[] = array(
+                            'type'        => 'video',
+                            'url'         => esc_url_raw($item['url']),
+                            'orientation' => $orientation,
+                        );
+                    }
+                }
+                update_post_meta($post_id, '_altra_project_gallery', wp_json_encode($sanitized));
+            } else {
+                // Old comma-separated format — migrate to JSON
+                $ids = array_filter(array_map('intval', explode(',', $gallery_value)));
+                $migrated = array_map(function($id) {
+                    return array('type' => 'image', 'id' => $id);
+                }, array_values($ids));
+                update_post_meta($post_id, '_altra_project_gallery', wp_json_encode($migrated));
+            }
         }
     }
 
@@ -696,8 +863,11 @@ function altra_enqueue_admin_scripts($hook) {
 
     // Localize script for translations
     wp_localize_script('altra-admin-script', 'altraAdminData', array(
-        'selectImages' => __('Select Gallery Images', 'altra'),
-        'addToGallery' => __('Add to Gallery', 'altra'),
+        'selectImages'       => __('Select Gallery Images', 'altra'),
+        'addToGallery'       => __('Add to Gallery', 'altra'),
+        'invalidVimeoUrl'    => __('Veuillez entrer une URL Vimeo valide (ex: https://vimeo.com/123456789)', 'altra'),
+        'orientationLandscape' => __('Paysage', 'altra'),
+        'orientationPortrait'  => __('Portrait', 'altra'),
     ));
 }
 add_action('admin_enqueue_scripts', 'altra_enqueue_admin_scripts');
@@ -758,6 +928,11 @@ function altra_visual_card_editor_callback($post) {
         );
     }
 
+    // Get featured media type and video info
+    $media_type              = get_post_meta($post->ID, '_altra_featured_media_type', true) ?: 'image';
+    $featured_video_url      = get_post_meta($post->ID, '_altra_featured_video_url', true) ?: '';
+    $featured_video_orientation = get_post_meta($post->ID, '_altra_featured_video_orientation', true) ?: 'landscape';
+
     // Get featured image for preview
     $featured_image = '';
     $image_orientation = 'portrait'; // Default
@@ -770,10 +945,7 @@ function altra_visual_card_editor_callback($post) {
         $image_meta = wp_get_attachment_metadata($thumbnail_id);
 
         if ($image_meta && isset($image_meta['width']) && isset($image_meta['height'])) {
-            $width_img = $image_meta['width'];
-            $height_img = $image_meta['height'];
-
-            if ($width_img > $height_img) {
+            if ($image_meta['width'] > $image_meta['height']) {
                 $image_orientation = 'landscape';
             }
         }
@@ -787,13 +959,15 @@ function altra_visual_card_editor_callback($post) {
            value="<?php echo esc_attr(wp_json_encode($visual_settings)); ?>" />
 
     <script type="text/javascript">
-        // Pass data to React app
         window.altraCardEditorData = {
             postId: <?php echo $post->ID; ?>,
             featuredImage: <?php echo wp_json_encode($featured_image); ?>,
             currentSettings: <?php echo wp_json_encode($visual_settings); ?>,
             projectTitle: <?php echo wp_json_encode(get_the_title($post->ID)); ?>,
             imageOrientation: <?php echo wp_json_encode($image_orientation); ?>,
+            mediaType: <?php echo wp_json_encode($media_type); ?>,
+            featuredVideoUrl: <?php echo wp_json_encode($featured_video_url); ?>,
+            featuredVideoOrientation: <?php echo wp_json_encode($featured_video_orientation); ?>,
             nonce: '<?php echo wp_create_nonce('wp_rest'); ?>'
         };
     </script>
@@ -958,12 +1132,18 @@ function altra_get_projects_with_grid() {
             $thumbnail_url = get_template_directory_uri() . '/assets/images/placeholder.jpg';
         }
 
-        // Detect image orientation (landscape vs portrait)
-        $image_orientation = 'portrait'; // Default
-        if (has_post_thumbnail($project->ID)) {
+        // Get featured media type
+        $media_type             = get_post_meta($project->ID, '_altra_featured_media_type', true) ?: 'image';
+        $featured_video_url     = get_post_meta($project->ID, '_altra_featured_video_url', true) ?: '';
+        $featured_video_orientation = get_post_meta($project->ID, '_altra_featured_video_orientation', true) ?: 'portrait';
+
+        // Detect orientation
+        $image_orientation = 'portrait';
+        if ($media_type === 'video') {
+            $image_orientation = $featured_video_orientation;
+        } elseif (has_post_thumbnail($project->ID)) {
             $thumbnail_id = get_post_thumbnail_id($project->ID);
             $image_meta = wp_get_attachment_metadata($thumbnail_id);
-
             if ($image_meta && isset($image_meta['width']) && isset($image_meta['height'])) {
                 if ($image_meta['width'] > $image_meta['height']) {
                     $image_orientation = 'landscape';
@@ -972,12 +1152,15 @@ function altra_get_projects_with_grid() {
         }
 
         $result[] = array(
-            'id' => $project->ID,
-            'title' => $project->post_title,
-            'thumbnail' => $thumbnail_url,
-            'gridPosition' => $grid_position,
-            'url' => get_permalink($project->ID),
-            'orientation' => $image_orientation,
+            'id'                      => $project->ID,
+            'title'                   => $project->post_title,
+            'thumbnail'               => $thumbnail_url,
+            'gridPosition'            => $grid_position,
+            'url'                     => get_permalink($project->ID),
+            'orientation'             => $image_orientation,
+            'mediaType'               => $media_type,
+            'featuredVideoUrl'        => $featured_video_url,
+            'featuredVideoOrientation' => $featured_video_orientation,
         );
     }
 

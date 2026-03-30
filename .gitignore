@@ -59,3 +59,13 @@ yarn.lock
 tempo pour claude code.txt
 
 documentation
+
+# Fichiers temporaires PDF (images extraites)
+tmp_pdf*.png
+
+# Fichiers font source (à convertir en WOFF2 avant intégration)
+*.otf
+*.ttf
+
+# PDF de référence design
+Site-altra.pdf
