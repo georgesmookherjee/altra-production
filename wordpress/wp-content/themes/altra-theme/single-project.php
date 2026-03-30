@@ -53,56 +53,31 @@ get_header();
                     </div>
                 <?php endif; ?>
 
-                <!-- Featured Image (if no gallery) -->
+                <!-- Image à la une si pas de galerie -->
                 <?php if (empty($gallery_items) && has_post_thumbnail()) : ?>
                     <div class="project-featured-image">
-                        <?php the_post_thumbnail('project-large'); ?>
+                        <?php the_post_thumbnail('full', array('style' => 'max-height:85vh; width:auto; max-width:100%;')); ?>
                     </div>
                 <?php endif; ?>
 
-                <!-- Project Header (after gallery) -->
-                <header class="project-header">
-                    <h1 class="project-title"><?php the_title(); ?></h1>
-
-                    <?php if (get_the_content()) : ?>
-                        <div class="project-description">
-                            <?php the_content(); ?>
-                        </div>
-                    <?php endif; ?>
-                </header>
-
-                <!-- Project Details (moved after gallery) -->
+                <!-- Métadonnées projet — colonnes horizontales -->
                 <div class="project-details">
                     <?php
-                    // Get all fields, their order, and visibility
-                    $all_fields = altra_get_project_fields();
+                    $all_fields  = altra_get_project_fields();
                     $field_order = altra_get_field_order(get_the_ID());
-                    $visibility = altra_get_field_visibility(get_the_ID());
+                    $visibility  = altra_get_field_visibility(get_the_ID());
 
-                    // Display fields in custom order, respecting visibility
                     foreach ($field_order as $field_key) {
-                        // Skip if field doesn't exist or is not visible
-                        if (!isset($all_fields[$field_key]) || !isset($visibility[$field_key]) || !$visibility[$field_key]) {
-                            continue;
-                        }
+                        if (!isset($all_fields[$field_key]) || empty($visibility[$field_key])) continue;
 
                         $field = $all_fields[$field_key];
                         $value = get_post_meta(get_the_ID(), '_altra_project_' . $field_key, true);
+                        if (empty($value)) continue;
 
-                        // Only display if there's a value
-                        if (empty($value)) {
-                            continue;
-                        }
-
-                        // Format value based on field type
-                        $display_value = $value;
-                        if ($field['type'] === 'date') {
-                            $display_value = date('F Y', strtotime($value));
-                        }
+                        $display_value = ($field['type'] === 'date') ? date('F Y', strtotime($value)) : $value;
                         ?>
                         <div class="project-detail-item">
-                            <div class="project-detail-label"><?php echo strtoupper(esc_html($field['label'])); ?></div>
-                            <div class="project-detail-value"><?php echo esc_html($display_value); ?></div>
+                            <span class="project-detail-label"><?php echo esc_html($field['label']); ?></span><span class="project-detail-value"><?php echo esc_html($display_value); ?></span>
                         </div>
                         <?php
                     }

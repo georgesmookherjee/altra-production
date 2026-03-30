@@ -63,11 +63,19 @@ add_filter('mime_types', 'altra_add_webp_support');
 function altra_enqueue_assets() {
     $theme_dir = get_template_directory();
 
+    // Lora (Google Fonts) — pour le logotype "Altra"
+    wp_enqueue_style(
+        'altra-font-lora',
+        'https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap',
+        array(),
+        null
+    );
+
     // Main stylesheet - Use file modification time for cache busting
     wp_enqueue_style(
         'altra-style',
         get_stylesheet_uri(),
-        array(),
+        array('altra-font-lora'),
         filemtime(get_stylesheet_directory() . '/style.css')
     );
 

@@ -20,6 +20,7 @@
         const headerNavLeft = document.querySelector('.nav-left');
         const headerNavRight = document.querySelector('.nav-right');
 
+
         if (hero && heroLogo && header) {
             // Distance de scroll pour la transition complète
             let scrollThreshold = window.innerHeight * 0.8;

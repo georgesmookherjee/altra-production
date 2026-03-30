@@ -13,7 +13,7 @@
             <a href="<?php echo esc_url(home_url('/infos')); ?>">INFOS</a>
         </nav>
 
-        <h1 class="hero-logo">Altra Production</h1>
+        <h1 class="hero-logo"><span class="logo-altra">Altra</span><span class="logo-production"> Production</span></h1>
 
         <nav class="hero-nav-right">
             <a href="<?php echo esc_url(home_url('/contact')); ?>">CONTACT</a>
