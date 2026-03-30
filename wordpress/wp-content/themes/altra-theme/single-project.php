@@ -16,34 +16,45 @@ get_header();
 
                 <!-- Project Gallery with Click Navigation -->
                 <?php
-                $gallery_ids = get_post_meta(get_the_ID(), '_altra_project_gallery', true);
-                if ($gallery_ids) :
-                    $ids = array_filter(explode(',', $gallery_ids));
-                    $total_images = count($ids);
+                $gallery_items = altra_get_gallery_items(get_the_ID());
+                if (!empty($gallery_items)) :
+                    $total = count($gallery_items);
                     ?>
-                    <div class="project-gallery-viewer" data-total="<?php echo $total_images; ?>">
+                    <div class="project-gallery-viewer" data-total="<?php echo $total; ?>">
                         <div class="gallery-images">
-                            <?php foreach ($ids as $index => $image_id) : ?>
-                                <?php if ($image_id) : ?>
-                                    <div class="gallery-slide <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>">
-                                        <?php echo wp_get_attachment_image($image_id, 'full', false, array(
-                                            'class' => 'gallery-image',
-                                            'loading' => $index === 0 ? 'eager' : 'lazy', // First image eager, rest lazy
+                            <?php foreach ($gallery_items as $index => $item) : ?>
+                                <div class="gallery-slide <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>">
+                                    <?php if ($item['type'] === 'image') : ?>
+                                        <?php echo wp_get_attachment_image($item['id'], 'full', false, array(
+                                            'class'   => 'gallery-image',
+                                            'loading' => $index === 0 ? 'eager' : 'lazy',
                                             'decoding' => 'async',
-                                            'alt' => sprintf(__('%s - Image %d of %d', 'altra'), get_the_title(), $index + 1, $total_images)
+                                            'alt'     => sprintf(__('%s - Image %d of %d', 'altra'), get_the_title(), $index + 1, $total),
                                         )); ?>
-                                    </div>
-                                <?php endif; ?>
+                                    <?php elseif ($item['type'] === 'video') :
+                                        preg_match('/vimeo\.com\/(\d+)/', $item['url'], $matches);
+                                        $vimeo_id = isset($matches[1]) ? $matches[1] : '';
+                                        if ($vimeo_id) : ?>
+                                            <div class="gallery-video-wrapper gallery-video-<?php echo esc_attr($item['orientation'] ?? 'landscape'); ?>">
+                                                <iframe src="https://player.vimeo.com/video/<?php echo esc_attr($vimeo_id); ?>?autoplay=<?php echo $index === 0 ? '1' : '0'; ?>&loop=1&byline=0&title=0&portrait=0"
+                                                        frameborder="0"
+                                                        allow="autoplay; fullscreen; picture-in-picture"
+                                                        allowfullscreen
+                                                        title="<?php the_title_attribute(); ?>"></iframe>
+                                            </div>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
                             <?php endforeach; ?>
                         </div>
                         <div class="gallery-counter">
-                            <span class="current-image">1</span> / <span class="total-images"><?php echo $total_images; ?></span>
+                            <span class="current-image">1</span> / <span class="total-images"><?php echo $total; ?></span>
                         </div>
                     </div>
                 <?php endif; ?>
 
                 <!-- Featured Image (if no gallery) -->
-                <?php if (!$gallery_ids && has_post_thumbnail()) : ?>
+                <?php if (empty($gallery_items) && has_post_thumbnail()) : ?>
                     <div class="project-featured-image">
                         <?php the_post_thumbnail('project-large'); ?>
                     </div>

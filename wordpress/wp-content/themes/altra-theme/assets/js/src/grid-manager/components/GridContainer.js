@@ -76,7 +76,7 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 			);
 
 			if (node) {
-				const targetW = item.gridPosition?.w || getWidthColumns(item.orientation);
+				const targetW = item.gridPosition?.w || getWidthColumns(item);
 				const targetX = item.gridPosition?.x || 0;
 				const targetY = item.gridPosition?.y || 0;
 				const targetH = item.gridPosition?.h || 2;
@@ -94,9 +94,16 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 		});
 	}, [items]);
 
-	function getWidthColumns(orientation) {
-		// Landscape images take 2 columns, portrait takes 1 column
-		return orientation === 'landscape' ? 2 : 1;
+	function getWidthColumns(item) {
+		// Landscape video = 4 columns (full width)
+		if (item.mediaType === 'video' && item.featuredVideoOrientation === 'landscape') {
+			return 4;
+		}
+		// Landscape image = 2 columns
+		if (item.orientation === 'landscape') {
+			return 2;
+		}
+		return 1;
 	}
 
 	function handleRemove(projectId) {
@@ -115,7 +122,7 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 						data-project-id={item.id}
 						data-gs-x={item.gridPosition?.x || 0}
 						data-gs-y={item.gridPosition?.y || 0}
-						data-gs-w={item.gridPosition?.w || getWidthColumns(item.orientation)}
+						data-gs-w={item.gridPosition?.w || getWidthColumns(item)}
 						data-gs-h={item.gridPosition?.h || 2}
 					>
 						<div className="grid-stack-item-content">
