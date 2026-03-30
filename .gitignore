@@ -66,6 +66,7 @@ tmp_pdf*.png
 # Fichiers font source (à convertir en WOFF2 avant intégration)
 *.otf
 *.ttf
+webfontkit-*.zip
 
 # PDF de référence design
 Site-altra.pdf

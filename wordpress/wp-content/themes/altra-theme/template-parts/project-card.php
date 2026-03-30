@@ -122,10 +122,9 @@ if ($media_type === 'video' && $featured_video_url) {
         </div>
 
         <div class="project-info">
-            <h2 class="project-title"><?php the_title(); ?></h2>
-            <?php if ($photographer) : ?>
-                <p class="project-photographer"><?php echo esc_html($photographer); ?></p>
-            <?php endif; ?>
+            <p class="project-caption">
+                <strong class="project-title"><?php the_title(); ?></strong><?php if ($photographer) : ?> — <span class="project-photographer"><?php echo esc_html($photographer); ?></span><?php endif; ?>
+            </p>
         </div>
     </a>
 </article>

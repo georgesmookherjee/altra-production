@@ -114,24 +114,24 @@
 
 /* Info section - fixed below image */
 .project-info {
-    padding: 20px 0;
+    padding: 12px 0;
     background: transparent;
     color: #000;
 }
 
+/* One-line caption: Title (bold) — Photographer (regular) */
+.project-caption {
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 0;
+}
+
 .project-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 8px 0;
-    line-height: 1.3;
+    font-weight: 700;
 }
 
 .project-photographer {
-    font-size: 14px;
     font-weight: 400;
-    margin: 0;
-    color: #666;
-    line-height: 1.4;
 }
 
 /* ==========================================================================

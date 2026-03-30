@@ -10,6 +10,37 @@ Text Domain: altra
 */
 
 /* ==========================================================================
+   FONTS — Suisse Ecal International
+   ========================================================================== */
+
+@font-face {
+    font-family: 'SuisseEcalIntl';
+    src: url('assets/fonts/suisseecalintl-regular-webfont.woff2') format('woff2'),
+         url('assets/fonts/suisseecalintl-regular-webfont.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'SuisseEcalIntl';
+    src: url('assets/fonts/suisseecalintl-medium-webfont.woff2') format('woff2'),
+         url('assets/fonts/suisseecalintl-medium-webfont.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'SuisseEcalIntl';
+    src: url('assets/fonts/suisseecalintl-bold-webfont.woff2') format('woff2'),
+         url('assets/fonts/suisseecalintl-bold-webfont.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ==========================================================================
    RESET & BASE STYLES
    ========================================================================== */
 
@@ -23,7 +54,7 @@ Text Domain: altra
     --color-black: #000000;
     --color-white: #FFFFFF;
     --color-gray: #F5F5F5;
-    --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-primary: 'SuisseEcalIntl', Georgia, serif;
     --spacing-xs: 0.5rem;
     --spacing-sm: 1rem;
     --spacing-md: 2rem;
@@ -301,10 +332,10 @@ body:not(.logged-in) .hero-nav-right a {
 .site-logo {
     grid-column: 2;
     font-size: 3.5rem;
-    font-weight: 300;
-    /* letter-spacing: 0.05em; */
+    font-weight: 700;
     transition: opacity 0.3s ease;
     text-align: center;
+    line-height: 1;
 }
 
 /* Adaptive logo size for non-logged-in users */
@@ -324,9 +355,10 @@ body:not(.logged-in) .site-logo {
 
 .nav-left a,
 .nav-right a {
-    font-size: 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 400;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-decoration: none;
     transition: opacity 0.3s ease;
 }
@@ -334,7 +366,7 @@ body:not(.logged-in) .site-logo {
 /* Adaptive nav font size for non-logged-in users */
 body:not(.logged-in) .nav-left a,
 body:not(.logged-in) .nav-right a {
-    font-size: clamp(0.9rem, 1.5vw, 1.5rem);
+    font-size: 0.75rem;
 }
 
 .nav-left a:hover,
