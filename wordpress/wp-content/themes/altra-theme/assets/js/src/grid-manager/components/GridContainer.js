@@ -17,14 +17,14 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 
 		// Initialize GridStack with 4 columns
 		gridInstanceRef.current = GridStack.init({
-			column: 4, // 4 columns grid
+			column: 4,
 			cellHeight: 100,
 			margin: 10,
-			float: false, // Items don't float up
+			float: true, // Items stay exactly where placed — no auto-compaction
 			disableOneColumnMode: true,
 			animate: true,
 			removeTimeout: 100,
-			disableResize: true, // Prevent manual resizing (landscape=2 cols, portrait=1 col set via code)
+			disableResize: true,
 		}, gridRef.current);
 
 		// Listen to changes
@@ -76,10 +76,10 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 			);
 
 			if (node) {
-				const targetW = item.gridPosition?.w || getWidthColumns(item);
-				const targetX = item.gridPosition?.x || 0;
-				const targetY = item.gridPosition?.y || 0;
-				const targetH = item.gridPosition?.h || 2;
+				const targetW = getWidthColumns(item); // always computed, never from saved position
+				const targetX = item.gridPosition?.x ?? 0;
+				const targetY = item.gridPosition?.y ?? 0;
+				const targetH = item.gridPosition?.h ?? 2;
 
 				// Only update if changed to avoid infinite loops
 				if (node.w !== targetW || node.x !== targetX || node.y !== targetY || node.h !== targetH) {
@@ -94,15 +94,11 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 		});
 	}, [items]);
 
+	// Width is always derived from media type — resize is disabled
 	function getWidthColumns(item) {
-		// Landscape video = 4 columns (full width)
-		if (item.mediaType === 'video' && item.featuredVideoOrientation === 'landscape') {
-			return 4;
-		}
-		// Landscape image = 2 columns
-		if (item.orientation === 'landscape') {
-			return 2;
-		}
+		if (item.mediaType === 'video' && item.featuredVideoOrientation === 'landscape') return 4;
+		if (item.mediaType === 'video' && item.featuredVideoOrientation === 'portrait') return 1;
+		if (item.orientation === 'landscape') return 2;
 		return 1;
 	}
 
@@ -122,7 +118,7 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 						data-project-id={item.id}
 						data-gs-x={item.gridPosition?.x || 0}
 						data-gs-y={item.gridPosition?.y || 0}
-						data-gs-w={item.gridPosition?.w || getWidthColumns(item)}
+						data-gs-w={getWidthColumns(item)}
 						data-gs-h={item.gridPosition?.h || 2}
 					>
 						<div className="grid-stack-item-content">

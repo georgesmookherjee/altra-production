@@ -968,6 +968,7 @@ function altra_visual_card_editor_callback($post) {
             mediaType: <?php echo wp_json_encode($media_type); ?>,
             featuredVideoUrl: <?php echo wp_json_encode($featured_video_url); ?>,
             featuredVideoOrientation: <?php echo wp_json_encode($featured_video_orientation); ?>,
+            featuredVideoThumbnail: <?php echo wp_json_encode($media_type === 'video' && !empty($featured_video_url) ? altra_get_vimeo_thumbnail($featured_video_url) : null); ?>,
             nonce: '<?php echo wp_create_nonce('wp_rest'); ?>'
         };
     </script>
@@ -1095,6 +1096,33 @@ function altra_check_edit_permission() {
 }
 
 /**
+ * Fetch Vimeo thumbnail via oEmbed API (works for unlisted/domain-restricted videos).
+ * Result is cached as a WordPress transient for 24 hours.
+ */
+function altra_get_vimeo_thumbnail($video_url) {
+    $cache_key = 'altra_vimeo_thumb_' . md5($video_url);
+    $cached = get_transient($cache_key);
+    if ($cached !== false) {
+        return $cached;
+    }
+
+    $oembed_url = 'https://vimeo.com/api/oembed.json?url=' . urlencode($video_url) . '&width=400';
+    $response   = wp_remote_get($oembed_url, array('timeout' => 5));
+    $placeholder = get_template_directory_uri() . '/assets/images/placeholder.jpg';
+
+    if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+        set_transient($cache_key, $placeholder, HOUR_IN_SECONDS);
+        return $placeholder;
+    }
+
+    $data = json_decode(wp_remote_retrieve_body($response), true);
+    $thumbnail_url = isset($data['thumbnail_url']) ? $data['thumbnail_url'] : $placeholder;
+
+    set_transient($cache_key, $thumbnail_url, DAY_IN_SECONDS);
+    return $thumbnail_url;
+}
+
+/**
  * GET /wp-json/altra/v1/projects
  * Returns all published projects with grid data and metadata
  */
@@ -1126,16 +1154,20 @@ function altra_get_projects_with_grid() {
             }
         }
 
-        // Get thumbnail
-        $thumbnail_url = get_the_post_thumbnail_url($project->ID, 'medium');
-        if (!$thumbnail_url) {
-            $thumbnail_url = get_template_directory_uri() . '/assets/images/placeholder.jpg';
-        }
-
-        // Get featured media type
+        // Get featured media type — must be read BEFORE computing the thumbnail
         $media_type             = get_post_meta($project->ID, '_altra_featured_media_type', true) ?: 'image';
         $featured_video_url     = get_post_meta($project->ID, '_altra_featured_video_url', true) ?: '';
         $featured_video_orientation = get_post_meta($project->ID, '_altra_featured_video_orientation', true) ?: 'portrait';
+
+        // Get thumbnail — use Vimeo oEmbed thumbnail for video projects
+        if ($media_type === 'video' && !empty($featured_video_url)) {
+            $thumbnail_url = altra_get_vimeo_thumbnail($featured_video_url);
+        } else {
+            $thumbnail_url = get_the_post_thumbnail_url($project->ID, 'medium');
+            if (!$thumbnail_url) {
+                $thumbnail_url = get_template_directory_uri() . '/assets/images/placeholder.jpg';
+            }
+        }
 
         // Detect orientation
         $image_orientation = 'portrait';

@@ -7,6 +7,14 @@ import { fetchProjects, saveGridPositions } from './utils/api';
 import GridContainer from './components/GridContainer';
 import ProjectSidebar from './components/ProjectSidebar';
 
+// Width is always derived from media type — resize is disabled, so saved w is never authoritative
+function computeItemWidth(item) {
+	if (item.mediaType === 'video' && item.featuredVideoOrientation === 'landscape') return 4;
+	if (item.mediaType === 'video' && item.featuredVideoOrientation === 'portrait') return 1;
+	if (item.orientation === 'landscape') return 2;
+	return 1;
+}
+
 export default function GridManagerApp() {
 	const [isEditMode, setIsEditMode] = useState(false);
 	const [allProjects, setAllProjects] = useState([]);
@@ -26,15 +34,22 @@ export default function GridManagerApp() {
 			const data = await fetchProjects();
 			setAllProjects(data);
 
-			// Get projects with positions or fallback to all
-			const positioned = data.filter(p => p.gridPosition);
+			// Show only projects explicitly placed in the grid (have a saved gridPosition)
+			// Override saved w with computed value — mediaType may have changed since last save
+			// Sort by y then x so GridStack initialises items top-to-bottom, left-to-right
+			const positioned = data
+				.filter(p => p.gridPosition)
+				.map(p => ({
+					...p,
+					gridPosition: { ...p.gridPosition, w: computeItemWidth(p) },
+				}))
+				.sort((a, b) => {
+					const ay = a.gridPosition?.y ?? 0, by = b.gridPosition?.y ?? 0;
+					const ax = a.gridPosition?.x ?? 0, bx = b.gridPosition?.x ?? 0;
+					return ay !== by ? ay - by : ax - bx;
+				});
 
-			if (positioned.length > 0) {
-				setGridItems(positioned);
-			} else {
-				// First time: add first 6 projects to grid
-				setGridItems(data.slice(0, 6));
-			}
+			setGridItems(positioned);
 
 			console.log('Projects loaded:', data.length);
 		} catch (error) {
@@ -107,11 +122,11 @@ export default function GridManagerApp() {
 
 			const positions = sortedItems.map((item, index) => ({
 				id: item.id,
-				x: item.gridPosition?.x || 0,
-				y: item.gridPosition?.y || 0,
-				w: item.gridPosition?.w || 1, // All items are 1 column wide in 4-column grid
-				h: item.gridPosition?.h || 2,
-				order: index, // Now index represents visual order
+				x: item.gridPosition?.x ?? 0,
+				y: item.gridPosition?.y ?? 0,
+				w: computeItemWidth(item), // always computed from media type, resize is disabled
+				h: item.gridPosition?.h ?? 2,
+				order: index,
 			}));
 
 			const result = await saveGridPositions(positions);

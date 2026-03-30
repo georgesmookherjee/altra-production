@@ -131,7 +131,11 @@ Structure HTML dans `project-card.php` :
 
 ### Thumbnail pour Card Editor
 
-Service : `https://vumbnail.com/{vimeoId}.jpg` (pas d'auth requise, public Vimeo seulement).
+Service : Vimeo oEmbed API — `https://vimeo.com/api/oembed.json?url={url}&width=400`
+- Fonctionne pour les vidéos **publiques et non répertoriées** ("Masquer sur Vimeo")
+- Ne fonctionne **pas** pour les vidéos "Privé" (accès bloqué par Vimeo)
+- Résultat mis en cache via WordPress transients (24h) — helper PHP : `altra_get_vimeo_thumbnail($url)`
+- Vimeo Free ne permet que Public ou Privé ; "Masquer sur Vimeo" (non répertorié) nécessite le forfait Starter (10€/mois minimum)
 
 ### Inline Card Editor (homepage, logged-in)
 
@@ -162,10 +166,10 @@ Endpoint : `GET/POST /wp-json/altra/v1/grid`
 
 ## Travail en cours / Pending
 
-- [ ] **Typographie** : Suisse Ecal International (fichiers OTF disponibles à la racine, à convertir en WOFF2 via fontsquirrel.com puis intégrer via `@font-face`)
-- [ ] **Page projet** (single-project.php) : slideshow media (images + vidéos) avec navigation clic + flèches — redesign visuel à faire selon PDF `Site-altra.pdf`
+- [ ] **Typographie** : Suisse Ecal International — OTF disponibles à la racine du repo (hors git), à convertir en WOFF2 via fontsquirrel.com puis intégrer via `@font-face`. Positionnement des éléments typo à définir (prévu prochaine session).
+- [ ] **Page projet** (single-project.php) : slideshow media (images + vidéos) avec navigation clic + flèches — redesign visuel à faire selon PDF `Site-altra.pdf` (pages 5-7)
 - [ ] **Dimensions grille** : ajustements fins (gaps, tailles) — Basile gère lui-même
-- [ ] **PDF de référence** : `Site-altra.pdf` à la racine (design cible pages 5-7 notamment)
+- [ ] **PDF de référence** : `Site-altra.pdf` à la racine (hors git, design cible pages 5-7)
 
 ## Implémenté et fonctionnel
 
@@ -175,7 +179,9 @@ Endpoint : `GET/POST /wp-json/altra/v1/grid`
 - [x] Support vidéo Vimeo : autoplay inline, card paysage pleine largeur, card portrait 1 col
 - [x] Migration automatique gallery CSV → JSON
 - [x] Metabox Cover Media (toggle Image/Vidéo)
-- [x] Miniature Vimeo dans Card Editor (vumbnail.com)
+- [x] Miniature Vimeo dans Card Editor via oEmbed API (fonctionne pour vidéos publiques et non répertoriées)
+- [x] Grid Manager : vignettes correctes, spans corrects (portrait=1col, paysage=4col), positions persistantes, `float:true` pour éviter l'auto-compaction
+- [x] Homepage : seuls les projets avec `_altra_grid_position` sauvegardée s'affichent (meta_query EXISTS)
 
 ---
 

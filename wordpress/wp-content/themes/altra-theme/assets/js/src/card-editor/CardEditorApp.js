@@ -8,25 +8,14 @@ import FocalPointPicker from './components/FocalPointPicker';
 import ImageZoomControl from './components/ImageZoomControl';
 import PreviewCard from './components/PreviewCard';
 
-function extractVimeoId(url) {
-	if (!url) return null;
-	const match = url.match(/vimeo\.com\/(\d+)/);
-	return match ? match[1] : null;
-}
 
 export default function CardEditorApp() {
 	const editorData = window.altraCardEditorData || {};
 	const mediaType = editorData.mediaType || 'image';
 	const isVideo = mediaType === 'video';
 
-	// For video projects, use Vimeo thumbnail as preview image
-	const vimeoId = isVideo ? extractVimeoId(editorData.featuredVideoUrl) : null;
-	const vimeoThumbnail = vimeoId
-		? `https://vumbnail.com/${vimeoId}.jpg`
-		: null;
-
-	// The image used for the editor preview
-	const previewImage = isVideo ? vimeoThumbnail : editorData.featuredImage;
+	// For video projects, use the server-side Vimeo thumbnail (oEmbed, works for unlisted videos)
+	const previewImage = isVideo ? editorData.featuredVideoThumbnail : editorData.featuredImage;
 
 	// Initialize state from window data
 	const [focalPoint, setFocalPoint] = useState(
