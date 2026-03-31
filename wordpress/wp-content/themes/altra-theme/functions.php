@@ -88,6 +88,11 @@ function altra_enqueue_assets() {
         file_exists($flexible_layout_path) ? filemtime($flexible_layout_path) : '1.0.0'
     );
 
+    // Vimeo Player SDK — uniquement sur les pages projet (pour contrôle autoplay)
+    if (is_singular('project')) {
+        wp_enqueue_script('vimeo-player-sdk', 'https://player.vimeo.com/api/player.js', array(), null, true);
+    }
+
     // Main JavaScript - Defer loading for better performance
     $main_js_path = $theme_dir . '/assets/js/main.js';
     wp_enqueue_script(
@@ -344,6 +349,16 @@ function altra_add_project_meta_boxes() {
         'altra_visual_card_editor_callback',
         'project',
         'normal',
+        'default'
+    );
+
+    // Left label meta box (displayed left of gallery image on project page)
+    add_meta_box(
+        'altra_left_label',
+        __('Left Label', 'altra'),
+        'altra_left_label_callback',
+        'project',
+        'side',
         'default'
     );
 }
@@ -833,6 +848,34 @@ function altra_save_project_meta($post_id) {
     }
 }
 add_action('save_post_project', 'altra_save_project_meta');
+
+/**
+ * Left Label metabox callback
+ */
+function altra_left_label_callback($post) {
+    $value = get_post_meta($post->ID, '_altra_left_label', true);
+    ?>
+    <p style="margin-bottom:6px;font-size:12px;color:#666;">Texte affiché à gauche de la galerie sur la page projet.</p>
+    <input type="text"
+           name="altra_left_label"
+           value="<?php echo esc_attr($value); ?>"
+           style="width:100%;"
+           placeholder="Ex: HTSI, Harper's Bazaar…">
+    <?php
+}
+
+/**
+ * Save left label
+ */
+function altra_save_left_label($post_id) {
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_post', $post_id) || get_post_type($post_id) !== 'project') return;
+
+    if (isset($_POST['altra_left_label'])) {
+        update_post_meta($post_id, '_altra_left_label', sanitize_text_field($_POST['altra_left_label']));
+    }
+}
+add_action('save_post_project', 'altra_save_left_label');
 
 /**
  * Enqueue admin scripts and styles

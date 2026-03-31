@@ -313,7 +313,7 @@ body:not(.logged-in) .hero-nav-right a {
     left: 0;
     right: 0;
     width: 100%;
-    padding: 1.10rem 2rem;
+    padding: 0.5rem 2rem 0rem 2rem; /*haut droite bas gauche */
     background-color: var(--color-white);
     z-index: 1000;
     opacity: 0;
@@ -355,6 +355,7 @@ body:not(.logged-in) .hero-nav-right a {
     font-weight: 700;
     letter-spacing: -0.01em;
     line-height: 1;
+    transform: scaleY(0.80) scaleX(0.85);
 }
 
 /* "Production" — petite, légère, SuisseEcal */
@@ -375,10 +376,16 @@ body:not(.logged-in) .hero-nav-right a {
     justify-self: end;
 }
 
+.nav-left,
+.nav-right {
+    align-self: flex-start;
+    margin-top: 33px; /* ajuste à ta guise */
+}
+
 .nav-left a,
 .nav-right a {
     font-size: 0.7rem;
-    font-weight: 400;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0;
     text-decoration: none;
@@ -393,7 +400,7 @@ body:not(.logged-in) .hero-nav-right a {
 /* Remove logged-in override — clamp handles responsiveness */
 body:not(.logged-in) .nav-left a,
 body:not(.logged-in) .nav-right a {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
 }
 
 /* Legacy navigation support */
@@ -445,7 +452,13 @@ body:not(.logged-in) .nav-right a {
    ========================================================================== */
 
 .single-project {
-    padding-top: 50px;
+    padding-top: 45px;
+}
+
+/* Container page projet — galerie centrée, pas de padding latéral */
+.project-container {
+    padding: 0;
+    max-width: none;
 }
 
 /* Gallery viewer — plein écran, clic pour naviguer */
@@ -482,10 +495,10 @@ body:not(.logged-in) .nav-right a {
 
 /* Vidéo dans la galerie */
 .gallery-video-wrapper {
-    position: relative;
-    width: 100%;
-    max-width: 900px;
+    height: 68vh;        /* même que les photos */
+    width: auto;
     aspect-ratio: 16 / 9;
+    max-width: none;     /* retire la contrainte à 900px */
 }
 
 .gallery-video-wrapper.gallery-video-portrait {
@@ -498,6 +511,21 @@ body:not(.logged-in) .nav-right a {
     top: 0; left: 0;
     width: 100%; height: 100%;
     border: 0;
+    pointer-events: none; /* Les clics passent au gallery viewer pour la navigation */
+}
+
+/* Label gauche — affiché à gauche de l'image, centré verticalement */
+.gallery-left-label {
+    position: absolute;
+    left: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    pointer-events: none;
+    z-index: 10;
 }
 
 /* Compteur discret en bas à droite de la galerie */
@@ -513,13 +541,13 @@ body:not(.logged-in) .nav-right a {
     z-index: 10;
 }
 
-/* Métadonnées — colonnes horizontales façon éditorial */
+/* Métadonnées — pleine largeur, alignées sur les bords du header */
 .project-details {
     display: flex;
     flex-wrap: wrap;
-    gap: 0 3rem;
-    padding: 1.5rem 0;
-    border-top: 1px solid #e0e0e0;
+    justify-content: space-between;
+    gap: 0;
+    padding: 2rem 10rem 1.5rem 2rem; /*haut   droite bas  gauche */
 }
 
 .project-detail-item {

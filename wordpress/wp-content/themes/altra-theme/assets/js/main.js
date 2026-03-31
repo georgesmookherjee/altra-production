@@ -187,42 +187,61 @@
             const totalImages = slides.length;
             let currentIndex = 0;
 
-            // Click on gallery to go to next image
-            galleryViewer.addEventListener('click', function(e) {
-                // Don't navigate if clicking on the counter
-                if (e.target.closest('.gallery-counter')) {
-                    return;
+            // Cache Vimeo Player instances
+            const vimeoPlayers = {};
+
+            function getVimeoPlayer(index) {
+                const iframe = slides[index].querySelector('iframe');
+                if (!iframe) return null;
+                if (!vimeoPlayers[index] && typeof Vimeo !== 'undefined') {
+                    vimeoPlayers[index] = new Vimeo.Player(iframe);
+                }
+                return vimeoPlayers[index] || null;
+            }
+
+            function goToSlide(newIndex) {
+                // Pause video on current slide if leaving a video slide
+                const currentPlayer = getVimeoPlayer(currentIndex);
+                if (currentPlayer) {
+                    currentPlayer.pause();
                 }
 
-                // Hide current slide
                 slides[currentIndex].classList.remove('active');
-
-                // Go to next slide (loop back to 0 if at end)
-                currentIndex = (currentIndex + 1) % totalImages;
-
-                // Show next slide
+                currentIndex = ((newIndex % totalImages) + totalImages) % totalImages;
                 slides[currentIndex].classList.add('active');
-
-                // Update counter
                 currentImageSpan.textContent = currentIndex + 1;
+
+                // Autoplay video on new slide — fonctionne car déclenché par geste utilisateur (clic)
+                const newPlayer = getVimeoPlayer(currentIndex);
+                if (newPlayer) {
+                    newPlayer.play().catch(function() {
+                        // Browser a bloqué l'autoplay (sans interaction préalable)
+                    });
+                }
+            }
+
+            // Clic sur la galerie → slide suivant
+            galleryViewer.addEventListener('click', function(e) {
+                if (e.target.closest('.gallery-counter') || e.target.closest('.gallery-left-label')) return;
+                goToSlide(currentIndex + 1);
             });
 
-            // Optional: Add keyboard navigation
+            // Navigation clavier
             document.addEventListener('keydown', function(e) {
-                if (!galleryViewer) return;
-
                 if (e.key === 'ArrowRight' || e.key === ' ') {
                     e.preventDefault();
-                    galleryViewer.click();
+                    goToSlide(currentIndex + 1);
                 } else if (e.key === 'ArrowLeft') {
                     e.preventDefault();
-                    // Go to previous image
-                    slides[currentIndex].classList.remove('active');
-                    currentIndex = (currentIndex - 1 + totalImages) % totalImages;
-                    slides[currentIndex].classList.add('active');
-                    currentImageSpan.textContent = currentIndex + 1;
+                    goToSlide(currentIndex - 1);
                 }
             });
+
+            // Autoplay si la première slide est une vidéo
+            const firstPlayer = getVimeoPlayer(0);
+            if (firstPlayer) {
+                firstPlayer.play().catch(function() {});
+            }
         }
 
         // Mobile menu toggle (if needed in future)

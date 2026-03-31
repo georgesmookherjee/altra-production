@@ -12,15 +12,19 @@ get_header();
     <?php while (have_posts()) : the_post(); ?>
         
         <article id="post-<?php the_ID(); ?>" <?php post_class('single-project'); ?>>
-            <div class="container">
+            <div class="container project-container">
 
                 <!-- Project Gallery with Click Navigation -->
                 <?php
                 $gallery_items = altra_get_gallery_items(get_the_ID());
+                $left_label = get_post_meta(get_the_ID(), '_altra_left_label', true);
                 if (!empty($gallery_items)) :
                     $total = count($gallery_items);
                     ?>
                     <div class="project-gallery-viewer" data-total="<?php echo $total; ?>">
+                        <?php if ($left_label) : ?>
+                            <div class="gallery-left-label"><?php echo esc_html($left_label); ?></div>
+                        <?php endif; ?>
                         <div class="gallery-images">
                             <?php foreach ($gallery_items as $index => $item) : ?>
                                 <div class="gallery-slide <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>">
@@ -60,30 +64,30 @@ get_header();
                     </div>
                 <?php endif; ?>
 
-                <!-- Métadonnées projet — colonnes horizontales -->
-                <div class="project-details">
-                    <?php
-                    $all_fields  = altra_get_project_fields();
-                    $field_order = altra_get_field_order(get_the_ID());
-                    $visibility  = altra_get_field_visibility(get_the_ID());
+            </div>
 
-                    foreach ($field_order as $field_key) {
-                        if (!isset($all_fields[$field_key]) || empty($visibility[$field_key])) continue;
+            <!-- Métadonnées projet — pleine largeur, alignées sur les bords du header -->
+            <div class="project-details">
+                <?php
+                $all_fields  = altra_get_project_fields();
+                $field_order = altra_get_field_order(get_the_ID());
+                $visibility  = altra_get_field_visibility(get_the_ID());
 
-                        $field = $all_fields[$field_key];
-                        $value = get_post_meta(get_the_ID(), '_altra_project_' . $field_key, true);
-                        if (empty($value)) continue;
+                foreach ($field_order as $field_key) {
+                    if (!isset($all_fields[$field_key]) || empty($visibility[$field_key])) continue;
 
-                        $display_value = ($field['type'] === 'date') ? date('F Y', strtotime($value)) : $value;
-                        ?>
-                        <div class="project-detail-item">
-                            <span class="project-detail-label"><?php echo esc_html($field['label']); ?></span><span class="project-detail-value"><?php echo esc_html($display_value); ?></span>
-                        </div>
-                        <?php
-                    }
+                    $field = $all_fields[$field_key];
+                    $value = get_post_meta(get_the_ID(), '_altra_project_' . $field_key, true);
+                    if (empty($value)) continue;
+
+                    $display_value = ($field['type'] === 'date') ? date('F Y', strtotime($value)) : $value;
                     ?>
-                </div>
-
+                    <div class="project-detail-item">
+                        <span class="project-detail-label"><?php echo esc_html($field['label']); ?></span><span class="project-detail-value"><?php echo esc_html($display_value); ?></span>
+                    </div>
+                    <?php
+                }
+                ?>
             </div>
         </article>
         

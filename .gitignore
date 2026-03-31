@@ -68,5 +68,7 @@ tmp_pdf*.png
 *.ttf
 webfontkit-*.zip
 
-# PDF de référence design
+# PDF de référence design / divers
 Site-altra.pdf
+tempo-descriptif-bug/
+notes-brouillon.txt
