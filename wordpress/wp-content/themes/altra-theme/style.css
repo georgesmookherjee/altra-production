@@ -184,7 +184,7 @@ p {
 
 .hero-logo {
     position: fixed;
-    top: 50%;
+    top: 44.8%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1001;
@@ -198,20 +198,21 @@ p {
     white-space: nowrap;
 }
 
-/* Dans le hero : "Altra" très grand, serif en attente d'identification */
+/* Dans le hero : "Altra" très grand, serif — reset du scaleY du header */
 .hero-logo .logo-altra {
     font-family: 'Lora', Georgia, serif;
     font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 700;
     letter-spacing: -0.01em;
     line-height: 1;
+    transform: none;
 }
 
 .hero-logo .logo-production {
     font-family: 'SuisseEcalIntl', sans-serif;
     font-size: clamp(0.75rem, 1.3vw, 1rem);
-    font-weight: 400;
-    letter-spacing: 0.02em;
+    font-weight: 500;
+    letter-spacing: 0.01em;
 }
 
 .hero-info {
@@ -251,7 +252,7 @@ body:not(.logged-in) .hero-info {
 .hero-nav-left,
 .hero-nav-right {
     position: fixed;
-    top: 50.7%;
+    top: 46.8%;
     z-index: 1001;
     will-change: transform;
     transition: opacity 0.3s ease;
@@ -269,7 +270,8 @@ body:not(.logged-in) .hero-info {
 
 .hero-nav-left a,
 .hero-nav-right a {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0;
     text-decoration: none;
@@ -279,7 +281,7 @@ body:not(.logged-in) .hero-info {
 /* Hero nav — same as header nav */
 body:not(.logged-in) .hero-nav-left a,
 body:not(.logged-in) .hero-nav-right a {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
 }
 
 /* Scroll indicator */
