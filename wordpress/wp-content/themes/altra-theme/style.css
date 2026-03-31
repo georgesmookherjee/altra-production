@@ -644,14 +644,46 @@ body:not(.logged-in) .nav-right a {
 
 /* Mobile - only layout changes and hiding elements */
 @media (max-width: 768px) {
-    /* Hide hero navigation on small screens */
-    body:not(.logged-in) .hero-nav-left,
-    body:not(.logged-in) .hero-nav-right {
-        display: none;
+    /* Hero navs : position sur mobile */
+    .hero-nav-left,
+    .hero-nav-right {
+        top: 45.9%;
+    }
+
+    /* Font-size sur les liens hero — !important pour surcharger body:not(.logged-in) */
+    .hero-nav-left a,
+    .hero-nav-right a {
+        font-size: 0.6rem !important;
+    }
+
+    .hero-nav-left {
+        left: 1rem;
+    }
+
+    .hero-nav-right {
+        right: 1rem;
+    }
+
+    /* Header : réduire padding sur mobile */
+    .site-header {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Position verticale dans le header mobile — margin-top à ajuster */
+    .site-header .nav-left,
+    .site-header .nav-right {
+        margin-top: 12px;
+    }
+
+    /* Font-size avec spécificité suffisante pour surcharger body:not(.logged-in) */
+    .site-header .nav-left a,
+    .site-header .nav-right a {
+        font-size: 0.6rem !important;
     }
 
     /* Adjust hero-info position on smaller screens */
-    body:not(.logged-in) .hero-info {
+    .hero-info {
         transform: translate(-50%, calc(-50% + 80px));
         padding: 0 20px;
     }

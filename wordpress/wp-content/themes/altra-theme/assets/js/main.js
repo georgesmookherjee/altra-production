@@ -22,39 +22,48 @@
 
 
         if (hero && heroLogo && header) {
-            // Distance de scroll pour la transition complète
-            let scrollThreshold = window.innerHeight * 0.8;
-
-            // Comparer .logo-altra hero vs .logo-altra header pour position ET scale
-            const heroAltraEl   = heroLogo.querySelector('.logo-altra');
-            const headerAltraEl = headerLogo ? headerLogo.querySelector('.logo-altra') : null;
-
-            const heroLogoRect0   = heroLogo.getBoundingClientRect();
-            const heroAltraRect0  = heroAltraEl ? heroAltraEl.getBoundingClientRect() : heroLogoRect0;
-
-            // Centre de .logo-altra dans le repère du .hero-logo (pour compenser le transform origin)
-            const heroLogoCenterX = heroLogoRect0.left + heroLogoRect0.width  / 2;
-            const heroLogoCenterY = heroLogoRect0.top  + heroLogoRect0.height / 2;
-            const heroAltraCenterX = heroAltraRect0.left + heroAltraRect0.width  / 2;
-            const heroAltraCenterY = heroAltraRect0.top  + heroAltraRect0.height / 2;
-            // Offset entre centre du conteneur et centre de "Altra" (le scale s'applique autour du conteneur)
-            const altraOffsetX = heroAltraCenterX - heroLogoCenterX;
-            const altraOffsetY = heroAltraCenterY - heroLogoCenterY;
-
-            const heroAltraW   = heroAltraRect0.width;
-            const headerAltraW = headerAltraEl ? headerAltraEl.getBoundingClientRect().width : heroAltraW;
-            const targetScale  = headerAltraW / heroAltraW;
-
+            const heroAltraEl    = heroLogo.querySelector('.logo-altra');
+            const headerAltraEl  = headerLogo ? headerLogo.querySelector('.logo-altra') : null;
             const heroLogoProduction = heroLogo.querySelector('.logo-production');
 
-            // Capturer les positions initiales des navs hero (avant tout transform JS)
-            const initNavLeftCenterY  = heroNavLeft  ? heroNavLeft.getBoundingClientRect().top  + heroNavLeft.getBoundingClientRect().height  / 2 : 0;
-            const initNavRightCenterY = heroNavRight ? heroNavRight.getBoundingClientRect().top + heroNavRight.getBoundingClientRect().height / 2 : 0;
+            // Positions initiales — recalculées au chargement et au resize
+            let scrollThreshold, heroLogoCenterX, heroLogoCenterY;
+            let altraOffsetX, altraOffsetY, targetScale;
+            let initNavLeftCenterY, initNavRightCenterY;
+
+            function initPositions() {
+                // Reset des transforms JS pour mesurer les positions CSS pures
+                heroLogo.style.transform = '';
+                if (heroNavLeft)  heroNavLeft.style.transform  = '';
+                if (heroNavRight) heroNavRight.style.transform = '';
+
+                scrollThreshold = window.innerHeight * 0.8;
+
+                const heroLogoRect  = heroLogo.getBoundingClientRect();
+                const heroAltraRect = heroAltraEl ? heroAltraEl.getBoundingClientRect() : heroLogoRect;
+
+                heroLogoCenterX = heroLogoRect.left + heroLogoRect.width  / 2;
+                heroLogoCenterY = heroLogoRect.top  + heroLogoRect.height / 2;
+                const heroAltraCenterX = heroAltraRect.left + heroAltraRect.width  / 2;
+                const heroAltraCenterY = heroAltraRect.top  + heroAltraRect.height / 2;
+
+                altraOffsetX = heroAltraCenterX - heroLogoCenterX;
+                altraOffsetY = heroAltraCenterY - heroLogoCenterY;
+
+                const heroAltraW  = heroAltraRect.width;
+                const headerAltraW = headerAltraEl ? headerAltraEl.getBoundingClientRect().width : heroAltraW;
+                targetScale = headerAltraW / heroAltraW;
+
+                initNavLeftCenterY  = heroNavLeft  ? heroNavLeft.getBoundingClientRect().top  + heroNavLeft.getBoundingClientRect().height  / 2 : 0;
+                initNavRightCenterY = heroNavRight ? heroNavRight.getBoundingClientRect().top + heroNavRight.getBoundingClientRect().height / 2 : 0;
+            }
 
             // Cacher logo et navs du header au départ
             if (headerLogo)     headerLogo.style.opacity     = '0';
             if (headerNavLeft)  headerNavLeft.style.opacity  = '0';
             if (headerNavRight) headerNavRight.style.opacity = '0';
+
+            initPositions();
 
             function updateLogoMorphing() {
                 const scrolled = window.pageYOffset || document.documentElement.scrollTop;
@@ -143,10 +152,11 @@
                 }
             });
 
-            // Recalculer lors du redimensionnement
+            // Recalculer lors du redimensionnement — recapture les positions initiales
             window.addEventListener('resize', function() {
                 if (!ticking) {
                     window.requestAnimationFrame(function() {
+                        initPositions();
                         updateLogoMorphing();
                         ticking = false;
                     });
