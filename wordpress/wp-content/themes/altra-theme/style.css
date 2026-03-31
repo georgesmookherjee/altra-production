@@ -543,11 +543,10 @@ body:not(.logged-in) .nav-right a {
     z-index: 10;
 }
 
-/* Métadonnées — pleine largeur, alignées sur les bords du header */
+/* Métadonnées — grille 5 colonnes, retour à la ligne automatique */
 .project-details {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     gap: 0;
     padding: 2rem 10rem 1.5rem 2rem; /*haut   droite bas  gauche */
 }
@@ -555,23 +554,27 @@ body:not(.logged-in) .nav-right a {
 .project-detail-item {
     font-size: 0.85rem;
     line-height: 1.5;
-    white-space: nowrap;
 }
 
-/* "Label — Valeur" sur une ligne */
+/* "Label — Valeur" : flex pour que les lignes supplémentaires s'alignent sous la valeur */
+.project-detail-item {
+    display: flex;
+    align-items: flex-start;
+}
+
 .project-detail-label {
     font-weight: 700;
-    display: inline;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .project-detail-label::after {
-    content: ' — ';
+    content: '\00a0—\00a0';
     font-weight: 400;
 }
 
 .project-detail-value {
     font-weight: 400;
-    display: inline;
 }
 
 /* Titre projet — sobre, au-dessus des métadonnées */

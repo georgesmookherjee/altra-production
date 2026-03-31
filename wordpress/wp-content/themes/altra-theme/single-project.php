@@ -81,9 +81,17 @@ get_header();
                     if (empty($value)) continue;
 
                     $display_value = ($field['type'] === 'date') ? date('F Y', strtotime($value)) : $value;
+                    // Location : remplacer la virgule par un saut de ligne
+                    $use_html = ($field_key === 'location' && strpos($display_value, ',') !== false);
                     ?>
                     <div class="project-detail-item">
-                        <span class="project-detail-label"><?php echo esc_html($field['label']); ?></span><span class="project-detail-value"><?php echo esc_html($display_value); ?></span>
+                        <span class="project-detail-label"><?php echo esc_html($field['label']); ?></span><span class="project-detail-value"><?php
+                            if ($use_html) {
+                                echo nl2br(esc_html(str_replace(', ', ",\n", $display_value)));
+                            } else {
+                                echo esc_html($display_value);
+                            }
+                        ?></span>
                     </div>
                     <?php
                 }
