@@ -23,12 +23,11 @@ if (!empty($grid_position) && is_array($grid_position)) {
     $w = isset($grid_position['w']) ? intval($grid_position['w']) : 1;
     $h = isset($grid_position['h']) ? intval($grid_position['h']) : 2;
 
+    // grid-row retiré : le CSS aspect-ratio contrôle la hauteur uniformément
     $grid_styles = sprintf(
-        'grid-column: %d / %d; grid-row: %d / %d;',
+        'grid-column: %d / %d;',
         $x + 1,
-        $x + $w + 1,
-        $y + 1,
-        $y + $h + 1
+        $x + $w + 1
     );
 }
 

@@ -12,10 +12,10 @@
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr); /* Grille de 4 colonnes uniformes */
-    gap: var(--spacing-md, 30px);
-    row-gap: 20px; /* Espacement vertical entre les lignes */
-    padding: var(--spacing-md, 60px) 0;
-    margin-top: 10px;
+    gap: 20px;
+    row-gap: 98px; /* Espacement vertical plus important */
+    padding: 40px 60px; /* Plus éloigné des bords */
+    margin-top: 0;
     grid-auto-rows: minmax(100px, auto); /* Hauteur minimale des lignes pour Grid Manager */
 }
 
@@ -60,21 +60,21 @@
 
 /* Image container with aspect ratio */
 .project-image {
-    aspect-ratio: 3/4;
+    aspect-ratio: 2/3.31;
     overflow: hidden;
     position: relative;
     background-color: #000;
 }
 
-/* Landscape images have wider aspect ratio but same height as portrait */
+/* Landscape images — 2 colonnes, plus courtes que les portraits */
 .project-landscape .project-image {
-    aspect-ratio: 3/1.8999; /* 2x width for landscape spanning 2 columns, same height as portrait (3/4) */
+    aspect-ratio: 16/12.81;
 }
 
 .project-image img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     transition: transform 0.3s ease;
 }
 
@@ -96,16 +96,33 @@
     border: 0;
 }
 
-/* Landscape video aspect ratio — full 4-column width, same row height as portrait cards */
-.project-video-landscape .project-image {
-    aspect-ratio: 3 / 1;
+/* Portrait video aspect ratio — same as portrait photo (2/3) */
+.project-video-portrait .project-image {
+    aspect-ratio: 2/3.31;
     position: relative;
 }
 
-/* Portrait video aspect ratio — same as portrait photo */
-.project-video-portrait .project-image {
-    aspect-ratio: 3 / 4;
+/* Force height on portrait video via ::before (aspect-ratio alone may not apply
+   when the only child is position:absolute — padding-top % is always width-relative) */
+.project-video-portrait .project-image::before {
+    content: '';
+    display: block;
+    padding-top: 150%; /* 2/3 ratio: height = width × 3/2 */
+}
+
+/* Landscape video aspect ratio — full 4-column width */
+.project-video-landscape .project-image {
+    aspect-ratio: 8/3.15;
     position: relative;
+}
+
+/* Same fix for landscape video — padding-top = 1/col_count × portrait_ratio */
+/* 8/3 ratio at 4 cols = same row height as portrait at 1 col:
+   portrait: h = W × 3/2. landscape: h = 4W / (8/3) = 4W × 3/8 = 3W/2 ✓ */
+.project-video-landscape .project-image::before {
+    content: '';
+    display: block;
+    padding-top: 37.5%; /* 8/3 ratio: height = width × 3/8 */
 }
 
 .project-card:hover .project-image img {
