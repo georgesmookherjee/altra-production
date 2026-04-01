@@ -843,29 +843,26 @@ body:not(.logged-in) .nav-right a {
 
 .contact-main {
     min-height: 100vh;
-    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .contact-info {
-    position: absolute;
-    bottom: 3.5rem;
-    left: 2rem;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.1rem;
-}
-
-.contact-name {
-    font-size: 0.85rem;
-    font-weight: 400;
-    margin: 0;
+    text-align: center;
+    line-height: 1.1;
 }
 
 .contact-link {
     color: var(--color-black);
-    text-decoration: underline;
-    font-size: 0.85rem;
-    font-weight: 400;
+    text-decoration: none;
+    font-size: 1.7rem;
+    font-weight: 450;
+    letter-spacing: -0.01em;
 }
 
 .contact-link:hover {
@@ -882,7 +879,6 @@ body:not(.logged-in) .nav-right a {
     }
 
     .contact-info {
-        left: 1rem;
-        bottom: 2rem;
+        padding: 0 1rem;
     }
 }

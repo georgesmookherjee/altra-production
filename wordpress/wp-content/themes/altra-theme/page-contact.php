@@ -15,9 +15,9 @@ get_header();
 
 <main class="site-main contact-main">
     <div class="contact-info">
-        <p class="contact-name">Altra Production</p>
-        <a href="https://instagram.com/altra_production" target="_blank" rel="noopener" class="contact-link">@altraproduction</a>
+        <!-- <p class="contact-name">Altra Production</p> -->
         <a href="mailto:Contact@altraproduction.com" class="contact-link">Contact@altraproduction.com</a>
+        <a href="https://instagram.com/altra_production" target="_blank" rel="noopener" class="contact-link">@altraproduction</a>
     </div>
 </main>
 
