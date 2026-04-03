@@ -36,13 +36,15 @@ Site portfolio de **Basile Smookherjee**, directeur artistique / DA de la socié
 wordpress/wp-content/themes/altra-theme/
 ├── functions.php              # Tout : CPT, metaboxes, REST API, enqueue scripts
 ├── index.php                  # Homepage (grille de projets)
-├── single-project.php         # Page projet (slideshow media)
+├── single-project.php         # Page projet (slideshow media + navigation clic)
+├── page-infos.php             # Template page Infos (slug: infos)
+├── page-contact.php           # Template page Contact (slug: contact)
 ├── header.php / footer.php
 ├── template-parts/
 │   └── project-card.php       # Carte projet (image ou vidéo Vimeo)
 ├── assets/
 │   ├── css/
-│   │   ├── flexible-layout.css  # Grid CSS principal
+│   │   ├── flexible-layout.css  # Grid CSS principal + responsive mobile homepage
 │   │   └── admin.css            # Styles backoffice
 │   └── js/
 │       ├── admin.js             # JS backoffice (gallery drag-drop, Vimeo form)
@@ -166,10 +168,13 @@ Endpoint : `GET/POST /wp-json/altra/v1/grid`
 
 ## Travail en cours / Pending
 
-- [ ] **Typographie** : Suisse Ecal International — OTF disponibles à la racine du repo (hors git), à convertir en WOFF2 via fontsquirrel.com puis intégrer via `@font-face`. Positionnement des éléments typo à définir (prévu prochaine session).
-- [ ] **Page projet** (single-project.php) : slideshow media (images + vidéos) avec navigation clic + flèches — redesign visuel à faire selon PDF `Site-altra.pdf` (pages 5-7)
-- [ ] **Dimensions grille** : ajustements fins (gaps, tailles) — Basile gère lui-même
+- [ ] **Typographie** : Suisse Ecal International — OTF disponibles à la racine du repo (hors git), à convertir en WOFF2 via fontsquirrel.com puis intégrer via `@font-face`. Positionnement des éléments typo à définir.
+- [ ] **Dimensions grille** : ajustements fins (gaps, tailles) — Basile gère lui-même via l'admin
+- [ ] **Déploiement** : hébergement OVH — déploiement à configurer (prévu via API ou FTP)
+- [ ] **Favicon** : pas encore créé/intégré
+- [ ] **noindex** : à activer dans WP Admin > Réglages > Lecture pendant la phase de développement
 - [ ] **PDF de référence** : `Site-altra.pdf` à la racine (hors git, design cible pages 5-7)
+- [ ] **Responsive** : quelques détails mobiles restants à affiner (répertoriés lors de la prochaine session)
 
 ## Implémenté et fonctionnel
 
@@ -182,6 +187,14 @@ Endpoint : `GET/POST /wp-json/altra/v1/grid`
 - [x] Miniature Vimeo dans Card Editor via oEmbed API (fonctionne pour vidéos publiques et non répertoriées)
 - [x] Grid Manager : vignettes correctes, spans corrects (portrait=1col, paysage=4col), positions persistantes, `float:true` pour éviter l'auto-compaction
 - [x] Homepage : seuls les projets avec `_altra_grid_position` sauvegardée s'affichent (meta_query EXISTS)
+- [x] **Page projet** (single-project.php) : slideshow media (images + vidéos Vimeo) avec navigation au clic, label projet, compteur slides, métadonnées en bas
+- [x] **Pages Infos et Contact** : templates PHP dédiés (`page-infos.php`, `page-contact.php`), contenu texte centré, typographie légère
+- [x] **Responsive mobile complet** :
+  - Homepage : 2 colonnes ≤1024px, breakpoints portrait/paysage, valeurs `vw` pour spacing proportionnel
+  - Pages projet : galerie adaptée, label au-dessus, compteur aligné, hauteur fixe 65vh (portrait) / 80vh (paysage)
+  - Header mobile : padding réduit, font-size ajusté
+  - Footer : compact, centré verticalement
+  - Pages Infos/Contact : padding `clamp()`, texte centré
 
 ---
 

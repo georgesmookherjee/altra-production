@@ -157,19 +157,49 @@
    Same behavior for both: 2 columns, portrait=1col, landscape=2cols
    ========================================================================== */
 
+/* Tablette (≤1024px) — 2 colonnes, espacements réduits */
 @media (max-width: 1024px) {
     body:not(.logged-in) .projects-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 colonnes */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2vw;
+        row-gap: 5vw;
+        padding: 3vw 4vw;
     }
 
-    /* Portrait cards take 1 column */
     body:not(.logged-in) .project-card {
         grid-column: span 1;
     }
 
-    /* Landscape cards still take 2 columns (full row) */
     body:not(.logged-in) .project-card.project-landscape {
         grid-column: span 2;
+    }
+
+    /* Vidéo paysage : pleine largeur des 2 colonnes */
+    body:not(.logged-in) .project-card.project-video-landscape {
+        grid-column: span 2;
+    }
+}
+
+/* Mobile portrait (≤768px) — espacements encore réduits */
+@media (max-width: 768px) {
+    body:not(.logged-in) .projects-grid {
+        gap: 3vw;
+        row-gap: 8vw;
+        padding: 4vw;
+    }
+}
+
+/* Mobile paysage — 4 colonnes compactes */
+@media (orientation: landscape) and (max-height: 500px) {
+    body:not(.logged-in) .projects-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2vw;
+        row-gap: 3vw;
+        padding: 2vw 4vw;
+    }
+
+    body:not(.logged-in) .project-card.project-video-landscape {
+        grid-column: span 4;
     }
 }
 
