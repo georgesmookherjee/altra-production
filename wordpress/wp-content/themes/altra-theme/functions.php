@@ -1462,8 +1462,10 @@ add_action('init', function() {
     $request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $request = rtrim($request, '/');
 
-    // Bloquer l'accès direct à wp-login.php (sauf déconnexion et actions légitimes WP)
+    // Bloquer l'accès direct à wp-login.php (sauf POST, déconnexion et actions légitimes WP)
     if (preg_match('#/wp-login\.php$#', $request)) {
+        // Laisser passer les soumissions de formulaire (POST) et les actions légitimes
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') return;
         $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
         $allowed_actions = ['logout', 'lostpassword', 'rp', 'resetpass', 'postpass'];
         if (!in_array($action, $allowed_actions)) {
@@ -1472,15 +1474,3 @@ add_action('init', function() {
         }
     }
 }, 1);
-
-// Redirige vers la page 404 si quelqu'un tente wp-admin sans être connecté
-add_action('login_init', function() {
-    if (!isset($_GET[ALTRA_LOGIN_SLUG]) && !is_user_logged_in()) {
-        $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
-        $allowed_actions = ['logout', 'lostpassword', 'rp', 'resetpass', 'postpass'];
-        if (!in_array($action, $allowed_actions)) {
-            wp_redirect(home_url('/404'));
-            exit;
-        }
-    }
-});
