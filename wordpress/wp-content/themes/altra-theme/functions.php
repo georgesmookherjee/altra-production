@@ -1445,3 +1445,42 @@ function altra_save_project_visual_settings($request) {
         200
     );
 }
+
+// =============================================================================
+// SÉCURITÉ : URL de login personnalisée
+// Remplace wp-login.php par une URL secrète
+// Pour changer l'URL : modifier la constante ALTRA_LOGIN_SLUG ci-dessous
+// =============================================================================
+define('ALTRA_LOGIN_SLUG', 'altra-acces');
+
+add_action('init', function() {
+    if (isset($_GET[ALTRA_LOGIN_SLUG])) {
+        // Accès autorisé via l'URL secrète — laisser passer
+        return;
+    }
+
+    $request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $request = rtrim($request, '/');
+
+    // Bloquer l'accès direct à wp-login.php (sauf déconnexion et actions légitimes WP)
+    if (preg_match('#/wp-login\.php$#', $request)) {
+        $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+        $allowed_actions = ['logout', 'lostpassword', 'rp', 'resetpass', 'postpass'];
+        if (!in_array($action, $allowed_actions)) {
+            wp_redirect(home_url('/404'));
+            exit;
+        }
+    }
+}, 1);
+
+// Redirige vers la page 404 si quelqu'un tente wp-admin sans être connecté
+add_action('login_init', function() {
+    if (!isset($_GET[ALTRA_LOGIN_SLUG]) && !is_user_logged_in()) {
+        $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+        $allowed_actions = ['logout', 'lostpassword', 'rp', 'resetpass', 'postpass'];
+        if (!in_array($action, $allowed_actions)) {
+            wp_redirect(home_url('/404'));
+            exit;
+        }
+    }
+});
