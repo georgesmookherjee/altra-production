@@ -1474,3 +1474,19 @@ add_action('init', function() {
         }
     }
 }, 1);
+
+// =============================================================================
+// MAINTENANCE : site non accessible aux visiteurs non connectés
+// Pour désactiver : commenter ou supprimer ce bloc
+// =============================================================================
+add_action('template_redirect', function() {
+    if (!is_user_logged_in()) {
+        // Laisser passer les requêtes wp-login et wp-admin
+        if (is_admin() || $GLOBALS['pagenow'] === 'wp-login.php') return;
+
+        header('HTTP/1.1 503 Service Unavailable');
+        header('Retry-After: 3600');
+        echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Altra Production — Bientôt en ligne</title><style>body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#fff}p{font-size:1rem;color:#000;letter-spacing:0.05em}</style></head><body><p>Altra Production — Bientôt en ligne</p></body></html>';
+        exit;
+    }
+});
