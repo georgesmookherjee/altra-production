@@ -11,12 +11,15 @@
 /* RESET de la grille actuelle */
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Grille de 4 colonnes uniformes */
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
-    row-gap: 98px; /* Espacement vertical plus important */
-    padding: 40px 60px; /* Plus éloigné des bords */
+    row-gap: 98px;
+    padding: 40px 30px 80px;
     margin-top: 0;
-    grid-auto-rows: minmax(100px, auto); /* Hauteur minimale des lignes pour Grid Manager */
+    /* Hauteur de ligne = largeur d'une colonne × ratio portrait
+       admin : padding 60px×2 + 3 gaps 20px = 180px → col = (100vw - 180px)/4
+       row = col × 3.31/2 = (100vw - 180px) × 3.31/8 */
+    grid-auto-rows: min(calc((100vw - 180px) * 3.31 / 8), 500px);
 }
 
 /* CLASSES DE LARGEUR - Toutes les cartes prennent 1 colonne */
@@ -47,6 +50,7 @@
     background-color: #ffffff00;
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 /* Project link wrapper */
@@ -58,17 +62,15 @@
     color: inherit;
 }
 
-/* Image container with aspect ratio */
+/* grid-auto-rows fournit la hauteur exacte — toutes les .project-image la remplissent.
+   flex-shrink: 0 empêche le collapse des cartes vidéo (iframe position:absolute = pas
+   de contenu naturel, flex effondrerait sinon l'image au profit du .project-info) */
 .project-image {
-    aspect-ratio: 2/3.31;
+    height: 100%;
+    flex-shrink: 0;
     overflow: hidden;
     position: relative;
     background-color: #000;
-}
-
-/* Landscape images — 2 colonnes, plus courtes que les portraits */
-.project-landscape .project-image {
-    aspect-ratio: 16/12.81;
 }
 
 .project-image img {
@@ -96,34 +98,6 @@
     border: 0;
 }
 
-/* Portrait video aspect ratio — same as portrait photo (2/3) */
-.project-video-portrait .project-image {
-    aspect-ratio: 2/3.31;
-    position: relative;
-}
-
-/* Force height on portrait video via ::before (aspect-ratio alone may not apply
-   when the only child is position:absolute — padding-top % is always width-relative) */
-.project-video-portrait .project-image::before {
-    content: '';
-    display: block;
-    padding-top: 150%; /* 2/3 ratio: height = width × 3/2 */
-}
-
-/* Landscape video aspect ratio — full 4-column width */
-.project-video-landscape .project-image {
-    aspect-ratio: 8/3.15;
-    position: relative;
-}
-
-/* Same fix for landscape video — padding-top = 1/col_count × portrait_ratio */
-/* 8/3 ratio at 4 cols = same row height as portrait at 1 col:
-   portrait: h = W × 3/2. landscape: h = 4W / (8/3) = 4W × 3/8 = 3W/2 ✓ */
-.project-video-landscape .project-image::before {
-    content: '';
-    display: block;
-    padding-top: 37.5%; /* 8/3 ratio: height = width × 3/8 */
-}
 
 .project-card:hover .project-image img {
     transform: scale(1.02);
@@ -131,14 +105,14 @@
 
 /* Info section - fixed below image */
 .project-info {
-    padding: 12px 0;
+    padding: 12px 0 15px;
     background: transparent;
     color: #000;
 }
 
 /* One-line caption: Title (bold) — Photographer (regular) */
 .project-caption {
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.4;
     margin: 0;
 }
@@ -162,8 +136,10 @@
     body:not(.logged-in) .projects-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 2vw;
-        row-gap: 5vw;
-        padding: 3vw 4vw;
+        row-gap: 9vw;
+        padding: 3vw 4vw 10vw;
+        /* 2 cols, 1 gap (2vw), padding 4vw×2 = 8vw → col = (100vw - 10vw) / 2 = 45vw */
+        grid-auto-rows: min(calc(45vw * 1.655), 500px);
     }
 
     body:not(.logged-in) .project-card {
@@ -178,14 +154,30 @@
     body:not(.logged-in) .project-card.project-video-landscape {
         grid-column: span 2;
     }
+
+    .project-caption {
+        font-size: 80%;
+    }
+
+    .project-info {
+    padding: 3px 0 25px;
+    background: transparent;
+    color: #000;
+    }
+
+    /* 2 lignes : titre / photographe */
+    .project-sep { display: none; }
+    .project-photographer { display: block; }
 }
 
 /* Mobile portrait (≤768px) — espacements encore réduits */
 @media (max-width: 768px) {
     body:not(.logged-in) .projects-grid {
         gap: 3vw;
-        row-gap: 8vw;
-        padding: 4vw;
+        row-gap: 20vw;
+        padding: 4vw 4vw 12vw;
+        /* 2 cols, 1 gap (3vw), padding 4vw×2 = 8vw → col = (100vw - 11vw) / 2 = 44.5vw */
+        grid-auto-rows: min(calc(44.5vw * 1.655), 240px);
     }
 }
 
@@ -194,8 +186,10 @@
     body:not(.logged-in) .projects-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 2vw;
-        row-gap: 3vw;
-        padding: 2vw 4vw;
+        row-gap: 9vw; /* 3vw était trop petit pour les captions sur 2 lignes */
+        padding: 2vw 4vw 8vw;
+        /* 4 cols, 3 gaps (6vw), padding 4vw×2 = 8vw → col = (100vw - 14vw) / 4 = 21.5vw */
+        grid-auto-rows: min(calc(21.5vw * 1.655), 240px);
     }
 
     body:not(.logged-in) .project-card.project-video-landscape {

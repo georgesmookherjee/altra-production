@@ -6,9 +6,9 @@ Contexte complet pour Claude Code. À lire en début de session avant de toucher
 
 ## Projet
 
-Site portfolio de **Basile Smookherjee**, directeur artistique / DA de la société **Altra Production** (Paris). Le site présente ses projets photo et vidéo sous forme de grille visuelle inspirée de [Sheriff Projects](https://sheriff.paris).
+Site portfolio de **Basile Mookherjee**, directeur artistique / DA de la société **Altra Production** (Paris). Le site présente ses projets photo et vidéo sous forme de grille visuelle inspirée de [Sheriff Projects](https://sheriff.paris).
 
-- Dev géré par **Georges Smookherjee** (frère de Basile)
+- Dev géré par **Georges Mookherjee** (frère de Basile)
 - Repo GitHub : `georgesmookherjee/altra-production`
 - Branche principale : `master`
 - Environnement local : Docker (WordPress + MySQL)
