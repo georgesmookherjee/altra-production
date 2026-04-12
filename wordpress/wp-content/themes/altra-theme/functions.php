@@ -758,7 +758,7 @@ function altra_save_project_meta($post_id) {
     // Save custom fields (plain meta keys)
     if (isset($_POST['altra_custom_field']) && is_array($_POST['altra_custom_field'])) {
         foreach ($_POST['altra_custom_field'] as $meta_key => $meta_value) {
-            $meta_key = sanitize_key($meta_key);
+            $meta_key = sanitize_text_field(wp_unslash($meta_key)); // préserver espaces et casse
             if (empty($meta_key) || substr($meta_key, 0, 1) === '_') continue;
             update_post_meta($post_id, $meta_key, sanitize_text_field($meta_value));
         }
