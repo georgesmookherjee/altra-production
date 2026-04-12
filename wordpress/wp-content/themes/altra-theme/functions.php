@@ -509,7 +509,20 @@ function altra_project_details_callback($post) {
 
     $all_fields = altra_get_project_fields();
     $field_order = altra_get_field_order($post->ID);
-    $visibility = altra_get_field_visibility($post->ID);
+    $visibility  = altra_get_field_visibility($post->ID);
+
+    // Récupérer les custom fields publics (sans préfixe _)
+    $custom_fields = [];
+    foreach (get_post_meta($post->ID) as $meta_key => $values) {
+        if (substr($meta_key, 0, 1) === '_') continue;
+        $custom_fields[$meta_key] = $values[0];
+    }
+    // Ajouter les custom fields non encore présents dans l'ordre
+    foreach (array_keys($custom_fields) as $custom_key) {
+        if (!in_array($custom_key, $field_order)) {
+            $field_order[] = $custom_key;
+        }
+    }
 
     ?>
     <div class="altra-project-details-container">
@@ -523,29 +536,41 @@ function altra_project_details_callback($post) {
 
         <div class="altra-fields-sortable">
             <?php
-            // Display fields in saved order
             foreach ($field_order as $field_key) {
-                if (!isset($all_fields[$field_key])) continue; // Skip if field doesn't exist anymore
+                $is_predefined = isset($all_fields[$field_key]);
+                $is_custom     = isset($custom_fields[$field_key]);
+                if (!$is_predefined && !$is_custom) continue;
 
-                $field = $all_fields[$field_key];
-                $value = get_post_meta($post->ID, '_altra_project_' . $field_key, true);
+                if ($is_predefined) {
+                    $label = $all_fields[$field_key]['label'];
+                    $type  = $all_fields[$field_key]['type'];
+                    $value = get_post_meta($post->ID, '_altra_project_' . $field_key, true);
+                    $input_name = 'altra_project_' . $field_key;
+                    $input_id   = 'altra_project_' . $field_key;
+                } else {
+                    $label = ucfirst(str_replace(['_', '-'], ' ', $field_key));
+                    $type  = 'text';
+                    $value = $custom_fields[$field_key];
+                    $input_name = 'altra_custom_field[' . $field_key . ']';
+                    $input_id   = 'altra_custom_' . sanitize_html_class($field_key);
+                }
                 $is_visible = isset($visibility[$field_key]) ? $visibility[$field_key] : true;
                 ?>
                 <div class="altra-field-row" data-field-key="<?php echo esc_attr($field_key); ?>">
-                    <label for="altra_project_<?php echo esc_attr($field_key); ?>" class="field-label">
-                        <?php echo esc_html($field['label']); ?>
+                    <label for="<?php echo esc_attr($input_id); ?>" class="field-label">
+                        <?php echo esc_html($label); ?>
                     </label>
 
-                    <?php if ($field['type'] === 'date') : ?>
+                    <?php if ($type === 'date') : ?>
                         <input type="date"
-                               id="altra_project_<?php echo esc_attr($field_key); ?>"
-                               name="altra_project_<?php echo esc_attr($field_key); ?>"
+                               id="<?php echo esc_attr($input_id); ?>"
+                               name="<?php echo esc_attr($input_name); ?>"
                                value="<?php echo esc_attr($value); ?>"
                                class="field-input" />
                     <?php else : ?>
                         <input type="text"
-                               id="altra_project_<?php echo esc_attr($field_key); ?>"
-                               name="altra_project_<?php echo esc_attr($field_key); ?>"
+                               id="<?php echo esc_attr($input_id); ?>"
+                               name="<?php echo esc_attr($input_name); ?>"
                                value="<?php echo esc_attr($value); ?>"
                                class="field-input" />
                     <?php endif; ?>
@@ -730,19 +755,28 @@ function altra_save_project_meta($post_id) {
         }
     }
 
+    // Save custom fields (plain meta keys)
+    if (isset($_POST['altra_custom_field']) && is_array($_POST['altra_custom_field'])) {
+        foreach ($_POST['altra_custom_field'] as $meta_key => $meta_value) {
+            $meta_key = sanitize_key($meta_key);
+            if (empty($meta_key) || substr($meta_key, 0, 1) === '_') continue;
+            update_post_meta($post_id, $meta_key, sanitize_text_field($meta_value));
+        }
+    }
+
     // Save field order
+    $order_array = [];
     if (isset($_POST['altra_fields_order'])) {
         $order = sanitize_text_field($_POST['altra_fields_order']);
         $order_array = array_filter(explode(',', $order));
         update_post_meta($post_id, '_altra_project_fields_order', $order_array);
     }
 
-    // Save field visibility
+    // Save field visibility — tous les champs de l'ordre (prédéfinis + custom)
     $visibility = array();
-    foreach ($all_fields as $field_key => $field) {
-        // Checkbox: if not set, it's unchecked (false)
-        $is_visible = isset($_POST['altra_field_visible'][$field_key]);
-        $visibility[$field_key] = $is_visible;
+    $all_keys = !empty($order_array) ? $order_array : array_keys($all_fields);
+    foreach ($all_keys as $field_key) {
+        $visibility[$field_key] = isset($_POST['altra_field_visible'][$field_key]);
     }
     update_post_meta($post_id, '_altra_project_fields_visibility', $visibility);
 
@@ -1479,14 +1513,14 @@ add_action('init', function() {
 // MAINTENANCE : site non accessible aux visiteurs non connectés
 // Pour désactiver : commenter ou supprimer ce bloc
 // =============================================================================
-add_action('template_redirect', function() {
-    if (!is_user_logged_in()) {
-        // Laisser passer les requêtes wp-login et wp-admin
-        if (is_admin() || $GLOBALS['pagenow'] === 'wp-login.php') return;
+// add_action('template_redirect', function() {
+//     if (!is_user_logged_in()) {
+//         // Laisser passer les requêtes wp-login et wp-admin
+//         if (is_admin() || $GLOBALS['pagenow'] === 'wp-login.php') return;
 
-        header('HTTP/1.1 503 Service Unavailable');
-        header('Retry-After: 3600');
-        echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Altra Production — Bientôt en ligne</title><style>body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#fff}p{font-size:1rem;color:#000;letter-spacing:0.05em}</style></head><body><p>Altra Production — Bientôt en ligne</p></body></html>';
-        exit;
-    }
-});
+//         header('HTTP/1.1 503 Service Unavailable');
+//         header('Retry-After: 3600');
+//         echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Altra Production — Bientôt en ligne</title><style>body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#fff}p{font-size:1rem;color:#000;letter-spacing:0.05em}</style></head><body><p>Altra Production — Bientôt en ligne</p></body></html>';
+//         exit;
+//     }
+// });

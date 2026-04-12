@@ -74,18 +74,28 @@ get_header();
                 $visibility  = altra_get_field_visibility(get_the_ID());
 
                 foreach ($field_order as $field_key) {
-                    if (!isset($all_fields[$field_key]) || empty($visibility[$field_key])) continue;
+                    $is_visible = isset($visibility[$field_key]) ? $visibility[$field_key] : true;
+                    if (!$is_visible) continue;
 
-                    $field = $all_fields[$field_key];
-                    $value = get_post_meta(get_the_ID(), '_altra_project_' . $field_key, true);
-                    if (empty($value)) continue;
-
-                    $display_value = ($field['type'] === 'date') ? date('F Y', strtotime($value)) : $value;
-                    // Location : remplacer la virgule par un saut de ligne
-                    $use_html = ($field_key === 'location' && strpos($display_value, ',') !== false);
+                    if (isset($all_fields[$field_key])) {
+                        // Champ prédéfini
+                        $field = $all_fields[$field_key];
+                        $value = get_post_meta(get_the_ID(), '_altra_project_' . $field_key, true);
+                        if (empty($value)) continue;
+                        $display_value = ($field['type'] === 'date') ? date('F Y', strtotime($value)) : $value;
+                        $label    = $field['label'];
+                        $use_html = ($field_key === 'location' && strpos($display_value, ',') !== false);
+                    } else {
+                        // Champ custom (clé plain meta)
+                        $value = get_post_meta(get_the_ID(), $field_key, true);
+                        if (empty($value)) continue;
+                        $display_value = $value;
+                        $label    = ucfirst(str_replace(['_', '-'], ' ', $field_key));
+                        $use_html = false;
+                    }
                     ?>
                     <div class="project-detail-item">
-                        <span class="project-detail-label"><?php echo esc_html($field['label']); ?></span><span class="project-detail-value"><?php
+                        <span class="project-detail-label"><?php echo esc_html($label); ?></span><span class="project-detail-value"><?php
                             if ($use_html) {
                                 echo nl2br(esc_html(str_replace(', ', ",\n", $display_value)));
                             } else {
