@@ -548,31 +548,35 @@ function altra_project_details_callback($post) {
                     $input_name = 'altra_project_' . $field_key;
                     $input_id   = 'altra_project_' . $field_key;
                 } else {
-                    $label = ucfirst(str_replace(['_', '-'], ' ', $field_key));
+                    $label = $field_key; // label = clé exacte (ex: "Styling Assistant")
                     $type  = 'text';
                     $value = $custom_fields[$field_key];
-                    $input_name = 'altra_custom_field[' . $field_key . ']';
-                    $input_id   = 'altra_custom_' . sanitize_html_class($field_key);
+                    $input_name = null; // pas d'input — valeur gérée par la metabox native WP
+                    $input_id   = null;
                 }
                 $is_visible = isset($visibility[$field_key]) ? $visibility[$field_key] : true;
                 ?>
                 <div class="altra-field-row" data-field-key="<?php echo esc_attr($field_key); ?>">
-                    <label for="<?php echo esc_attr($input_id); ?>" class="field-label">
+                    <label <?php if ($input_id) echo 'for="' . esc_attr($input_id) . '"'; ?> class="field-label">
                         <?php echo esc_html($label); ?>
                     </label>
 
-                    <?php if ($type === 'date') : ?>
-                        <input type="date"
-                               id="<?php echo esc_attr($input_id); ?>"
-                               name="<?php echo esc_attr($input_name); ?>"
-                               value="<?php echo esc_attr($value); ?>"
-                               class="field-input" />
+                    <?php if ($is_predefined) : ?>
+                        <?php if ($type === 'date') : ?>
+                            <input type="date"
+                                   id="<?php echo esc_attr($input_id); ?>"
+                                   name="<?php echo esc_attr($input_name); ?>"
+                                   value="<?php echo esc_attr($value); ?>"
+                                   class="field-input" />
+                        <?php else : ?>
+                            <input type="text"
+                                   id="<?php echo esc_attr($input_id); ?>"
+                                   name="<?php echo esc_attr($input_name); ?>"
+                                   value="<?php echo esc_attr($value); ?>"
+                                   class="field-input" />
+                        <?php endif; ?>
                     <?php else : ?>
-                        <input type="text"
-                               id="<?php echo esc_attr($input_id); ?>"
-                               name="<?php echo esc_attr($input_name); ?>"
-                               value="<?php echo esc_attr($value); ?>"
-                               class="field-input" />
+                        <span class="field-input" style="color:#666;font-style:italic;"><?php echo esc_html($value); ?></span>
                     <?php endif; ?>
 
                     <label class="field-visibility-toggle">
@@ -755,14 +759,6 @@ function altra_save_project_meta($post_id) {
         }
     }
 
-    // Save custom fields (plain meta keys)
-    if (isset($_POST['altra_custom_field']) && is_array($_POST['altra_custom_field'])) {
-        foreach ($_POST['altra_custom_field'] as $meta_key => $meta_value) {
-            $meta_key = sanitize_text_field(wp_unslash($meta_key)); // préserver espaces et casse
-            if (empty($meta_key) || substr($meta_key, 0, 1) === '_') continue;
-            update_post_meta($post_id, $meta_key, sanitize_text_field($meta_value));
-        }
-    }
 
     // Save field order
     $order_array = [];
