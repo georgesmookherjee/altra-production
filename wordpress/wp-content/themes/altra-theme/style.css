@@ -486,12 +486,11 @@ body:not(.logged-in) .nav-right a {
 }
 
 .gallery-slide img {
-    /* Hauteur contrainte à 80% de la fenêtre, largeur libre et proportionnelle */
-    height: 68vh;
+    max-height: 68vh;
+    height: auto;
     width: auto;
     max-width: 80%;
     display: block;
-    object-fit: unset;
     margin: 0 auto;
 }
 
