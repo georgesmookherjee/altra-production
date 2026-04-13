@@ -106,6 +106,7 @@ class InlineCardEditor {
 				<div class="edit-hint">Alt + Click to set focal point</div>
 				<div class="focal-point-picker">
 					<div class="focal-point-crosshair"></div>
+					<div class="center-marker"></div>
 				</div>
 			</div>
 		`;

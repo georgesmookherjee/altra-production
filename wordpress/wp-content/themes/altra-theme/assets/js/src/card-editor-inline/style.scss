@@ -89,23 +89,22 @@ body.altra-card-edit-mode {
 		outline-color: #3498db;
 	}
 
-	// Croix centrale — repère visuel du centre de l'image
-	.project-card:hover .project-image::after {
-		content: '';
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		width: 20px;
-		height: 20px;
-		background:
-			linear-gradient(#fff, #fff) center / 2px 100% no-repeat,
-			linear-gradient(#fff, #fff) center / 100% 2px no-repeat;
-		filter: drop-shadow(0 0 2px rgba(0,0,0,0.8));
-		pointer-events: none;
-		opacity: 0.75;
-		z-index: 10;
-	}
+}
+
+// Croix centrale — repère visuel du centre de l'image
+.center-marker {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 20px;
+	height: 20px;
+	pointer-events: none;
+	background:
+		linear-gradient(#fff, #fff) center / 2px 100% no-repeat,
+		linear-gradient(#fff, #fff) center / 100% 2px no-repeat;
+	filter: drop-shadow(0 0 2px rgba(0,0,0,0.8));
+	opacity: 0.75;
 }
 
 // Card edit overlay (appears on hover in edit mode)
