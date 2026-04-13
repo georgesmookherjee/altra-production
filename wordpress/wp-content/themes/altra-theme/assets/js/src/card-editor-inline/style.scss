@@ -182,15 +182,22 @@ body.altra-card-edit-mode {
 // Zoom Control (inline in project-info)
 .zoom-control-inline {
 	display: none; // Hidden by default
-	margin-top: 15px;
-	padding: 12px 15px;
-	background: rgba(0, 0, 0, 0.05);
+	padding: 8px 12px;
+	background: #fff;
 	border-radius: 6px;
-	border: 1px solid rgba(0, 0, 0, 0.1);
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 
 	body.altra-card-edit-mode & {
 		display: block;
-		pointer-events: auto; // Re-enable pointer events even though parent has none
+		pointer-events: auto;
+		// Se positionne dans le row-gap sous la carte, sans déborder sur les autres cartes
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: calc(100% + 6px);
+		z-index: 50;
+		margin: 0;
 	}
 
 	label {
