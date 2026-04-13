@@ -40,6 +40,14 @@ Text Domain: altra
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'CatalogueTrial';
+    src: url('assets/fonts/CatalogueTrial-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* ==========================================================================
    RESET & BASE STYLES
    ========================================================================== */
@@ -201,14 +209,12 @@ p {
     white-space: nowrap;
 }
 
-/* Dans le hero : "Altra" très grand, serif — reset du scaleY du header */
 .hero-logo .logo-altra {
-    font-family: 'Lora', Georgia, serif;
+    font-family: 'CatalogueTrial', Georgia, serif;
     font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 700;
     letter-spacing: -0.01em;
     line-height: 1;
-    transform: none;
 }
 
 .hero-logo .logo-production {
@@ -255,7 +261,7 @@ body:not(.logged-in) .hero-info {
 .hero-nav-left,
 .hero-nav-right {
     position: fixed;
-    top: 46.8%;
+    top: 45.9%;
     z-index: 1001;
     will-change: transform;
     transition: opacity 0.3s ease;
@@ -318,7 +324,7 @@ body:not(.logged-in) .hero-nav-right a {
     left: 0;
     right: 0;
     width: 100%;
-    padding: 0.5rem 2rem 0rem 2rem; /*haut droite bas gauche */
+    padding: 0.5rem 2rem 0.5rem 2rem; /*haut droite bas gauche */
     background-color: var(--color-white);
     z-index: 1000;
     opacity: 0;
@@ -326,7 +332,7 @@ body:not(.logged-in) .hero-nav-right a {
 
     display: grid;
     grid-template-columns: 1fr auto 1fr;
-    align-items: baseline;
+    align-items: center;
 }
 
 .site-header.visible {
@@ -353,14 +359,13 @@ body:not(.logged-in) .hero-nav-right a {
     gap: 0.25em;
 }
 
-/* "Altra" — serif en attente d'identification de la police exacte */
+/* "Altra" — Catalogue Trial Bold */
 .logo-altra {
-    font-family: 'Lora', Georgia, serif;
+    font-family: 'CatalogueTrial', Georgia, serif;
     font-size: clamp(2.4rem, 5vw, 4rem);
     font-weight: 700;
     letter-spacing: -0.01em;
     line-height: 1;
-    transform: scaleY(0.80) scaleX(0.85);
 }
 
 /* "Production" — petite, légère, SuisseEcal */
@@ -383,8 +388,8 @@ body:not(.logged-in) .hero-nav-right a {
 
 .nav-left,
 .nav-right {
-    align-self: flex-start;
-    margin-top: 33px; /* ajuste à ta guise */
+    align-self: center;
+    transform: translateY(0.5vw); /* ← monte/descend INFOS + CONTACT sans affecter le logo */
 }
 
 .nav-left a,
@@ -758,7 +763,7 @@ body:not(.logged-in) .nav-right a {
     /* Hero navs : position sur mobile */
     .hero-nav-left,
     .hero-nav-right {
-        top: 45.9%;
+        top: 45.3%;
     }
 
     /* Font-size sur les liens hero — !important pour surcharger body:not(.logged-in) */
@@ -781,10 +786,10 @@ body:not(.logged-in) .nav-right a {
         padding-right: 1rem;
     }
 
-    /* Position verticale dans le header mobile — margin-top à ajuster */
+    /* Position verticale dans le header mobile portrait */
     .site-header .nav-left,
     .site-header .nav-right {
-        margin-top: 12px;
+        transform: translateY(1vw); /* ← ajuste pour mobile portrait */
     }
 
     /* Font-size avec spécificité suffisante pour surcharger body:not(.logged-in) */
@@ -817,7 +822,7 @@ body:not(.logged-in) .nav-right a {
     /* Header : aligner INFOS/CONTACT avec le logo en paysage */
     .site-header .nav-left,
     .site-header .nav-right {
-        margin-top: 8px;
+        transform: translateY(0.5vw); /* ← ajuste pour mobile landscape */
     }
 
     /* Galerie : colle au contenu, pas de marge excessive */
