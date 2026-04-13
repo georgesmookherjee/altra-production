@@ -76,20 +76,39 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 			);
 
 			if (node) {
-				const targetW = getWidthColumns(item); // always computed, never from saved position
+				// Item already known by GridStack — update position if needed
+				const targetW = getWidthColumns(item);
 				const targetX = item.gridPosition?.x ?? 0;
 				const targetY = item.gridPosition?.y ?? 0;
 				const targetH = item.gridPosition?.h ?? 2;
 
-				// Only update if changed to avoid infinite loops
 				if (node.w !== targetW || node.x !== targetX || node.y !== targetY || node.h !== targetH) {
-					grid.update(node.el, {
-						x: targetX,
-						y: targetY,
-						w: targetW,
-						h: targetH,
-					});
+					grid.update(node.el, { x: targetX, y: targetY, w: targetW, h: targetH });
 				}
+			} else {
+				// New item not yet registered in GridStack — find its DOM element and adopt it
+				const el = gridRef.current.querySelector(`[data-project-id="${item.id}"]`);
+				if (!el) return;
+
+				const targetW = getWidthColumns(item);
+				const targetH = item.gridPosition?.h ?? 2;
+
+				if (item.gridPosition) {
+					// Saved position — use it
+					el.setAttribute('data-gs-x', String(item.gridPosition.x));
+					el.setAttribute('data-gs-y', String(item.gridPosition.y));
+				} else {
+					// No saved position — place after the last existing item
+					const maxY = grid.engine.nodes.reduce(
+						(max, n) => Math.max(max, n.y + n.h), 0
+					);
+					el.setAttribute('data-gs-x', '0');
+					el.setAttribute('data-gs-y', String(maxY));
+				}
+				el.setAttribute('data-gs-w', String(targetW));
+				el.setAttribute('data-gs-h', String(targetH));
+
+				grid.makeWidget(el);
 			}
 		});
 	}, [items]);
