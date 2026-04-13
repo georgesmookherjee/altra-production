@@ -40,7 +40,7 @@ get_header();
                                         $vimeo_id = isset($matches[1]) ? $matches[1] : '';
                                         if ($vimeo_id) : ?>
                                             <div class="gallery-video-wrapper gallery-video-<?php echo esc_attr($item['orientation'] ?? 'landscape'); ?>">
-                                                <iframe src="https://player.vimeo.com/video/<?php echo esc_attr($vimeo_id); ?>?autoplay=<?php echo $index === 0 ? '1' : '0'; ?>&loop=1&byline=0&title=0&portrait=0"
+                                                <iframe src="https://player.vimeo.com/video/<?php echo esc_attr($vimeo_id); ?>?autoplay=<?php echo $index === 0 ? '1' : '0'; ?>&loop=1&byline=0&title=0&portrait=0&controls=0&muted=1"
                                                         frameborder="0"
                                                         allow="autoplay; fullscreen; picture-in-picture"
                                                         allowfullscreen
