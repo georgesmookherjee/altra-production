@@ -109,6 +109,22 @@ export default function GridContainer({ items, onLayoutChange, onRemove }) {
 				el.setAttribute('data-gs-h', String(targetH));
 
 				grid.makeWidget(el);
+
+				// makeWidget() doesn't fire the 'change' event, so manually sync
+				// the actual GridStack position back to React state
+				const newNode = grid.engine.nodes.find(
+					n => parseInt(n.el.dataset.projectId) === item.id
+				);
+				if (newNode) {
+					const allItems = grid.engine.nodes.map(node => ({
+						id: parseInt(node.el.dataset.projectId),
+						x: node.x,
+						y: node.y,
+						w: node.w,
+						h: node.h,
+					}));
+					onLayoutChange(allItems);
+				}
 			}
 		});
 	}, [items]);
