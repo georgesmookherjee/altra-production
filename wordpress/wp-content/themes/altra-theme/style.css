@@ -75,6 +75,9 @@ body {
     background-color: var(--color-white);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 img {
@@ -430,6 +433,7 @@ body:not(.logged-in) .nav-right a {
 .site-main {
     position: relative;
     z-index: 1;
+    flex: 1;
     background-color: var(--color-white);
     /* color: var(--color-black); */
 }
