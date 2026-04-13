@@ -177,7 +177,7 @@
         row-gap: 20vw;
         padding: 4vw 4vw 12vw;
         /* 2 cols, 1 gap (3vw), padding 4vw×2 = 8vw → col = (100vw - 11vw) / 2 = 44.5vw */
-        grid-auto-rows: min(calc(44.5vw * 1.655), 240px);
+        grid-auto-rows: min(calc(44.5vw * 1.655), 380px);
     }
 }
 
