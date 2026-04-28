@@ -31,7 +31,7 @@ get_header();
                                     <?php if ($item['type'] === 'image') : ?>
                                         <?php echo wp_get_attachment_image($item['id'], 'full', false, array(
                                             'class'   => 'gallery-image',
-                                            'loading' => $index === 0 ? 'eager' : 'lazy',
+                                            'loading' => 'eager',
                                             'decoding' => 'async',
                                             'alt'     => sprintf(__('%s - Image %d of %d', 'altra'), get_the_title(), $index + 1, $total),
                                         )); ?>
