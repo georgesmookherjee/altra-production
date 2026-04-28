@@ -706,10 +706,12 @@ body:not(.logged-in) .nav-right a {
 
     /* Slide : hauteur fixe = les infos en bas ne bougent pas d'une slide à l'autre */
     .gallery-slide.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         height: 65vh;
         padding: 0 1rem;
         overflow: visible;
-        align-items: center; /* centrage vertical → paysage a du vide haut/bas */
     }
 
     /* Images : le navigateur choisit la contrainte selon le ratio :
