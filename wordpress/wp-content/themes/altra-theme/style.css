@@ -331,7 +331,7 @@ body:not(.logged-in) .hero-nav-right a {
 
     display: grid;
     grid-template-columns: 1fr auto 1fr;
-    align-items: center;
+    align-items: baseline;
 }
 
 .site-header.visible {
@@ -385,11 +385,6 @@ body:not(.logged-in) .hero-nav-right a {
     justify-self: end;
 }
 
-.nav-left,
-.nav-right {
-    align-self: center;
-    transform: translateY(0.5vw); /* ← monte/descend INFOS + CONTACT sans affecter le logo */
-}
 
 .nav-left a,
 .nav-right a {
@@ -781,12 +776,6 @@ body:not(.logged-in) .nav-right a {
         padding-right: 1rem;
     }
 
-    /* Position verticale dans le header mobile portrait */
-    .site-header .nav-left,
-    .site-header .nav-right {
-        transform: translateY(1vw); /* ← ajuste pour mobile portrait */
-    }
-
     /* Font-size avec spécificité suffisante pour surcharger body:not(.logged-in) */
     .site-header .nav-left a,
     .site-header .nav-right a {
@@ -814,12 +803,6 @@ body:not(.logged-in) .nav-right a {
 
 /* Mobile paysage — la largeur dépasse 768px donc le breakpoint portrait ne suffit pas */
 @media (orientation: landscape) and (max-height: 500px) {
-    /* Header : aligner INFOS/CONTACT avec le logo en paysage */
-    .site-header .nav-left,
-    .site-header .nav-right {
-        transform: translateY(0.5vw); /* ← ajuste pour mobile landscape */
-    }
-
     /* Galerie : colle au contenu, pas de marge excessive */
     .project-gallery-viewer {
         margin-bottom: -0.5rem;
