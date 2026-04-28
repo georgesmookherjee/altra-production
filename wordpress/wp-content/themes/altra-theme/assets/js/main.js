@@ -31,6 +31,17 @@
             let altraOffsetX, altraOffsetY, targetScale;
             let initNavLeftCenterY, initNavRightCenterY;
 
+            // Mesure la baseline réelle d'un élément texte via un probe inline-block.
+            // Fonctionne sur tous les navigateurs indépendamment des métriques de fonte.
+            function measureBaseline(el) {
+                const probe = document.createElement('span');
+                probe.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline;';
+                el.appendChild(probe);
+                const y = probe.getBoundingClientRect().bottom;
+                el.removeChild(probe);
+                return y;
+            }
+
             function initPositions() {
                 // Reset des transforms JS et des positions inline pour mesurer les positions CSS pures
                 heroLogo.style.transform = '';
@@ -54,6 +65,21 @@
                 const headerAltraW = headerAltraEl ? headerAltraEl.getBoundingClientRect().width : heroAltraW;
                 targetScale = headerAltraW / heroAltraW;
 
+                // Alignement baseline cross-browser : mesure les baselines réelles et positionne les navs
+                if (heroNavLeft && heroNavRight && heroAltraEl) {
+                    const altraBaseline = measureBaseline(heroAltraEl);
+
+                    const navLeftAnchor  = heroNavLeft.querySelector('a')  || heroNavLeft;
+                    const navRightAnchor = heroNavRight.querySelector('a') || heroNavRight;
+
+                    const navLeftRect        = heroNavLeft.getBoundingClientRect();
+                    const navLeftBaseFromTop = measureBaseline(navLeftAnchor) - navLeftRect.top;
+                    // top CSS = baseline_cible + height/2 - baselineFromTop (car translateY(-50%))
+                    const navTopPx = altraBaseline + navLeftRect.height / 2 - navLeftBaseFromTop;
+                    heroNavLeft.style.top  = navTopPx + 'px';
+                    heroNavRight.style.top = navTopPx + 'px';
+                }
+
                 initNavLeftCenterY  = heroNavLeft  ? heroNavLeft.getBoundingClientRect().top  + heroNavLeft.getBoundingClientRect().height  / 2 : 0;
                 initNavRightCenterY = heroNavRight ? heroNavRight.getBoundingClientRect().top + heroNavRight.getBoundingClientRect().height / 2 : 0;
             }
@@ -64,6 +90,14 @@
             if (headerNavRight) headerNavRight.style.opacity = '0';
 
             initPositions();
+
+            // Re-mesure après chargement des fontes custom pour garantir des baselines exactes
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(function() {
+                    initPositions();
+                    updateLogoMorphing();
+                });
+            }
 
             function updateLogoMorphing() {
                 const scrolled = window.pageYOffset || document.documentElement.scrollTop;

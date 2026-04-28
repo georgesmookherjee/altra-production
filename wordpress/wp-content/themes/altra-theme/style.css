@@ -257,11 +257,11 @@ body:not(.logged-in) .hero-info {
 } */
 
 /* Hero Navigation Links */
-/* top = 50% + (ascender_ratio - 0.5) × font-size-altra ≈ 50% + 0.3 × clamp(...) */
+/* top: 50% = fallback CSS ; le JS (initPositions) corrige en px via mesure de baseline réelle */
 .hero-nav-left,
 .hero-nav-right {
     position: fixed;
-    top: calc(50% + clamp(2.5rem, 5vw, 4rem) * 0.15);
+    top: 50%;
     z-index: 1001;
     transition: opacity 0.3s ease;
 }
@@ -770,13 +770,7 @@ body:not(.logged-in) .nav-right a {
         right: 1rem;
     }
 
-    /* Sur mobile, clamp() retourne son min (2.5rem=40px), offset recalculé */
-    .hero-nav-left,
-    .hero-nav-right {
-        top: calc(50% + 2.5rem * 0.10);
-    }
-
-    .hero-nav-left a,
+.hero-nav-left a,
     .hero-nav-right a {
         font-size: 0.6rem;
     }
