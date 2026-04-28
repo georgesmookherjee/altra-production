@@ -195,12 +195,11 @@ p {
 
 .hero-logo {
     position: fixed;
-    top: 44.8%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1001;
     color: var(--color-black) !important;
-    will-change: transform;
     margin: 0;
     transition: opacity 0.3s ease;
     display: inline-flex;
@@ -258,12 +257,12 @@ body:not(.logged-in) .hero-info {
 } */
 
 /* Hero Navigation Links */
+/* top = 50% + (ascender_ratio - 0.5) × font-size-altra ≈ 50% + 0.3 × clamp(...) */
 .hero-nav-left,
 .hero-nav-right {
     position: fixed;
-    top: 45.9%;
+    top: calc(50% + clamp(2.5rem, 5vw, 4rem) * 0.15);
     z-index: 1001;
-    will-change: transform;
     transition: opacity 0.3s ease;
 }
 
@@ -762,24 +761,24 @@ body:not(.logged-in) .nav-right a {
     /* ============================================================
        HERO — MOBILE
        ============================================================ */
-    /* Hero navs : position sur mobile */
-    .hero-nav-left,
-    .hero-nav-right {
-        top: 45.3%;
-    }
-
-    /* Font-size sur les liens hero — !important pour surcharger body:not(.logged-in) */
-    .hero-nav-left a,
-    .hero-nav-right a {
-        font-size: 0.6rem !important;
-    }
-
+    /* Hero navs : plus proches des bords sur mobile */
     .hero-nav-left {
         left: 1rem;
     }
 
     .hero-nav-right {
         right: 1rem;
+    }
+
+    /* Sur mobile, clamp() retourne son min (2.5rem=40px), offset recalculé */
+    .hero-nav-left,
+    .hero-nav-right {
+        top: calc(50% + 2.5rem * 0.10);
+    }
+
+    .hero-nav-left a,
+    .hero-nav-right a {
+        font-size: 0.6rem;
     }
 
     /* Header : réduire padding sur mobile */

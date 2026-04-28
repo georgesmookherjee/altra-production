@@ -32,10 +32,10 @@
             let initNavLeftCenterY, initNavRightCenterY;
 
             function initPositions() {
-                // Reset des transforms JS pour mesurer les positions CSS pures
+                // Reset des transforms JS et des positions inline pour mesurer les positions CSS pures
                 heroLogo.style.transform = '';
-                if (heroNavLeft)  heroNavLeft.style.transform  = '';
-                if (heroNavRight) heroNavRight.style.transform = '';
+                if (heroNavLeft)  { heroNavLeft.style.transform  = ''; heroNavLeft.style.top  = ''; }
+                if (heroNavRight) { heroNavRight.style.transform = ''; heroNavRight.style.top = ''; }
 
                 scrollThreshold = window.innerHeight * 0.8;
 
