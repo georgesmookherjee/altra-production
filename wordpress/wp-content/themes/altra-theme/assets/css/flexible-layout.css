@@ -110,14 +110,11 @@
     color: #000;
 }
 
-/* One-line caption: Title (bold) Photographer (regular) */
+/* Caption : Title (bold) Photographer (regular) — une ligne desktop, deux lignes mobile */
 .project-caption {
     font-size: 14px;
     line-height: 1.4;
     margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .project-title {
@@ -178,6 +175,11 @@
         padding: 4vw 4vw 12vw;
         /* 2 cols, 1 gap (3vw), padding 4vw×2 = 8vw → col = (100vw - 11vw) / 2 = 44.5vw */
         grid-auto-rows: min(calc(44.5vw * 1.655), 380px);
+    }
+
+    /* Photographe sur 2e ligne sur smartphone portrait */
+    .project-photographer {
+        display: block;
     }
 }
 
