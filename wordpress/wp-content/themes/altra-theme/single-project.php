@@ -80,7 +80,7 @@ get_header();
                         if (empty($value)) continue;
                         $display_value = ($field['type'] === 'date') ? date('F Y', strtotime($value)) : $value;
                         $label    = $field['label'];
-                        $use_html = ($field_key === 'location' && strpos($display_value, ',') !== false);
+                        $use_html = false;
                     } else {
                         // Champ custom (clé plain meta)
                         $value = get_post_meta(get_the_ID(), $field_key, true);

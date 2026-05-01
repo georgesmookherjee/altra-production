@@ -500,12 +500,13 @@ p {
     z-index: 10;
 }
 
-/* Métadonnées — grille 5 colonnes, retour à la ligne automatique */
+/* Métadonnées — grille 4 colonnes, marges alignées sur le header */
 .project-details {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 0;
-    padding: 2rem 10rem 1.5rem 2rem; /*haut   droite bas  gauche */
+    row-gap: 0.3rem;
+    padding: 2rem var(--page-margin) 1.5rem var(--page-margin);
 }
 
 .project-detail-item {
@@ -526,7 +527,7 @@ p {
 }
 
 .project-detail-label::after {
-    content: '\00a0—\00a0';
+    content: '\00a0';
     font-weight: 400;
 }
 
