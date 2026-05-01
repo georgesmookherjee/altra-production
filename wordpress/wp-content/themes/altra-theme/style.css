@@ -224,24 +224,18 @@ p {
 }
 
 .hero-info {
-    font-size: 1rem;
+    font-size: clamp(0.8rem, 1.2vw, 1rem);
     opacity: 0.8;
     line-height: 1.8;
     transition: opacity 0.3s ease;
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, calc(-50% + 120px));
+    transform: translate(-50%, calc(-50% + clamp(60px, 10vw, 120px)));
     z-index: 1001;
     width: 100%;
     text-align: center;
     will-change: transform;
-}
-
-/* Adaptive hero-info for non-logged-in users */
-body:not(.logged-in) .hero-info {
-    font-size: clamp(0.8rem, 1.2vw, 1rem);
-    transform: translate(-50%, calc(-50% + clamp(60px, 10vw, 120px)));
 }
 
 .hero-info p {
@@ -267,12 +261,12 @@ body:not(.logged-in) .hero-info {
 }
 
 .hero-nav-left {
-    left: 2rem;
+    left: 30px;
     transform: translateY(-50%);
 }
 
 .hero-nav-right {
-    right: 2rem;
+    right: 30px;
     transform: translateY(-50%);
 }
 
@@ -280,22 +274,17 @@ body:not(.logged-in) .hero-info {
 .hero-nav-right a {
     font-size: 0.75rem;
     font-weight: 500;
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
     letter-spacing: 0;
     text-decoration: none;
     color: var(--color-black);
 }
 
-/* Hero nav — same as header nav */
-body:not(.logged-in) .hero-nav-left a,
-body:not(.logged-in) .hero-nav-right a {
-    font-size: 0.75rem;
-}
 
 /* Scroll indicator */
 .scroll-indicator {
     position: absolute;
-    bottom: var(--spacing-lg);
+    bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -304,8 +293,8 @@ body:not(.logged-in) .hero-nav-right a {
     gap: 0.5rem;
     color: var(--color-black);
     opacity: 0.6;
-    animation: bounce 2s infinite;
-    transition: opacity 0.3s ease;
+    /*animation: bounce 2s infinite;*/
+    transition: opacity 0.1s ease;
 }
 
 @keyframes bounce {
@@ -323,7 +312,7 @@ body:not(.logged-in) .hero-nav-right a {
     left: 0;
     right: 0;
     width: 100%;
-    padding: 0.5rem 2rem 0.5rem 2rem; /*haut droite bas gauche */
+    padding: 0.5rem 9rem 0.5rem 9rem; /*haut droite bas gauche */
     background-color: var(--color-white);
     z-index: 1000;
     opacity: 0;
@@ -388,9 +377,8 @@ body:not(.logged-in) .hero-nav-right a {
 
 .nav-left a,
 .nav-right a {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 500;
-    text-transform: uppercase;
     letter-spacing: 0;
     text-decoration: none;
     transition: opacity 0.3s ease;
@@ -399,12 +387,6 @@ body:not(.logged-in) .hero-nav-right a {
 .nav-left a:hover,
 .nav-right a:hover {
     opacity: 0.5;
-}
-
-/* Remove logged-in override — clamp handles responsiveness */
-body:not(.logged-in) .nav-left a,
-body:not(.logged-in) .nav-right a {
-    font-size: 0.75rem;
 }
 
 /* Legacy navigation support */
@@ -776,10 +758,9 @@ body:not(.logged-in) .nav-right a {
         padding-right: 1rem;
     }
 
-    /* Font-size avec spécificité suffisante pour surcharger body:not(.logged-in) */
     .site-header .nav-left a,
     .site-header .nav-right a {
-        font-size: 0.6rem !important;
+        font-size: 0.6rem;
     }
 
     /* Adjust hero-info position on smaller screens */
@@ -788,7 +769,7 @@ body:not(.logged-in) .nav-right a {
         padding: 0 20px;
     }
 
-    body:not(.logged-in) .project-header h1 {
+    .project-header h1 {
         font-size: clamp(1.5rem, 5vw, 2rem);
     }
 }
