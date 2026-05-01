@@ -12,8 +12,8 @@
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    row-gap: 98px;
+    gap: 35px;
+    row-gap: 185px;
     padding: 40px var(--page-margin) 80px;
     margin-top: 0;
     /* Hauteur de ligne = largeur d'une colonne × ratio portrait
@@ -124,7 +124,8 @@
 .project-photographer {
     font-size: 15px;   /* ← taille du photographe (regular) */
     font-weight: 400;
-    margin-left: 0.3em; /* ← espace entre client et photographe */
+    -webkit-text-stroke: 0.2px currentColor;
+    /*margin-left: 0.3em;*/ /* ← espace entre client et photographe */
 }
 
 /* ==========================================================================
@@ -187,6 +188,8 @@
 
 /* Mobile paysage — 4 colonnes compactes */
 @media (orientation: landscape) and (max-height: 500px) {
+    :root { --page-margin: 4vw; }
+
     body:not(.logged-in) .projects-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 2vw;

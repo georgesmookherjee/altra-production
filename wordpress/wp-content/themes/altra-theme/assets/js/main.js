@@ -11,7 +11,6 @@
         // Hero scroll animation avec morphing du logo
         const hero = document.querySelector('.hero-section');
         const heroLogo = document.querySelector('.hero-logo');
-        const heroInfo = document.querySelector('.hero-info');
         const heroNavLeft = document.querySelector('.hero-nav-left');
         const heroNavRight = document.querySelector('.hero-nav-right');
         const scrollIndicator = document.querySelector('.scroll-indicator');
@@ -105,10 +104,9 @@
 
                 if (scrolled > scrollThreshold) hero.style.pointerEvents = 'none';
 
-                // "Production" et hero-info disparaissent tôt (progress 0 → 0.4)
+                // "Production" disparaît tôt (progress 0 → 0.8)
                 const earlyFade = Math.max(0, 1 - progress / 0.8);
                 if (heroLogoProduction) heroLogoProduction.style.opacity = earlyFade;
-                if (heroInfo)           heroInfo.style.opacity = earlyFade;
                 if (scrollIndicator)    scrollIndicator.style.opacity = Math.max(0, 1 - progress * 2);
 
                 // Morphing logo : translate X+Y vers le header + scale progressif
@@ -245,7 +243,7 @@
 
             // Clic sur la galerie → slide suivant
             galleryViewer.addEventListener('click', function(e) {
-                if (e.target.closest('.gallery-counter') || e.target.closest('.gallery-left-label')) return;
+                if (e.target.closest('.gallery-counter')) return;
                 goToSlide(currentIndex + 1);
             });
 

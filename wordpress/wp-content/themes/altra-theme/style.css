@@ -68,7 +68,7 @@ Text Domain: altra
     --spacing-md: 2rem;
     --spacing-lg: 4rem;
     --spacing-xl: 8rem;
-    --page-margin: 30px; /* marge latérale commune : grille, hero navs, header */
+    --page-margin: 145px; /* marge latérale commune : grille, hero navs, header */
 }
 
 @media (max-width: 1024px) {
@@ -223,37 +223,12 @@ p {
 
 .hero-logo .logo-production {
     font-family: 'SuisseEcalIntl', sans-serif;
-    font-size: clamp(0.75rem, 1.3vw, 1rem);
-    font-weight: 500;
-    letter-spacing: 0.01em;
+    font-size: clamp(0.7rem, 5vw, 0.95rem);
+    -webkit-text-stroke: 0.1px currentColor;
+    font-weight: 400;
+    letter-spacing: -0.05
 }
 
-.hero-info {
-    font-size: clamp(0.8rem, 1.2vw, 1rem);
-    opacity: 0.8;
-    line-height: 1.8;
-    transition: opacity 0.3s ease;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, calc(-50% + clamp(60px, 10vw, 120px)));
-    z-index: 1001;
-    width: 100%;
-    text-align: center;
-    will-change: transform;
-}
-
-.hero-info p {
-    margin: 0.5rem 0;
-}
-
-/* .hero-instagram {
-    font-weight: 500;
-}
-
-.hero-contact {
-    font-weight: 300;
-} */
 
 /* Hero Navigation Links */
 /* top: 50% = fallback CSS ; le JS (initPositions) corrige en px via mesure de baseline réelle */
@@ -277,10 +252,12 @@ p {
 
 .hero-nav-left a,
 .hero-nav-right a {
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-family: 'SuisseEcalIntl', sans-serif;
+    font-size: clamp(0.7rem, 5vw, 0.95rem);
+    -webkit-text-stroke: 0.1px currentColor;
+    font-weight: 400;
+    letter-spacing: -0.02em;
     /*text-transform: uppercase;*/
-    letter-spacing: 0;
     text-decoration: none;
     color: var(--color-black);
 }
@@ -317,7 +294,7 @@ p {
     left: 0;
     right: 0;
     width: 100%;
-    padding: 0.5rem var(--page-margin); /* marges latérales = --page-margin, sync avec la grille */
+    padding: 3.4rem var(--page-margin) 2.9rem var(--page-margin); /* marges latérales = --page-margin, sync avec la grille */
     background-color: var(--color-white);
     z-index: 1000;
     opacity: 0;
@@ -355,19 +332,20 @@ p {
 /* "Altra" — Catalogue Trial Bold */
 .logo-altra {
     font-family: 'CatalogueTrial', Georgia, serif;
-    font-size: clamp(2.4rem, 5vw, 4rem);
-    font-weight: 700;
+    font-size: 3.4rem;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 500;
     letter-spacing: -0.01em;
     line-height: 1;
 }
 
 /* "Production" — petite, légère, SuisseEcal */
-.logo-production {
+/*.logo-production {
     font-family: 'SuisseEcalIntl', sans-serif;
     font-size: clamp(0.7rem, 1.2vw, 0.9rem);
     font-weight: 400;
     letter-spacing: 0.02em;
-}
+}*/
 
 .nav-left {
     grid-column: 1;
@@ -382,16 +360,18 @@ p {
 
 .nav-left a,
 .nav-right a {
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0;
+    font-family: 'SuisseEcalIntl', sans-serif;
+    font-size: clamp(0.7rem, 5vw, 0.95rem);
+    -webkit-text-stroke: 0.1px currentColor;
+    font-weight: 400;
+    letter-spacing: -0.02em;
     text-decoration: none;
     transition: opacity 0.3s ease;
 }
 
 .nav-left a:hover,
 .nav-right a:hover {
-    opacity: 0.5;
+    opacity: 0.1;
 }
 
 /* Legacy navigation support */
@@ -506,19 +486,6 @@ p {
     pointer-events: none; /* Les clics passent au gallery viewer pour la navigation */
 }
 
-/* Label gauche — affiché à gauche de l'image, centré verticalement */
-.gallery-left-label {
-    position: absolute;
-    left: 2rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0;
-    pointer-events: none;
-    z-index: 10;
-}
 
 /* Compteur discret en bas à droite de la galerie */
 .gallery-counter {
@@ -650,27 +617,6 @@ p {
        PAGE PROJET — GALERIE
        ============================================================ */
 
-    /* Label gauche : sort de l'absolu, passe au-dessus de l'image */
-    /* Viewer en flex pour aligner label (gauche) et compteur (droite) sur la même ligne */
-    .project-gallery-viewer {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: baseline;
-    }
-
-    .gallery-images {
-        order: 2;
-        width: 100%;
-    }
-
-    .gallery-left-label {
-        position: static;
-        transform: none;
-        padding: 0 1rem 0.75rem;
-        font-size: 70%;
-        order: 1;
-        flex: 1; /* prend tout l'espace disponible à gauche */
-    }
 
     /* Compteur : sort de l'absolu, se place à droite du label */
     .gallery-counter {
@@ -743,27 +689,28 @@ p {
     /* ============================================================
        HERO — MOBILE
        ============================================================ */
-.hero-nav-left a,
+/*.hero-nav-left a,
     .hero-nav-right a {
-        font-size: 0.6rem;
+        font-size: 2rem;
     }
 
 
     .site-header .nav-left a,
     .site-header .nav-right a {
-        font-size: 0.6rem;
-    }
+        font-size: 2rem;
+    }*/
 
-    /* Adjust hero-info position on smaller screens */
-    .hero-info {
-        transform: translate(-50%, calc(-50% + 80px));
-        padding: 0 20px;
+    .hero-logo .logo-production {
+        letter-spacing: -0.02em;
+        -webkit-text-stroke: 0.1px currentColor;
     }
+}
 
     .project-header h1 {
         font-size: clamp(1.5rem, 5vw, 2rem);
     }
-}
+    
+
 
 @media (max-width: 480px) {
     /* 1 colonne sur très petits écrans */
@@ -793,12 +740,6 @@ p {
         transform: translateY(-170%);
     }
     
-    .gallery-left-label {
-        position: absolute;
-        transform: translateY(-170%);
-        left: 2rem;
-        font-size: 70%;
-    }
 
     /* Métadonnées */
     .project-details {
@@ -816,6 +757,16 @@ p {
         padding-left: 2rem;
         padding-right: 2rem;
     }
+
+    .hero-logo .logo-production {
+        letter-spacing: -0.02em;
+        -webkit-text-stroke: 0.1px currentColor;
+    }
+
+    .site-header {
+        padding-top: 1.5rem;    /* ← ta valeur mobile */
+        padding-bottom: 1rem; /* ← ta valeur mobile */
+    }
 }
 
 /* Portrait mobile — réduire les marges autour de la galerie */
@@ -826,6 +777,11 @@ p {
 
     .project-details {
         padding-top: 0.75rem;
+    }
+    
+    .site-header {
+        padding-top: 1.5rem;    /* ← ta valeur mobile */
+        padding-bottom: 1rem; /* ← ta valeur mobile */
     }
 }
 

@@ -11,7 +11,7 @@
 
 <header class="site-header">
     <nav class="nav-left">
-        <a href="<?php echo esc_url(home_url('/infos')); ?>">INFOS</a>
+        <a href="<?php echo esc_url(home_url('/infos')); ?>">Infos</a>
     </nav>
 
     <div class="site-logo">
@@ -21,6 +21,6 @@
     </div>
 
     <nav class="nav-right">
-        <a href="<?php echo esc_url(home_url('/contact')); ?>">CONTACT</a>
+        <a href="<?php echo esc_url(home_url('/contact')); ?>">Contact</a>
     </nav>
 </header>

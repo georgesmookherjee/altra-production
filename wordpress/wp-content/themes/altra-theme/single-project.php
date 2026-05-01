@@ -17,14 +17,10 @@ get_header();
                 <!-- Project Gallery with Click Navigation -->
                 <?php
                 $gallery_items = altra_get_gallery_items(get_the_ID());
-                $left_label = get_post_meta(get_the_ID(), '_altra_left_label', true);
                 if (!empty($gallery_items)) :
                     $total = count($gallery_items);
                     ?>
                     <div class="project-gallery-viewer" data-total="<?php echo $total; ?>">
-                        <?php if ($left_label) : ?>
-                            <div class="gallery-left-label"><?php echo esc_html($left_label); ?></div>
-                        <?php endif; ?>
                         <div class="gallery-images">
                             <?php foreach ($gallery_items as $index => $item) : ?>
                                 <div class="gallery-slide <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>">
