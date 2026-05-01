@@ -68,6 +68,11 @@ Text Domain: altra
     --spacing-md: 2rem;
     --spacing-lg: 4rem;
     --spacing-xl: 8rem;
+    --page-margin: 30px; /* marge latérale commune : grille, hero navs, header */
+}
+
+@media (max-width: 1024px) {
+    :root { --page-margin: 4vw; }
 }
 
 html {
@@ -261,12 +266,12 @@ p {
 }
 
 .hero-nav-left {
-    left: 30px;
+    left: var(--page-margin);
     transform: translateY(-50%);
 }
 
 .hero-nav-right {
-    right: 30px;
+    right: var(--page-margin);
     transform: translateY(-50%);
 }
 
@@ -312,7 +317,7 @@ p {
     left: 0;
     right: 0;
     width: 100%;
-    padding: 0.5rem 9rem 0.5rem 9rem; /*haut droite bas gauche */
+    padding: 0.5rem var(--page-margin); /* marges latérales = --page-margin, sync avec la grille */
     background-color: var(--color-white);
     z-index: 1000;
     opacity: 0;
@@ -738,25 +743,11 @@ p {
     /* ============================================================
        HERO — MOBILE
        ============================================================ */
-    /* Hero navs : plus proches des bords sur mobile */
-    .hero-nav-left {
-        left: 1rem;
-    }
-
-    .hero-nav-right {
-        right: 1rem;
-    }
-
 .hero-nav-left a,
     .hero-nav-right a {
         font-size: 0.6rem;
     }
 
-    /* Header : réduire padding sur mobile */
-    .site-header {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
 
     .site-header .nav-left a,
     .site-header .nav-right a {

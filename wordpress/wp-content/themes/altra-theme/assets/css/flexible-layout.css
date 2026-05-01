@@ -14,7 +14,7 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     row-gap: 98px;
-    padding: 40px 30px 80px;
+    padding: 40px var(--page-margin) 80px;
     margin-top: 0;
     /* Hauteur de ligne = largeur d'une colonne × ratio portrait
        admin : padding 60px×2 + 3 gaps 20px = 180px → col = (100vw - 180px)/4
@@ -105,24 +105,26 @@
 
 /* Info section - fixed below image */
 .project-info {
-    padding: 12px 0 15px;
+    padding: 16px 0 15px;
     background: transparent;
     color: #000;
 }
 
 /* Caption : Title (bold) Photographer (regular) — une ligne desktop, deux lignes mobile */
 .project-caption {
-    font-size: 14px;
     line-height: 1.4;
     margin: 0;
 }
 
 .project-title {
+    font-size: 15px;   /* ← taille du client (bold) */
     font-weight: 700;
 }
 
 .project-photographer {
+    font-size: 15px;   /* ← taille du photographe (regular) */
     font-weight: 400;
+    margin-left: 0.3em; /* ← espace entre client et photographe */
 }
 
 /* ==========================================================================
