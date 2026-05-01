@@ -110,11 +110,14 @@
     color: #000;
 }
 
-/* One-line caption: Title (bold) — Photographer (regular) */
+/* One-line caption: Title (bold) Photographer (regular) */
 .project-caption {
     font-size: 14px;
     line-height: 1.4;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .project-title {
@@ -165,9 +168,6 @@
     color: #000;
     }
 
-    /* 2 lignes : titre / photographe */
-    .project-sep { display: none; }
-    .project-photographer { display: block; }
 }
 
 /* Mobile portrait (≤768px) — espacements encore réduits */
