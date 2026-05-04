@@ -295,10 +295,11 @@ p {
     right: 0;
     width: 100%;
     padding: 3.4rem var(--page-margin) 2.9rem var(--page-margin); /* marges latérales = --page-margin, sync avec la grille */
-    background-color: var(--color-white);
+    background-color: transparent;
     z-index: 1000;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.15s ease;
+    will-change: transform;
 
     display: grid;
     grid-template-columns: 1fr auto 1fr;

@@ -30,6 +30,9 @@
             let altraOffsetX, altraOffsetY, targetScale;
             let initNavLeftCenterY, initNavRightCenterY;
 
+            // Scroll direction tracking — actif uniquement après le hero
+            let prevScrollForDir = 0;
+
             // Mesure la baseline réelle d'un élément texte via un probe inline-block.
             // Fonctionne sur tous les navigateurs indépendamment des métriques de fonte.
             function measureBaseline(el) {
@@ -47,7 +50,7 @@
                 if (heroNavLeft)  { heroNavLeft.style.transform  = ''; heroNavLeft.style.top  = ''; }
                 if (heroNavRight) { heroNavRight.style.transform = ''; heroNavRight.style.top = ''; }
 
-                scrollThreshold = window.innerHeight * 0.8;
+                scrollThreshold = window.innerHeight * 0.9;
 
                 const heroLogoRect  = heroLogo.getBoundingClientRect();
                 const heroAltraRect = heroAltraEl ? heroAltraEl.getBoundingClientRect() : heroLogoRect;
@@ -167,6 +170,21 @@
 
                 // Background du hero disparaît progressivement
                 hero.style.backgroundColor = `rgba(255, 255, 255, ${1 - progress})`;
+
+                // Hide/show header selon direction scroll — uniquement après le hero
+                if (progress < 1) {
+                    // Zone hero : reset pour ne pas interférer avec l'animation
+                    header.style.transform = '';
+                    prevScrollForDir = scrolled;
+                } else {
+                    const headerH = header.offsetHeight;
+                    if (scrolled > prevScrollForDir + 3) {
+                        header.style.transform = `translateY(-${headerH}px)`;
+                    } else if (scrolled < prevScrollForDir - 3) {
+                        header.style.transform = '';
+                    }
+                    prevScrollForDir = scrolled;
+                }
             }
 
             // Initialiser l'état au chargement
@@ -196,8 +214,26 @@
                 }
             });
         } else if (header) {
-            // Si pas de hero section, afficher le header directement
+            // Pages sans hero : afficher le header et le cacher/montrer selon direction du scroll
             header.classList.add('visible');
+            let lastScrollY = 0;
+            let headerTicking = false;
+            window.addEventListener('scroll', function() {
+                if (!headerTicking) {
+                    window.requestAnimationFrame(function() {
+                        const currentScrollY = window.scrollY;
+                        const headerH = header.offsetHeight;
+                        if (currentScrollY > lastScrollY && currentScrollY > 50) {
+                            header.style.transform = `translateY(-${headerH}px)`;
+                        } else {
+                            header.style.transform = '';
+                        }
+                        lastScrollY = currentScrollY;
+                        headerTicking = false;
+                    });
+                    headerTicking = true;
+                }
+            });
         }
 
         // Project Gallery Click Navigation
