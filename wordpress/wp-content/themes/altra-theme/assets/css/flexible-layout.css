@@ -15,6 +15,7 @@
     gap: 35px;
     row-gap: 185px;
     padding: 40px var(--page-margin) 80px;
+    padding-bottom: 185px;
     margin-top: 0;
     /* Hauteur de ligne = largeur d'une colonne × ratio portrait
        admin : padding 60px×2 + 3 gaps 20px = 180px → col = (100vw - 180px)/4
