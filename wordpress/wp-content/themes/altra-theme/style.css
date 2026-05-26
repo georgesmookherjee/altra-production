@@ -470,6 +470,7 @@ p {
 .gallery-video-wrapper {
     position: relative;
     height: 68vh;        /* même que les photos */
+    margin: 0 auto;
     width: auto;
     aspect-ratio: 16 / 9;
     max-width: none;     /* retire la contrainte à 900px */
