@@ -1,6 +1,5 @@
 /**
  * Inline Card Editor Styles
- * InDesign-style editing interface
  */
 
 // Fixed buttons (Edit Cards + Save All)
@@ -63,7 +62,6 @@
 body.altra-card-edit-mode {
 	.altra-fixed-button {
 		background: rgba(0, 0, 0, 0.1);
-		//color: #000;
 	}
 
 	.project-link {
@@ -88,117 +86,52 @@ body.altra-card-edit-mode {
 	.project-card:hover {
 		outline-color: #3498db;
 	}
-
 }
 
-// Croix centrale — repère visuel du centre de l'image
-.center-marker {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	width: 20px;
-	height: 20px;
-	pointer-events: none;
-	background:
-		linear-gradient(#fff, #fff) center / 2px 100% no-repeat,
-		linear-gradient(#fff, #fff) center / 100% 2px no-repeat;
-	filter: drop-shadow(0 0 2px rgba(0,0,0,0.8));
-	opacity: 0.75;
-}
-
-// Card edit overlay (appears on hover in edit mode)
+// Overlay couvrant l'image — ALT+drag pour panner
 .card-edit-overlay {
 	position: absolute;
 	inset: 0;
 	background: rgba(0, 0, 0, 0);
 	opacity: 0;
-	transition: all 0.3s ease;
+	transition: opacity 0.2s ease, background 0.2s ease;
 	pointer-events: none;
 	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	padding: 15px;
+	align-items: flex-start;
+	padding: 12px;
+	cursor: grab;
 
 	.project-card:hover & {
 		opacity: 1;
-		background: rgba(0, 0, 0, 0.1);
+		background: rgba(0, 0, 0, 0.08);
 		pointer-events: auto;
+	}
+
+	&.is-dragging {
+		cursor: grabbing;
+		background: rgba(0, 0, 0, 0.15) !important;
 	}
 }
 
-// Edit controls container
-.edit-controls {
-	display: flex;
-	flex-direction: column;
-	gap: 15px;
-	height: 100%;
-}
-
-// Edit hint (Alt + Click instruction)
+// Hint affiché en haut de l'overlay
 .edit-hint {
 	background: rgba(52, 152, 219, 0.95);
 	color: #fff;
-	padding: 8px 12px;
+	padding: 6px 10px;
 	border-radius: 4px;
-	font-size: 12px;
+	font-size: 11px;
 	font-weight: 600;
 	text-align: center;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-// Focal Point Picker
-.focal-point-picker {
-	flex: 1;
-	position: relative;
-	border: 2px solid rgba(1, 1, 1, 0.3);
-	border-radius: 4px;
-	cursor: crosshair;
-	background: rgba(0, 0, 0, 0);
-
-	&:hover {
-		border-color: rgba(255, 255, 255, 0.6);
-		background: rgba(255, 255, 255, 0.1);
-	}
-}
-
-.focal-point-crosshair {
-	position: absolute;
-	width: 30px;
-	height: 30px;
-	transform: translate(-50%, -50%);
 	pointer-events: none;
-
-	&::before,
-	&::after {
-		content: '';
-		position: absolute;
-		background: #ffffff4e;
-		box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
-	}
-
-	&::before {
-		top: 50%;
-		left: 0;
-		right: 0;
-		height: 2px;
-		transform: translateY(-50%);
-	}
-
-	&::after {
-		left: 50%;
-		top: 0;
-		bottom: 0;
-		width: 2px;
-		transform: translateX(-50%);
-	}
+	user-select: none;
 }
 
-// Zoom Control (inline in project-info)
+// Zoom Control (direct child of .project-card, outside .project-link)
 .zoom-control-inline {
-	display: none; // Hidden by default
+	display: none;
 	padding: 8px 12px;
 	background: #fff;
 	border-radius: 6px;
@@ -208,7 +141,6 @@ body.altra-card-edit-mode {
 	body.altra-card-edit-mode & {
 		display: block;
 		pointer-events: auto;
-		// Se positionne dans le row-gap sous la carte, sans déborder sur les autres cartes
 		position: absolute;
 		left: 0;
 		right: 0;

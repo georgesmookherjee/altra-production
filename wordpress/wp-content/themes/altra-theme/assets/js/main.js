@@ -301,6 +301,52 @@
             }
         }
 
+        // Zoom/focal point avec cover-base : scale(coverScale × zoom)
+        // coverScale = échelle pour que l'image remplisse le container (≡ object-fit:cover)
+        // zoom < 1 → on voit au-delà du cover ; zoom > 1 → plus zoomé que cover
+        function applyCardZoom() {
+            document.querySelectorAll('.project-card[data-has-visual-settings="1"]').forEach(function(card) {
+                const img = card.querySelector('.project-image img');
+                if (!img) return;
+                const panX = parseFloat(card.dataset.panX) || 0;
+                const panY = parseFloat(card.dataset.panY) || 0;
+                const zoom = parseFloat(card.dataset.zoom) || 1.0;
+
+                function apply() {
+                    const container = img.closest('.project-image');
+                    const cW = container.offsetWidth;
+                    const cH = container.offsetHeight;
+                    const nW = img.naturalWidth;
+                    const nH = img.naturalHeight;
+                    if (!nW || !nH || !cW || !cH) return;
+
+                    const cs = Math.max(cW / nW, cH / nH); // cover scale
+                    const iW = nW * cs;
+                    const iH = nH * cs;
+
+                    img.style.objectFit     = 'none';
+                    img.style.position      = 'absolute';
+                    img.style.width         = iW + 'px';
+                    img.style.height        = iH + 'px';
+                    img.style.top           = '50%';
+                    img.style.left          = '50%';
+                    img.style.marginTop     = (-iH / 2) + 'px';
+                    img.style.marginLeft    = (-iW / 2) + 'px';
+                    img.style.transformOrigin = '50% 50%';
+                    img.style.transform     = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+                }
+
+                if (img.complete && img.naturalWidth) {
+                    apply();
+                } else {
+                    img.addEventListener('load', apply);
+                }
+            });
+        }
+
+        applyCardZoom();
+        window.addEventListener('resize', applyCardZoom);
+
         // Mobile menu toggle (if needed in future)
         const menuToggle = document.querySelector('.menu-toggle');
         if (menuToggle) {

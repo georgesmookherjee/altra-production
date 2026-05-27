@@ -1,13 +1,13 @@
 /**
  * Inline Card Editor
- * InDesign-style editing: hover on images to edit focal point and zoom
+ * Alt + Drag to pan, slider to zoom
  */
 import './style.scss';
 
 class InlineCardEditor {
 	constructor() {
 		this.isActive = false;
-		this.editedCards = new Map(); // Track changes: projectId -> {focalPoint, zoom}
+		this.editedCards = new Map(); // Track changes: projectId -> {pan, zoom}
 		this.init();
 	}
 
@@ -68,8 +68,11 @@ class InlineCardEditor {
 	}
 
 	deactivate() {
-		// Remove all overlays
-		document.querySelectorAll('.card-edit-overlay').forEach(el => el.remove());
+		// Clean up drag listeners then remove overlays
+		document.querySelectorAll('.card-edit-overlay').forEach(el => {
+			if (el._cleanup) el._cleanup();
+			el.remove();
+		});
 
 		// Remove all zoom controls
 		document.querySelectorAll('.zoom-control-inline').forEach(el => el.remove());
@@ -98,23 +101,53 @@ class InlineCardEditor {
 		const transformTarget = img || videoWrapper;
 		if (!transformTarget) return;
 
-		// Create overlay for image
+		// Overlay couvrant l'image — ALT+drag pour panner
 		const overlay = document.createElement('div');
 		overlay.className = 'card-edit-overlay';
-		overlay.innerHTML = `
-			<div class="edit-controls">
-				<div class="edit-hint">Alt + Click to set focal point</div>
-				<div class="focal-point-picker">
-					<div class="focal-point-crosshair"></div>
-					<div class="center-marker"></div>
-				</div>
-			</div>
-		`;
-
+		overlay.innerHTML = `<div class="edit-hint">Alt + Glisser pour cadrer</div>`;
 		imageContainer.appendChild(overlay);
 
-		// Create zoom control in project-info section
-		const projectInfo = card.querySelector('.project-info');
+		// Drag-to-pan state
+		let isDragging = false;
+		let dragStartX, dragStartY;
+		let startPanX, startPanY;
+
+		const onMouseDown = (e) => {
+			if (!e.altKey) return;
+			e.preventDefault();
+			isDragging = true;
+			dragStartX = e.clientX;
+			dragStartY = e.clientY;
+			startPanX = parseFloat(card.dataset.panX) || 0;
+			startPanY = parseFloat(card.dataset.panY) || 0;
+			overlay.classList.add('is-dragging');
+		};
+
+		const onMouseMove = (e) => {
+			if (!isDragging) return;
+			const dx = e.clientX - dragStartX;
+			const dy = e.clientY - dragStartY;
+			this.updatePan(card, transformTarget, startPanX + dx, startPanY + dy);
+		};
+
+		const onMouseUp = () => {
+			if (!isDragging) return;
+			isDragging = false;
+			overlay.classList.remove('is-dragging');
+			this.trackChange(projectId, card);
+		};
+
+		overlay.addEventListener('mousedown', onMouseDown);
+		document.addEventListener('mousemove', onMouseMove);
+		document.addEventListener('mouseup', onMouseUp);
+
+		// Store cleanup so deactivate() can remove global listeners
+		overlay._cleanup = () => {
+			document.removeEventListener('mousemove', onMouseMove);
+			document.removeEventListener('mouseup', onMouseUp);
+		};
+
+		// Zoom control — direct child of card (hors .project-link, évite pointer-events:none)
 		const zoomControl = document.createElement('div');
 		zoomControl.className = 'zoom-control-inline';
 		zoomControl.innerHTML = `
@@ -122,38 +155,15 @@ class InlineCardEditor {
 			<input type="range" min="0.5" max="2.5" step="0.01" value="${card.dataset.zoom}" class="zoom-slider">
 			<span class="zoom-value">${parseFloat(card.dataset.zoom).toFixed(2)}x</span>
 		`;
-		projectInfo.appendChild(zoomControl);
+		card.appendChild(zoomControl);
 
-		// Setup focal point picker
-		const picker = overlay.querySelector('.focal-point-picker');
-		const crosshair = overlay.querySelector('.focal-point-crosshair');
+		// Prevent any parent drag handler from stealing slider events
+		zoomControl.addEventListener('mousedown', (e) => e.stopPropagation());
+		zoomControl.addEventListener('pointerdown', (e) => e.stopPropagation());
 
-		// Position crosshair based on current focal point
-		this.updateCrosshairPosition(crosshair, card.dataset.focalX, card.dataset.focalY);
-
-		picker.addEventListener('click', (e) => {
-			// Only allow editing when Alt key is pressed
-			if (!e.altKey) {
-				return;
-			}
-
-			e.preventDefault();
-			e.stopPropagation();
-
-			const rect = picker.getBoundingClientRect();
-			const x = ((e.clientX - rect.left) / rect.width) * 100;
-			const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-			this.updateFocalPoint(card, transformTarget, x, y);
-			this.updateCrosshairPosition(crosshair, x, y);
-			this.trackChange(projectId, card);
-		});
-
-		// Setup zoom control (now in project-info)
 		const zoomSlider = zoomControl.querySelector('.zoom-slider');
-		const zoomValue = zoomControl.querySelector('.zoom-value');
+		const zoomValue  = zoomControl.querySelector('.zoom-value');
 
-		// Zoom slider works directly without Alt key since it's in the info section
 		zoomSlider.addEventListener('input', (e) => {
 			const zoom = parseFloat(e.target.value);
 			this.updateZoom(card, transformTarget, zoom);
@@ -162,34 +172,25 @@ class InlineCardEditor {
 		});
 	}
 
-	updateCrosshairPosition(crosshair, x, y) {
-		crosshair.style.left = x + '%';
-		crosshair.style.top = y + '%';
-	}
-
-	updateFocalPoint(card, target, x, y) {
-		card.dataset.focalX = x;
-		card.dataset.focalY = y;
-		target.style.transformOrigin = `${x}% ${y}%`;
+	updatePan(card, target, x, y) {
+		card.dataset.panX = x;
+		card.dataset.panY = y;
+		const zoom = parseFloat(card.dataset.zoom) || 1;
+		target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
 	}
 
 	updateZoom(card, target, zoom) {
 		card.dataset.zoom = zoom;
-		const currentTransform = target.style.transform || '';
-		const scaleRegex = /scale\([^)]+\)/;
-
-		if (scaleRegex.test(currentTransform)) {
-			target.style.transform = currentTransform.replace(scaleRegex, `scale(${zoom})`);
-		} else {
-			target.style.transform = `scale(${zoom})`;
-		}
+		const panX = parseFloat(card.dataset.panX) || 0;
+		const panY = parseFloat(card.dataset.panY) || 0;
+		target.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
 	}
 
 	trackChange(projectId, card) {
 		this.editedCards.set(parseInt(projectId), {
-			focalPoint: {
-				x: parseFloat(card.dataset.focalX),
-				y: parseFloat(card.dataset.focalY)
+			pan: {
+				x: parseFloat(card.dataset.panX) || 0,
+				y: parseFloat(card.dataset.panY) || 0,
 			},
 			zoom: parseFloat(card.dataset.zoom)
 		});
@@ -216,7 +217,7 @@ class InlineCardEditor {
 				},
 				body: JSON.stringify({
 					visualSettings: {
-						focalPoint: settings.focalPoint,
+						pan: settings.pan,
 						zoom: settings.zoom,
 						textLayers: []
 					}

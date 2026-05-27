@@ -84,9 +84,10 @@ if ($media_type === 'video' && $featured_video_url) {
 
 <article class="project-card <?php echo esc_attr($orientation_class); ?>"
          data-project-id="<?php echo get_the_ID(); ?>"
-         data-focal-x="<?php echo isset($visual_settings['focalPoint']['x']) ? esc_attr($visual_settings['focalPoint']['x']) : '50'; ?>"
-         data-focal-y="<?php echo isset($visual_settings['focalPoint']['y']) ? esc_attr($visual_settings['focalPoint']['y']) : '50'; ?>"
+         data-pan-x="<?php echo isset($visual_settings['pan']['x']) ? esc_attr($visual_settings['pan']['x']) : '0'; ?>"
+         data-pan-y="<?php echo isset($visual_settings['pan']['y']) ? esc_attr($visual_settings['pan']['y']) : '0'; ?>"
          data-zoom="<?php echo isset($visual_settings['zoom']) ? esc_attr($visual_settings['zoom']) : '1.0'; ?>"
+         data-has-visual-settings="<?php echo (!empty($visual_settings) && is_array($visual_settings)) ? '1' : '0'; ?>"
          <?php if ($card_styles) echo 'style="' . esc_attr(trim($card_styles)) . '"'; ?>>
 
     <a href="<?php the_permalink(); ?>" class="project-link">
