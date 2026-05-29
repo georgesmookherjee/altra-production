@@ -305,6 +305,8 @@
         // coverScale = échelle pour que l'image remplisse le container (≡ object-fit:cover)
         // zoom < 1 → on voit au-delà du cover ; zoom > 1 → plus zoomé que cover
         function applyCardZoom() {
+            // Pan values are absolute pixels set on desktop — skip on mobile to avoid overcropping
+            if (window.innerWidth <= 768) return;
             document.querySelectorAll('.project-card[data-has-visual-settings="1"]').forEach(function(card) {
                 const img = card.querySelector('.project-image img');
                 if (!img) return;
@@ -344,8 +346,31 @@
             });
         }
 
+        function resetCardZoom() {
+            document.querySelectorAll('.project-card[data-has-visual-settings="1"]').forEach(function(card) {
+                const img = card.querySelector('.project-image img');
+                if (!img) return;
+                img.style.objectFit = '';
+                img.style.position  = '';
+                img.style.width     = '';
+                img.style.height    = '';
+                img.style.top       = '';
+                img.style.left      = '';
+                img.style.marginTop    = '';
+                img.style.marginLeft   = '';
+                img.style.transformOrigin = '';
+                img.style.transform    = '';
+            });
+        }
+
         applyCardZoom();
-        window.addEventListener('resize', applyCardZoom);
+        window.addEventListener('resize', function() {
+            if (window.innerWidth <= 768) {
+                resetCardZoom();
+            } else {
+                applyCardZoom();
+            }
+        });
 
         // Mobile menu toggle (if needed in future)
         const menuToggle = document.querySelector('.menu-toggle');
