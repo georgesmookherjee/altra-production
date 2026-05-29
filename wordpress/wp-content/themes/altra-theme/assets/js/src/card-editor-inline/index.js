@@ -179,21 +179,38 @@ class InlineCardEditor {
 		});
 	}
 
-	// Ne touche qu'au transform — l'image garde width/height/object-fit du CSS.
-	// L'élément est 100%×100% → transform-origin 50% 50% = centrage garanti quand pan=0.
+	// margin:auto sur position:absolute+inset:0 = centrage CSS garanti sans calcul px.
+	// Même approche que applyCardZoom — cover scale explicite pour que zoom<1 dézoome.
 	applyTransform(card, target, x, y) {
 		const zoom = parseFloat(card.dataset.zoom) || 1;
-		const container = target.closest('.project-image');
-		if (container) {
+		if (target.tagName === 'IMG' && target.naturalWidth) {
+			const container = target.closest('.project-image');
 			const cW = container.offsetWidth;
 			const cH = container.offsetHeight;
-			const overflowX = cW * (zoom - 1) / 2;
-			const overflowY = cH * (zoom - 1) / 2;
+			const nW = target.naturalWidth;
+			const nH = target.naturalHeight;
+			const cs = Math.max(cW / nW, cH / nH);
+			const iW = nW * cs;
+			const iH = nH * cs;
+			const overflowX = (iW * zoom - cW) / 2;
+			const overflowY = (iH * zoom - cH) / 2;
 			if (overflowX > 0) x = Math.max(-overflowX, Math.min(overflowX, x));
 			if (overflowY > 0) y = Math.max(-overflowY, Math.min(overflowY, y));
+			target.style.objectFit      = 'none';
+			target.style.position       = 'absolute';
+			target.style.width          = iW + 'px';
+			target.style.height         = iH + 'px';
+			target.style.top            = '0';
+			target.style.left           = '0';
+			target.style.right          = '0';
+			target.style.bottom         = '0';
+			target.style.margin         = 'auto';
+			target.style.transformOrigin = '50% 50%';
+			target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
+		} else {
+			target.style.transformOrigin = '50% 50%';
+			target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
 		}
-		target.style.transformOrigin = '50% 50%';
-		target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
 		card.dataset.panX = x;
 		card.dataset.panY = y;
 	}
