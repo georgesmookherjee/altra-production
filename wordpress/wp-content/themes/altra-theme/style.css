@@ -263,26 +263,6 @@ p {
 }
 
 
-/* Scroll indicator */
-.scroll-indicator {
-    position: absolute;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--color-black);
-    opacity: 0.6;
-    /*animation: bounce 2s infinite;*/
-    transition: opacity 0.1s ease;
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateX(-0%) translateY(0); }
-    50% { transform: translateX(-0%) translateY(-10px); }
-}
 
 /* ==========================================================================
    HEADER / NAVIGATION

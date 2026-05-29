@@ -13,7 +13,7 @@
         const heroLogo = document.querySelector('.hero-logo');
         const heroNavLeft = document.querySelector('.hero-nav-left');
         const heroNavRight = document.querySelector('.hero-nav-right');
-        const scrollIndicator = document.querySelector('.scroll-indicator');
+
         const header = document.querySelector('.site-header');
         const headerLogo = document.querySelector('.site-logo');
         const headerNavLeft = document.querySelector('.nav-left');
@@ -110,7 +110,6 @@
                 // "Production" disparaît tôt (progress 0 → 0.8)
                 const earlyFade = Math.max(0, 1 - progress / 0.8);
                 if (heroLogoProduction) heroLogoProduction.style.opacity = earlyFade;
-                if (scrollIndicator)    scrollIndicator.style.opacity = Math.max(0, 1 - progress * 2);
 
                 // Morphing logo : translate X+Y vers le header + scale progressif
                 // moveSpeed : 0.5 = atteint la position finale à 50% du scroll (plus petit = plus rapide)
