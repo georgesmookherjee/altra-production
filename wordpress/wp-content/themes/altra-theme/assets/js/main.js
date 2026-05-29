@@ -326,6 +326,12 @@
                     const iW = nW * cs;
                     const iH = nH * cs;
 
+                    // Clamp pan so image never exits container, regardless of window size
+                    const overflowX = (iW * zoom - cW) / 2;
+                    const overflowY = (iH * zoom - cH) / 2;
+                    const clampedPanX = overflowX > 0 ? Math.max(-overflowX, Math.min(overflowX, panX)) : panX;
+                    const clampedPanY = overflowY > 0 ? Math.max(-overflowY, Math.min(overflowY, panY)) : panY;
+
                     img.style.objectFit     = 'none';
                     img.style.position      = 'absolute';
                     img.style.width         = iW + 'px';
@@ -335,7 +341,7 @@
                     img.style.marginTop     = (-iH / 2) + 'px';
                     img.style.marginLeft    = (-iW / 2) + 'px';
                     img.style.transformOrigin = '50% 50%';
-                    img.style.transform     = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+                    img.style.transform     = `translate(${clampedPanX}px, ${clampedPanY}px) scale(${zoom})`;
                 }
 
                 if (img.complete && img.naturalWidth) {

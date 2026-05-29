@@ -173,9 +173,22 @@ class InlineCardEditor {
 	}
 
 	updatePan(card, target, x, y) {
+		const zoom = parseFloat(card.dataset.zoom) || 1;
+		// Clamp so image never exits container during drag
+		if (target.tagName === 'IMG' && target.naturalWidth) {
+			const container = target.closest('.project-image');
+			const cW = container.offsetWidth;
+			const cH = container.offsetHeight;
+			const cs = Math.max(cW / target.naturalWidth, cH / target.naturalHeight);
+			const iW = target.naturalWidth * cs;
+			const iH = target.naturalHeight * cs;
+			const overflowX = (iW * zoom - cW) / 2;
+			const overflowY = (iH * zoom - cH) / 2;
+			if (overflowX > 0) x = Math.max(-overflowX, Math.min(overflowX, x));
+			if (overflowY > 0) y = Math.max(-overflowY, Math.min(overflowY, y));
+		}
 		card.dataset.panX = x;
 		card.dataset.panY = y;
-		const zoom = parseFloat(card.dataset.zoom) || 1;
 		target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
 	}
 
