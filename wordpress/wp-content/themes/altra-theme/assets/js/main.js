@@ -326,25 +326,24 @@
                     const iW = nW * cs;
                     const iH = nH * cs;
 
-                    // Centrage pur par transform — pas de marginLeft/marginTop
-                    // Évite les décalages horizontaux dus à des marges obsolètes après resize
+                    // Centrage via calc(-50%) — relatif aux dimensions de l'image elle-même,
+                    // jamais obsolète quelle que soit la taille du container.
+                    // translate(calc(-50% + panX)) = toujours centré quand pan=0.
                     const overflowX = (iW * zoom - cW) / 2;
                     const overflowY = (iH * zoom - cH) / 2;
                     const clampedPanX = overflowX > 0 ? Math.max(-overflowX, Math.min(overflowX, panX)) : panX;
                     const clampedPanY = overflowY > 0 ? Math.max(-overflowY, Math.min(overflowY, panY)) : panY;
-                    const centerTx = (cW - iW) / 2;
-                    const centerTy = (cH - iH) / 2;
 
                     img.style.objectFit     = 'none';
                     img.style.position      = 'absolute';
                     img.style.width         = iW + 'px';
                     img.style.height        = iH + 'px';
-                    img.style.top           = '0';
-                    img.style.left          = '0';
+                    img.style.top           = '50%';
+                    img.style.left          = '50%';
                     img.style.marginTop     = '0';
                     img.style.marginLeft    = '0';
                     img.style.transformOrigin = '50% 50%';
-                    img.style.transform     = `translate(${centerTx + clampedPanX}px, ${centerTy + clampedPanY}px) scale(${zoom})`;
+                    img.style.transform     = `translate(calc(-50% + ${clampedPanX}px), calc(-50% + ${clampedPanY}px)) scale(${zoom})`;
                 }
 
                 if (img.complete && img.naturalWidth) {

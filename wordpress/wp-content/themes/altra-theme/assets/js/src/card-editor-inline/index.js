@@ -196,19 +196,17 @@ class InlineCardEditor {
 			const overflowY = (iH * zoom - cH) / 2;
 			if (overflowX > 0) x = Math.max(-overflowX, Math.min(overflowX, x));
 			if (overflowY > 0) y = Math.max(-overflowY, Math.min(overflowY, y));
-			const centerTx = (cW - iW) / 2;
-			const centerTy = (cH - iH) / 2;
-			// Reset complet — identique à applyCardZoom — pas de valeur stale possible
+			// Centrage via calc(-50%) — identique à applyCardZoom
 			target.style.objectFit      = 'none';
 			target.style.position       = 'absolute';
 			target.style.width          = iW + 'px';
 			target.style.height         = iH + 'px';
-			target.style.top            = '0';
-			target.style.left           = '0';
+			target.style.top            = '50%';
+			target.style.left           = '50%';
 			target.style.marginTop      = '0';
 			target.style.marginLeft     = '0';
 			target.style.transformOrigin = '50% 50%';
-			target.style.transform = `translate(${centerTx + x}px, ${centerTy + y}px) scale(${zoom})`;
+			target.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${zoom})`;
 		} else {
 			target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
 		}
