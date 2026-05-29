@@ -154,12 +154,19 @@ class InlineCardEditor {
 			<label>Zoom</label>
 			<input type="range" min="0.5" max="2.5" step="0.01" value="${card.dataset.zoom}" class="zoom-slider">
 			<span class="zoom-value">${parseFloat(card.dataset.zoom).toFixed(2)}x</span>
+			<button type="button" class="center-button">Centrer</button>
 		`;
 		card.appendChild(zoomControl);
 
-		// Prevent any parent drag handler from stealing slider events
+		// Prevent any parent drag handler from stealing slider/button events
 		zoomControl.addEventListener('mousedown', (e) => e.stopPropagation());
 		zoomControl.addEventListener('pointerdown', (e) => e.stopPropagation());
+
+		const centerButton = zoomControl.querySelector('.center-button');
+		centerButton.addEventListener('click', () => {
+			this.updatePan(card, transformTarget, 0, 0);
+			this.trackChange(projectId, card);
+		});
 
 		const zoomSlider = zoomControl.querySelector('.zoom-slider');
 		const zoomValue  = zoomControl.querySelector('.zoom-value');
