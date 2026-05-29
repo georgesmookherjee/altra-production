@@ -179,23 +179,35 @@ class InlineCardEditor {
 		});
 	}
 
-	// Calcule et applique le transform complet (centrage + pan + zoom)
-	// Centrage via transform uniquement — pas de marginLeft/marginTop
+	// Setup complet (position + dimensions + transform) — miroir exact de applyCardZoom
+	// Appelé à chaque interaction pour éviter tout état stale sur left/margin
 	applyTransform(card, target, x, y) {
 		const zoom = parseFloat(card.dataset.zoom) || 1;
 		if (target.tagName === 'IMG' && target.naturalWidth) {
 			const container = target.closest('.project-image');
 			const cW = container.offsetWidth;
 			const cH = container.offsetHeight;
-			const cs = Math.max(cW / target.naturalWidth, cH / target.naturalHeight);
-			const iW = target.naturalWidth * cs;
-			const iH = target.naturalHeight * cs;
+			const nW = target.naturalWidth;
+			const nH = target.naturalHeight;
+			const cs = Math.max(cW / nW, cH / nH);
+			const iW = nW * cs;
+			const iH = nH * cs;
 			const overflowX = (iW * zoom - cW) / 2;
 			const overflowY = (iH * zoom - cH) / 2;
 			if (overflowX > 0) x = Math.max(-overflowX, Math.min(overflowX, x));
 			if (overflowY > 0) y = Math.max(-overflowY, Math.min(overflowY, y));
 			const centerTx = (cW - iW) / 2;
 			const centerTy = (cH - iH) / 2;
+			// Reset complet — identique à applyCardZoom — pas de valeur stale possible
+			target.style.objectFit      = 'none';
+			target.style.position       = 'absolute';
+			target.style.width          = iW + 'px';
+			target.style.height         = iH + 'px';
+			target.style.top            = '0';
+			target.style.left           = '0';
+			target.style.marginTop      = '0';
+			target.style.marginLeft     = '0';
+			target.style.transformOrigin = '50% 50%';
 			target.style.transform = `translate(${centerTx + x}px, ${centerTy + y}px) scale(${zoom})`;
 		} else {
 			target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
