@@ -179,9 +179,10 @@ class InlineCardEditor {
 		});
 	}
 
-	updatePan(card, target, x, y) {
+	// Calcule et applique le transform complet (centrage + pan + zoom)
+	// Centrage via transform uniquement — pas de marginLeft/marginTop
+	applyTransform(card, target, x, y) {
 		const zoom = parseFloat(card.dataset.zoom) || 1;
-		// Clamp so image never exits container during drag
 		if (target.tagName === 'IMG' && target.naturalWidth) {
 			const container = target.closest('.project-image');
 			const cW = container.offsetWidth;
@@ -193,17 +194,25 @@ class InlineCardEditor {
 			const overflowY = (iH * zoom - cH) / 2;
 			if (overflowX > 0) x = Math.max(-overflowX, Math.min(overflowX, x));
 			if (overflowY > 0) y = Math.max(-overflowY, Math.min(overflowY, y));
+			const centerTx = (cW - iW) / 2;
+			const centerTy = (cH - iH) / 2;
+			target.style.transform = `translate(${centerTx + x}px, ${centerTy + y}px) scale(${zoom})`;
+		} else {
+			target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
 		}
 		card.dataset.panX = x;
 		card.dataset.panY = y;
-		target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
+	}
+
+	updatePan(card, target, x, y) {
+		this.applyTransform(card, target, x, y);
 	}
 
 	updateZoom(card, target, zoom) {
 		card.dataset.zoom = zoom;
 		const panX = parseFloat(card.dataset.panX) || 0;
 		const panY = parseFloat(card.dataset.panY) || 0;
-		target.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+		this.applyTransform(card, target, panX, panY);
 	}
 
 	trackChange(projectId, card) {
