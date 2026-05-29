@@ -314,43 +314,18 @@
                 const panY = parseFloat(card.dataset.panY) || 0;
                 const zoom = parseFloat(card.dataset.zoom) || 1.0;
 
-                function apply() {
-                    const container = img.closest('.project-image');
-                    const cW = container.offsetWidth;
-                    const cH = container.offsetHeight;
-                    const nW = img.naturalWidth;
-                    const nH = img.naturalHeight;
-                    if (!nW || !nH || !cW || !cH) return;
-
-                    const cs = Math.max(cW / nW, cH / nH); // cover scale
-                    const iW = nW * cs;
-                    const iH = nH * cs;
-
-                    // Centrage via calc(-50%) — relatif aux dimensions de l'image elle-même,
-                    // jamais obsolète quelle que soit la taille du container.
-                    // translate(calc(-50% + panX)) = toujours centré quand pan=0.
-                    const overflowX = (iW * zoom - cW) / 2;
-                    const overflowY = (iH * zoom - cH) / 2;
-                    const clampedPanX = overflowX > 0 ? Math.max(-overflowX, Math.min(overflowX, panX)) : panX;
-                    const clampedPanY = overflowY > 0 ? Math.max(-overflowY, Math.min(overflowY, panY)) : panY;
-
-                    img.style.objectFit     = 'none';
-                    img.style.position      = 'absolute';
-                    img.style.width         = iW + 'px';
-                    img.style.height        = iH + 'px';
-                    img.style.top           = '50%';
-                    img.style.left          = '50%';
-                    img.style.marginTop     = '0';
-                    img.style.marginLeft    = '0';
-                    img.style.transformOrigin = '50% 50%';
-                    img.style.transform     = `translate(calc(-50% + ${clampedPanX}px), calc(-50% + ${clampedPanY}px)) scale(${zoom})`;
-                }
-
-                if (img.complete && img.naturalWidth) {
-                    apply();
-                } else {
-                    img.addEventListener('load', apply);
-                }
+                // Approche simple : l'image garde width/height/object-fit du CSS,
+                // on ne touche qu'au transform. L'élément est déjà 100%×100% du
+                // container → transform-origin 50% 50% = centre garanti quand pan=0.
+                const container = img.closest('.project-image');
+                const cW = container.offsetWidth;
+                const cH = container.offsetHeight;
+                const overflowX = cW * (zoom - 1) / 2;
+                const overflowY = cH * (zoom - 1) / 2;
+                const clampedPanX = overflowX > 0 ? Math.max(-overflowX, Math.min(overflowX, panX)) : panX;
+                const clampedPanY = overflowY > 0 ? Math.max(-overflowY, Math.min(overflowY, panY)) : panY;
+                img.style.transformOrigin = '50% 50%';
+                img.style.transform = `translate(${clampedPanX}px, ${clampedPanY}px) scale(${zoom})`;
             });
         }
 
@@ -358,16 +333,8 @@
             document.querySelectorAll('.project-card[data-has-visual-settings="1"]').forEach(function(card) {
                 const img = card.querySelector('.project-image img');
                 if (!img) return;
-                img.style.objectFit = '';
-                img.style.position  = '';
-                img.style.width     = '';
-                img.style.height    = '';
-                img.style.top       = '';
-                img.style.left      = '';
-                img.style.marginTop    = '';
-                img.style.marginLeft   = '';
                 img.style.transformOrigin = '';
-                img.style.transform    = '';
+                img.style.transform = '';
             });
         }
 
