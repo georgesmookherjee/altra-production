@@ -487,12 +487,12 @@ p {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0;
-    row-gap: 0.3rem;
-    padding: 2rem var(--page-margin) 1.5rem var(--page-margin);
+    row-gap: max(0.3rem, 0.4vw); /* ← espacement entre lignes de métadonnées */
+    padding: max(1.5rem, 2vw) var(--page-margin) max(1rem, 1.5vw) var(--page-margin); /* ← marge entre photo et métadonnées */
 }
 
 .project-detail-item {
-    font-size: max(0.75rem, 0.9vw); /* ← taille des métadonnées galerie */
+    font-size: max(0.75rem, 0.8vw); /* ← taille des métadonnées galerie */
     line-height: 1.5;
 }
 

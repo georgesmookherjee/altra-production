@@ -12,7 +12,7 @@
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: clamp(35px, 2.5vw, 600px);
+    gap: clamp(35px, 2.3vw, 600px);
     row-gap: clamp(185px, 7vw, 350px);
     padding: 40px var(--page-margin) 80px;
     padding-bottom: clamp(185px, 7vw, 350px);
@@ -107,7 +107,7 @@
 
 /* Info section - fixed below image */
 .project-info {
-    padding: 16px 0 15px;
+    padding: max(12px, 1vw) 0 max(10px, 0.8vw); /* ← espacement entre image et caption */
     background: transparent;
     color: #000;
 }
