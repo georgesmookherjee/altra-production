@@ -12,7 +12,7 @@
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: clamp(35px, 1.5vw, 70px);
+    gap: clamp(35px, 2.5vw, 600px);
     row-gap: clamp(185px, 7vw, 350px);
     padding: 40px var(--page-margin) 80px;
     padding-bottom: clamp(185px, 7vw, 350px);
@@ -119,12 +119,12 @@
 }
 
 .project-title {
-    font-size: 15px;   /* ← taille du client (bold) */
+    font-size: max(13px, 1vw);   /* ← taille du client (bold) */
     font-weight: 700;
 }
 
 .project-photographer {
-    font-size: 15px;   /* ← taille du photographe (regular) */
+    font-size: max(13px, 1vw);   /* ← taille du photographe (regular) */
     font-weight: 400;
     -webkit-text-stroke: 0.2px currentColor;
     /*margin-left: 0.3em;*/ /* ← espace entre client et photographe */
