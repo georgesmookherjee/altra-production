@@ -200,13 +200,13 @@ class InlineCardEditor {
 			target.style.position       = 'absolute';
 			target.style.width          = iW + 'px';
 			target.style.height         = iH + 'px';
-			target.style.top            = '0';
-			target.style.left           = '0';
-			target.style.right          = '0';
-			target.style.bottom         = '0';
-			target.style.margin         = 'auto';
+			target.style.top            = '50%';
+			target.style.left           = '50%';
+			target.style.right          = '';
+			target.style.bottom         = '';
+			target.style.margin         = '0';
 			target.style.transformOrigin = '50% 50%';
-			target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
+			target.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${zoom})`;
 		} else {
 			target.style.transformOrigin = '50% 50%';
 			target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;

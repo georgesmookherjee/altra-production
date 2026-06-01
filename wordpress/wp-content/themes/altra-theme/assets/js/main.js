@@ -330,19 +330,19 @@
                     const clampedPanX = overflowX > 0 ? Math.max(-overflowX, Math.min(overflowX, panX)) : panX;
                     const clampedPanY = overflowY > 0 ? Math.max(-overflowY, Math.min(overflowY, panY)) : panY;
 
-                    // margin:auto sur position:absolute + inset:0 = centrage garanti par le CSS,
-                    // même quand l'image déborde (marges négatives). Pas de calcul px de notre côté.
+                    // left:50%+top:50%+translate(-50%) = centrage universellement fiable
+                    // (Safari a des quirks avec margin:auto sur position:absolute en overflow:hidden)
                     img.style.objectFit      = 'none';
                     img.style.position       = 'absolute';
                     img.style.width          = iW + 'px';
                     img.style.height         = iH + 'px';
-                    img.style.top            = '0';
-                    img.style.left           = '0';
-                    img.style.right          = '0';
-                    img.style.bottom         = '0';
-                    img.style.margin         = 'auto';
+                    img.style.top            = '50%';
+                    img.style.left           = '50%';
+                    img.style.right          = '';
+                    img.style.bottom         = '';
+                    img.style.margin         = '0';
                     img.style.transformOrigin = '50% 50%';
-                    img.style.transform      = `translate(${clampedPanX}px, ${clampedPanY}px) scale(${zoom})`;
+                    img.style.transform      = `translate(calc(-50% + ${clampedPanX}px), calc(-50% + ${clampedPanY}px)) scale(${zoom})`;
                 }
 
                 if (img.complete && img.naturalWidth) {
