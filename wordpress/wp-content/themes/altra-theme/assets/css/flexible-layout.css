@@ -17,30 +17,31 @@
     padding: 40px var(--page-margin) 80px;
     padding-bottom: 185px;
     margin-top: 0;
-    /* Hauteur de ligne = largeur d'une colonne × ratio portrait
-       admin : padding 60px×2 + 3 gaps 20px = 180px → col = (100vw - 180px)/4
-       row = col × 3.31/2 = (100vw - 180px) × 3.31/8 */
-    grid-auto-rows: min(calc((100vw - 180px) * 3.31 / 8), 500px);
+    /* Hauteur gérée par aspect-ratio sur les cartes — proportionnel à toute taille d'écran */
 }
 
-/* CLASSES DE LARGEUR - Toutes les cartes prennent 1 colonne */
+/* CLASSES DE LARGEUR + RATIO — ratio 1:1.655 constant quelle que soit la largeur d'écran */
 .project-card {
-    grid-column: span 1; /* Tous les projets prennent 1 colonne (4 par ligne) */
+    grid-column: span 1;
+    aspect-ratio: 1 / 1.655; /* portrait : hauteur = 1.655 × largeur colonne */
 }
 
 /* Landscape images span 2 columns */
 .project-card.project-landscape {
     grid-column: span 2;
+    aspect-ratio: 2 / 1.655; /* même hauteur que portrait à 2× la largeur */
 }
 
 /* Landscape videos span 4 columns (full width) */
 .project-card.project-video-landscape {
     grid-column: span 4;
+    aspect-ratio: 4 / 1.655; /* même hauteur que portrait à 4× la largeur */
 }
 
 /* Portrait videos — same as portrait photos (1 column) */
 .project-card.project-video-portrait {
     grid-column: span 1;
+    aspect-ratio: 1 / 1.655;
 }
 
 /* Note: Grid Manager inline styles (grid-column, grid-row) override these classes automatically */
@@ -51,7 +52,7 @@
     background-color: #ffffff00;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    /* height:100% supprimé — aspect-ratio sur chaque variante gère la hauteur */
 }
 
 /* Project link wrapper */
