@@ -18,6 +18,10 @@
     padding-bottom: 185px;
     margin-top: 0;
     /* Hauteur gérée par aspect-ratio sur les cartes — proportionnel à toute taille d'écran */
+    /* Au-delà de 1600px : la grille reste à 1600px, les marges absorbent le surplus */
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* CLASSES DE LARGEUR + RATIO — ratio 1:1.655 constant quelle que soit la largeur d'écran */
