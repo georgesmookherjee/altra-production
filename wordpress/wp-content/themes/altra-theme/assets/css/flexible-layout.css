@@ -12,10 +12,10 @@
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 35px;
-    row-gap: 185px;
+    gap: clamp(35px, 1.5vw, 70px);
+    row-gap: clamp(185px, 7vw, 350px);
     padding: 40px var(--page-margin) 80px;
-    padding-bottom: 185px;
+    padding-bottom: clamp(185px, 7vw, 350px);
     margin-top: 0;
     /*
      * grid-auto-rows : hauteur = largeur d'une colonne × 1.655 (ratio portrait)
@@ -23,6 +23,7 @@
      * Proportionnel à toute taille d'écran, header et grille naturellement alignés.
      * Toutes les cartes d'une même ligne (portrait ET paysage) ont la même hauteur.
      */
+    /* 395px = 2×145 (marges) + 3×35 (gaps min) — gaps variables introduisent une légère approximation acceptable */
     grid-auto-rows: calc((100vw - 395px) * 1.655 / 4);
 }
 

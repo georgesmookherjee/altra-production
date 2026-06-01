@@ -215,7 +215,7 @@ p {
 
 .hero-logo .logo-altra {
     font-family: 'CatalogueTrial', Georgia, serif;
-    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-size: max(2.5rem, 4.5vw);
     font-weight: 700;
     letter-spacing: -0.01em;
     line-height: 1;
@@ -223,7 +223,7 @@ p {
 
 .hero-logo .logo-production {
     font-family: 'SuisseEcalIntl', sans-serif;
-    font-size: clamp(0.7rem, 5vw, 0.95rem);
+    font-size: max(0.7rem, 1.05vw);
     -webkit-text-stroke: 0.1px currentColor;
     font-weight: 400;
     letter-spacing: -0.05
@@ -253,7 +253,7 @@ p {
 .hero-nav-left a,
 .hero-nav-right a {
     font-family: 'SuisseEcalIntl', sans-serif;
-    font-size: clamp(0.7rem, 5vw, 0.95rem);
+    font-size: max(0.7rem, 1.05vw);
     -webkit-text-stroke: 0.1px currentColor;
     font-weight: 400;
     letter-spacing: -0.02em;
@@ -313,8 +313,7 @@ p {
 /* "Altra" — Catalogue Trial Bold */
 .logo-altra {
     font-family: 'CatalogueTrial', Georgia, serif;
-    font-size: 3.4rem;
-    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-size: max(2rem, 3.75vw);
     font-weight: 500;
     letter-spacing: -0.01em;
     line-height: 1;
@@ -342,7 +341,7 @@ p {
 .nav-left a,
 .nav-right a {
     font-family: 'SuisseEcalIntl', sans-serif;
-    font-size: clamp(0.7rem, 5vw, 0.95rem);
+    font-size: max(0.7rem, 1.05vw);
     -webkit-text-stroke: 0.1px currentColor;
     font-weight: 400;
     letter-spacing: -0.02em;
