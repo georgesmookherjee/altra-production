@@ -17,35 +17,30 @@
     padding: 40px var(--page-margin) 80px;
     padding-bottom: 185px;
     margin-top: 0;
-    /* Hauteur gérée par aspect-ratio sur les cartes — proportionnel à toute taille d'écran */
-    /* Au-delà de 1600px : la grille reste à 1600px, les marges absorbent le surplus */
-    max-width: 1600px;
-    margin-left: auto;
-    margin-right: auto;
+    /*
+     * grid-auto-rows : hauteur = largeur d'une colonne × 1.655 (ratio portrait)
+     * Formule : (100vw - 2×145 - 3×35) / 4 × 1.655 = (100vw - 395px) × 1.655 / 4
+     * Proportionnel à toute taille d'écran, header et grille naturellement alignés.
+     * Toutes les cartes d'une même ligne (portrait ET paysage) ont la même hauteur.
+     */
+    grid-auto-rows: calc((100vw - 395px) * 1.655 / 4);
 }
 
-/* CLASSES DE LARGEUR + RATIO — ratio 1:1.655 constant quelle que soit la largeur d'écran */
+/* CLASSES DE LARGEUR */
 .project-card {
     grid-column: span 1;
-    aspect-ratio: 1 / 1.655; /* portrait : hauteur = 1.655 × largeur colonne */
 }
 
-/* Landscape images span 2 columns */
 .project-card.project-landscape {
     grid-column: span 2;
-    aspect-ratio: 2 / 1.655; /* même hauteur que portrait à 2× la largeur */
 }
 
-/* Landscape videos span 4 columns (full width) */
 .project-card.project-video-landscape {
     grid-column: span 4;
-    aspect-ratio: 4 / 1.655; /* même hauteur que portrait à 4× la largeur */
 }
 
-/* Portrait videos — same as portrait photos (1 column) */
 .project-card.project-video-portrait {
     grid-column: span 1;
-    aspect-ratio: 1 / 1.655;
 }
 
 /* Note: Grid Manager inline styles (grid-column, grid-row) override these classes automatically */
@@ -56,7 +51,7 @@
     background-color: #ffffff00;
     display: flex;
     flex-direction: column;
-    /* height:100% supprimé — aspect-ratio sur chaque variante gère la hauteur */
+    height: 100%;
 }
 
 /* Project link wrapper */
@@ -147,8 +142,8 @@
         gap: 2vw;
         row-gap: 9vw;
         padding: 3vw 4vw 10vw;
-        /* 2 cols, 1 gap (2vw), padding 4vw×2 = 8vw → col = (100vw - 10vw) / 2 = 45vw */
-        grid-auto-rows: min(calc(45vw * 1.655), 500px);
+        /* 2 cols, 1 gap (2vw), padding 4vw×2 = 8vw → col = 45vw → row = 45vw × 1.655 */
+        grid-auto-rows: calc(45vw * 1.655);
     }
 
     body:not(.logged-in) .project-card {
@@ -182,8 +177,8 @@
         gap: 3vw;
         row-gap: 20vw;
         padding: 4vw 4vw 12vw;
-        /* 2 cols, 1 gap (3vw), padding 4vw×2 = 8vw → col = (100vw - 11vw) / 2 = 44.5vw */
-        grid-auto-rows: min(calc(44.5vw * 1.655), 380px);
+        /* 2 cols, 1 gap (3vw), padding 4vw×2 = 8vw → col = 44.5vw → row = 44.5vw × 1.655 */
+        grid-auto-rows: calc(44.5vw * 1.655);
     }
 
     /* Photographe sur 2e ligne sur smartphone portrait */
@@ -199,10 +194,10 @@
     body:not(.logged-in) .projects-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 2vw;
-        row-gap: 9vw; /* 3vw était trop petit pour les captions sur 2 lignes */
+        row-gap: 9vw;
         padding: 2vw 4vw 8vw;
-        /* 4 cols, 3 gaps (6vw), padding 4vw×2 = 8vw → col = (100vw - 14vw) / 4 = 21.5vw */
-        grid-auto-rows: min(calc(21.5vw * 1.655), 240px);
+        /* 4 cols, 3 gaps (6vw), padding 4vw×2 = 8vw → col = 21.5vw → row = 21.5vw × 1.655 */
+        grid-auto-rows: calc(21.5vw * 1.655);
     }
 
     body:not(.logged-in) .project-card.project-video-landscape {
