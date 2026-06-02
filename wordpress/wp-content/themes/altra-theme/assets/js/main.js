@@ -304,18 +304,14 @@
         // coverScale = échelle pour que l'image remplisse le container (≡ object-fit:cover)
         // zoom < 1 → on voit au-delà du cover ; zoom > 1 → plus zoomé que cover
         function applyCardZoom() {
-            // Pan values are normalized fractions [-1, 1] of the overflow — screen-size-independent
+            // Point focal [0,1] : 0=gauche/haut, 0.5=centré, 1=droite/bas
+            // centerTx = fpX × (cW - iW) → identique à toute résolution
             if (window.innerWidth <= 768) return;
             document.querySelectorAll('.project-card[data-has-visual-settings="1"]').forEach(function(card) {
                 const img = card.querySelector('.project-image img');
                 if (!img) return;
-                // Read normalized pan (fraction of overflow). Legacy pixel values (|v|>1.5) reset to 0.
-                let panNormX = parseFloat(card.dataset.panX) || 0;
-                let panNormY = parseFloat(card.dataset.panY) || 0;
-                if (Math.abs(panNormX) > 1.5) panNormX = 0;
-                if (Math.abs(panNormY) > 1.5) panNormY = 0;
-                panNormX = Math.max(-1, Math.min(1, panNormX));
-                panNormY = Math.max(-1, Math.min(1, panNormY));
+                const fpX  = Math.max(0, Math.min(1, parseFloat(card.dataset.focalX) || 0.5));
+                const fpY  = Math.max(0, Math.min(1, parseFloat(card.dataset.focalY) || 0.5));
                 const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0);
 
                 function apply() {
@@ -330,15 +326,10 @@
                     const iW = nW * cs;
                     const iH = nH * cs;
 
-                    // panNorm × overflow = pixel shift proportionnel au container → même position visuelle à toute résolution
-                    const overflowX = (iW * zoom - cW) / 2;
-                    const overflowY = (iH * zoom - cH) / 2;
-                    const panX = panNormX * overflowX;
-                    const panY = panNormY * overflowY;
-
-                    // Centrage en pixels purs — évite calc(% + px) qui pose des problèmes sur Safari
-                    const centerTx = (cW - iW) / 2 + panX;
-                    const centerTy = (cH - iH) / 2 + panY;
+                    // fpX × (cW - iW) : proportion fixe de l'overflow → même cadrage à 1080p et 4K
+                    // transform-origin au point focal : le zoom s'applique depuis ce point
+                    const centerTx = fpX * (cW - iW);
+                    const centerTy = fpY * (cH - iH);
 
                     img.style.objectFit      = 'none';
                     img.style.position       = 'absolute';
@@ -349,7 +340,7 @@
                     img.style.right          = '';
                     img.style.bottom         = '';
                     img.style.margin         = '0';
-                    img.style.transformOrigin = '50% 50%';
+                    img.style.transformOrigin = `${fpX * 100}% ${fpY * 100}%`;
                     img.style.transform      = `translate(${centerTx}px, ${centerTy}px) scale(${zoom})`;
                 }
 

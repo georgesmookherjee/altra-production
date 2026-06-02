@@ -1,13 +1,13 @@
 /**
  * Inline Card Editor
- * Alt + Drag to pan, slider to zoom
+ * Alt + Drag to set focal point, slider to zoom in
  */
 import './style.scss';
 
 class InlineCardEditor {
 	constructor() {
 		this.isActive = false;
-		this.editedCards = new Map(); // Track changes: projectId -> {pan, zoom}
+		this.editedCards = new Map();
 		this.init();
 	}
 
@@ -44,7 +44,6 @@ class InlineCardEditor {
 	toggle() {
 		this.isActive = !this.isActive;
 		document.body.classList.toggle('altra-card-edit-mode', this.isActive);
-
 		if (this.isActive) {
 			this.activate();
 		} else {
@@ -54,34 +53,23 @@ class InlineCardEditor {
 
 	activate() {
 		const cards = document.querySelectorAll('.project-card');
-		cards.forEach(card => {
-			this.makeCardEditable(card);
-		});
+		cards.forEach(card => this.makeCardEditable(card));
 
-		// Disable project links
 		const links = document.querySelectorAll('.project-link');
-		links.forEach(link => {
-			link.addEventListener('click', this.preventClick);
-		});
+		links.forEach(link => link.addEventListener('click', this.preventClick));
 
 		document.getElementById('altra-card-editor-save').style.display = 'flex';
 	}
 
 	deactivate() {
-		// Clean up drag listeners then remove overlays
 		document.querySelectorAll('.card-edit-overlay').forEach(el => {
 			if (el._cleanup) el._cleanup();
 			el.remove();
 		});
-
-		// Remove all zoom controls
 		document.querySelectorAll('.zoom-control-inline').forEach(el => el.remove());
 
-		// Re-enable project links
 		const links = document.querySelectorAll('.project-link');
-		links.forEach(link => {
-			link.removeEventListener('click', this.preventClick);
-		});
+		links.forEach(link => link.removeEventListener('click', this.preventClick));
 
 		document.getElementById('altra-card-editor-save').style.display = 'none';
 	}
@@ -97,20 +85,18 @@ class InlineCardEditor {
 		const img = imageContainer.querySelector('img');
 		const videoWrapper = imageContainer.querySelector('.project-video-wrapper');
 
-		// For images use <img>, for videos use the wrapper div as the transform target
 		const transformTarget = img || videoWrapper;
 		if (!transformTarget) return;
 
-		// Overlay couvrant l'image — ALT+drag pour panner
 		const overlay = document.createElement('div');
 		overlay.className = 'card-edit-overlay';
 		overlay.innerHTML = `<div class="edit-hint">Alt + Glisser pour cadrer</div>`;
 		imageContainer.appendChild(overlay);
 
-		// Drag-to-pan state (pan stored as fraction of overflow, screen-size-independent)
+		// Drag state — focal point [0,1]
 		let isDragging = false;
 		let dragStartX, dragStartY;
-		let startPanNormX, startPanNormY;
+		let startFpX, startFpY;
 
 		const onMouseDown = (e) => {
 			if (!e.altKey) return;
@@ -118,11 +104,8 @@ class InlineCardEditor {
 			isDragging = true;
 			dragStartX = e.clientX;
 			dragStartY = e.clientY;
-			startPanNormX = parseFloat(card.dataset.panX) || 0;
-			startPanNormY = parseFloat(card.dataset.panY) || 0;
-			// Legacy detection
-			if (Math.abs(startPanNormX) > 1.5) startPanNormX = 0;
-			if (Math.abs(startPanNormY) > 1.5) startPanNormY = 0;
+			startFpX = parseFloat(card.dataset.focalX) || 0.5;
+			startFpY = parseFloat(card.dataset.focalY) || 0.5;
 			overlay.classList.add('is-dragging');
 		};
 
@@ -130,8 +113,7 @@ class InlineCardEditor {
 			if (!isDragging) return;
 			const dx = e.clientX - dragStartX;
 			const dy = e.clientY - dragStartY;
-			// Convert pixel delta → normalized fraction using current overflow
-			this.updatePanFromDelta(card, transformTarget, startPanNormX, startPanNormY, dx, dy);
+			this.dragFocalPoint(card, transformTarget, startFpX, startFpY, dx, dy);
 		};
 
 		const onMouseUp = () => {
@@ -144,66 +126,89 @@ class InlineCardEditor {
 		overlay.addEventListener('mousedown', onMouseDown);
 		document.addEventListener('mousemove', onMouseMove);
 		document.addEventListener('mouseup', onMouseUp);
-
-		// Store cleanup so deactivate() can remove global listeners
 		overlay._cleanup = () => {
 			document.removeEventListener('mousemove', onMouseMove);
 			document.removeEventListener('mouseup', onMouseUp);
 		};
 
-		// Zoom control — direct child of card (hors .project-link, évite pointer-events:none)
+		// Zoom control
 		const zoomControl = document.createElement('div');
+		const currentZoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0);
 		zoomControl.className = 'zoom-control-inline';
 		zoomControl.innerHTML = `
 			<label>Zoom</label>
-			<input type="range" min="1.0" max="2.5" step="0.01" value="${Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0)}" class="zoom-slider">
-			<span class="zoom-value">${parseFloat(card.dataset.zoom).toFixed(2)}x</span>
+			<input type="range" min="1.0" max="2.5" step="0.01" value="${currentZoom}" class="zoom-slider">
+			<span class="zoom-value">${currentZoom.toFixed(2)}x</span>
 			<button type="button" class="center-button">Centrer</button>
 		`;
 		card.appendChild(zoomControl);
 
-		// Prevent any parent drag handler from stealing slider/button events
 		zoomControl.addEventListener('mousedown', (e) => e.stopPropagation());
 		zoomControl.addEventListener('pointerdown', (e) => e.stopPropagation());
-
-		const centerButton = zoomControl.querySelector('.center-button');
-		centerButton.addEventListener('click', () => {
-			this.updatePan(card, transformTarget, 0, 0);
-			this.trackChange(projectId, card);
-		});
 
 		const zoomSlider = zoomControl.querySelector('.zoom-slider');
 		const zoomValue  = zoomControl.querySelector('.zoom-value');
 
 		zoomSlider.addEventListener('input', (e) => {
 			const zoom = parseFloat(e.target.value);
-			this.updateZoom(card, transformTarget, zoom);
+			card.dataset.zoom = zoom;
+			this.applyTransform(card, transformTarget);
 			zoomValue.textContent = zoom.toFixed(2) + 'x';
 			this.trackChange(projectId, card);
 		});
+
+		const centerButton = zoomControl.querySelector('.center-button');
+		centerButton.addEventListener('click', () => {
+			card.dataset.focalX = 0.5;
+			card.dataset.focalY = 0.5;
+			this.applyTransform(card, transformTarget);
+			this.trackChange(projectId, card);
+		});
+
+		// Apply initial transform
+		this.applyTransform(card, transformTarget);
 	}
 
-	// normX, normY = fractions [-1,1] de l'overflow — identiques visuellement à toute résolution
-	applyTransform(card, target, normX, normY) {
+	// Drag focal point: dx/dy in screen pixels
+	dragFocalPoint(card, target, startFpX, startFpY, dx, dy) {
+		if (target.tagName !== 'IMG' || !target.naturalWidth) return;
+		const container = target.closest('.project-image');
+		const cW = container.offsetWidth;
+		const cH = container.offsetHeight;
 		const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1);
-		// Clamp to [-1, 1]
-		normX = Math.max(-1, Math.min(1, normX));
-		normY = Math.max(-1, Math.min(1, normY));
+		const cs = Math.max(cW / target.naturalWidth, cH / target.naturalHeight);
+		const iW = target.naturalWidth * cs;
+		const iH = target.naturalHeight * cs;
+
+		// Drag right (dx>0) = image moves right = reveals left side = fpX decreases
+		// Sensitivity: 1 pixel drag = 1/(iW-cW) focal fraction change
+		const overflowX = iW - cW;
+		const overflowY = iH - cH;
+		const newFpX = overflowX > 0 ? startFpX - dx / overflowX : 0.5;
+		const newFpY = overflowY > 0 ? startFpY - dy / overflowY : 0.5;
+
+		card.dataset.focalX = Math.max(0, Math.min(1, newFpX));
+		card.dataset.focalY = Math.max(0, Math.min(1, newFpY));
+		this.applyTransform(card, target);
+	}
+
+	// Apply transform from card's current focalX/Y and zoom data attributes
+	applyTransform(card, target) {
+		const fpX  = Math.max(0, Math.min(1, parseFloat(card.dataset.focalX) || 0.5));
+		const fpY  = Math.max(0, Math.min(1, parseFloat(card.dataset.focalY) || 0.5));
+		const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0);
+
 		if (target.tagName === 'IMG' && target.naturalWidth) {
 			const container = target.closest('.project-image');
 			const cW = container.offsetWidth;
 			const cH = container.offsetHeight;
-			const nW = target.naturalWidth;
-			const nH = target.naturalHeight;
-			const cs = Math.max(cW / nW, cH / nH);
-			const iW = nW * cs;
-			const iH = nH * cs;
-			const overflowX = (iW * zoom - cW) / 2;
-			const overflowY = (iH * zoom - cH) / 2;
-			const panX = normX * overflowX;
-			const panY = normY * overflowY;
-			const centerTx = (cW - iW) / 2 + panX;
-			const centerTy = (cH - iH) / 2 + panY;
+			const cs = Math.max(cW / target.naturalWidth, cH / target.naturalHeight);
+			const iW = target.naturalWidth * cs;
+			const iH = target.naturalHeight * cs;
+
+			const centerTx = fpX * (cW - iW);
+			const centerTy = fpY * (cH - iH);
+
 			target.style.objectFit      = 'none';
 			target.style.position       = 'absolute';
 			target.style.width          = iW + 'px';
@@ -213,54 +218,26 @@ class InlineCardEditor {
 			target.style.right          = '';
 			target.style.bottom         = '';
 			target.style.margin         = '0';
-			target.style.transformOrigin = '50% 50%';
-			target.style.transform = `translate(${centerTx}px, ${centerTy}px) scale(${zoom})`;
+			target.style.transformOrigin = `${fpX * 100}% ${fpY * 100}%`;
+			target.style.transform      = `translate(${centerTx}px, ${centerTy}px) scale(${zoom})`;
 		} else {
 			target.style.transformOrigin = '50% 50%';
-			target.style.transform = `translate(0px, 0px) scale(${zoom})`;
+			target.style.transform      = `scale(${zoom})`;
 		}
-		// Store normalized values
-		card.dataset.panX = normX;
-		card.dataset.panY = normY;
-	}
-
-	// x, y = normalized fractions [-1, 1] of overflow
-	updatePan(card, target, normX, normY) {
-		this.applyTransform(card, target, normX, normY);
-	}
-
-	// startNormX/Y = normalized fraction at drag start; dx/dy = pixel delta from mouse
-	updatePanFromDelta(card, target, startNormX, startNormY, dx, dy) {
-		const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1);
-		const container = target.closest('.project-image');
-		if (!container || !target.naturalWidth) return;
-		const cW = container.offsetWidth;
-		const cH = container.offsetHeight;
-		const cs = Math.max(cW / target.naturalWidth, cH / target.naturalHeight);
-		const iW = target.naturalWidth * cs;
-		const iH = target.naturalHeight * cs;
-		const overflowX = (iW * zoom - cW) / 2;
-		const overflowY = (iH * zoom - cH) / 2;
-		// Convert pixel delta to normalized fraction and add to start
-		const normX = overflowX > 0 ? startNormX + dx / overflowX : 0;
-		const normY = overflowY > 0 ? startNormY + dy / overflowY : 0;
-		this.applyTransform(card, target, normX, normY);
 	}
 
 	updateZoom(card, target, zoom) {
 		card.dataset.zoom = zoom;
-		const panX = parseFloat(card.dataset.panX) || 0;
-		const panY = parseFloat(card.dataset.panY) || 0;
-		this.applyTransform(card, target, panX, panY);
+		this.applyTransform(card, target);
 	}
 
 	trackChange(projectId, card) {
 		this.editedCards.set(parseInt(projectId), {
-			pan: {
-				x: parseFloat(card.dataset.panX) || 0,
-				y: parseFloat(card.dataset.panY) || 0,
+			focalPoint: {
+				x: parseFloat(card.dataset.focalX) || 0.5,
+				y: parseFloat(card.dataset.focalY) || 0.5,
 			},
-			zoom: parseFloat(card.dataset.zoom)
+			zoom: parseFloat(card.dataset.zoom) || 1.0
 		});
 	}
 
@@ -277,7 +254,7 @@ class InlineCardEditor {
 		const promises = [];
 
 		for (const [projectId, settings] of this.editedCards.entries()) {
-			const promise = fetch(`/wp-json/altra/v1/project/${projectId}/visual-settings`, {
+			promises.push(fetch(`/wp-json/altra/v1/project/${projectId}/visual-settings`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -285,14 +262,12 @@ class InlineCardEditor {
 				},
 				body: JSON.stringify({
 					visualSettings: {
-						pan: settings.pan,
+						focalPoint: settings.focalPoint,
 						zoom: settings.zoom,
 						textLayers: []
 					}
 				}),
-			});
-
-			promises.push(promise);
+			}));
 		}
 
 		try {
@@ -309,7 +284,6 @@ class InlineCardEditor {
 	}
 }
 
-// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
 	if (window.altraCardEditorData) {
 		new InlineCardEditor();
