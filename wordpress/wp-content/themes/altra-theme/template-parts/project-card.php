@@ -33,20 +33,6 @@ if (!empty($grid_position) && is_array($grid_position)) {
 
 // Get visual settings from Card Editor
 $visual_settings = get_post_meta(get_the_ID(), '_altra_visual_settings', true);
-$media_style = '';
-
-if (!empty($visual_settings) && is_array($visual_settings)) {
-    $focal_x = isset($visual_settings['focalPoint']['x']) ? floatval($visual_settings['focalPoint']['x']) : 50;
-    $focal_y = isset($visual_settings['focalPoint']['y']) ? floatval($visual_settings['focalPoint']['y']) : 50;
-    $zoom    = isset($visual_settings['zoom']) ? floatval($visual_settings['zoom']) : 1.0;
-
-    $media_style = sprintf(
-        'transform-origin: %s%% %s%%; transform: scale(%s);',
-        $focal_x,
-        $focal_y,
-        $zoom
-    );
-}
 
 // Determine orientation and CSS class
 if ($media_type === 'video') {
@@ -86,14 +72,14 @@ if ($media_type === 'video' && $featured_video_url) {
          data-project-id="<?php echo get_the_ID(); ?>"
          data-pan-x="<?php echo isset($visual_settings['pan']['x']) ? esc_attr($visual_settings['pan']['x']) : '0'; ?>"
          data-pan-y="<?php echo isset($visual_settings['pan']['y']) ? esc_attr($visual_settings['pan']['y']) : '0'; ?>"
-         data-zoom="<?php echo isset($visual_settings['zoom']) ? esc_attr($visual_settings['zoom']) : '1.0'; ?>"
+         data-zoom="<?php echo isset($visual_settings['zoom']) ? esc_attr(max(1.0, floatval($visual_settings['zoom']))) : '1.0'; ?>"
          data-has-visual-settings="<?php echo (!empty($visual_settings) && is_array($visual_settings)) ? '1' : '0'; ?>"
          <?php if ($card_styles) echo 'style="' . esc_attr(trim($card_styles)) . '"'; ?>>
 
     <a href="<?php the_permalink(); ?>" class="project-link">
         <div class="project-image">
             <?php if ($media_type === 'video' && $vimeo_id) : ?>
-                <div class="project-video-wrapper" <?php if ($media_style) echo 'style="' . esc_attr($media_style) . '"'; ?>>
+                <div class="project-video-wrapper">
                     <iframe src="https://player.vimeo.com/video/<?php echo esc_attr($vimeo_id); ?>?background=1&autoplay=1&loop=1&muted=1&byline=0&title=0"
                             frameborder="0"
                             allow="autoplay"
@@ -108,9 +94,6 @@ if ($media_type === 'video' && $featured_video_url) {
                     'decoding' => 'async',
                     'alt'      => esc_attr(get_the_title()),
                 );
-                if ($media_style) {
-                    $thumbnail_attrs['style'] = $media_style;
-                }
                 the_post_thumbnail('project-thumbnail', $thumbnail_attrs);
                 ?>
             <?php else : ?>
