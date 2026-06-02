@@ -107,10 +107,10 @@ class InlineCardEditor {
 		overlay.innerHTML = `<div class="edit-hint">Alt + Glisser pour cadrer</div>`;
 		imageContainer.appendChild(overlay);
 
-		// Drag-to-pan state
+		// Drag-to-pan state (pan stored as fraction of overflow, screen-size-independent)
 		let isDragging = false;
 		let dragStartX, dragStartY;
-		let startPanX, startPanY;
+		let startPanNormX, startPanNormY;
 
 		const onMouseDown = (e) => {
 			if (!e.altKey) return;
@@ -118,8 +118,11 @@ class InlineCardEditor {
 			isDragging = true;
 			dragStartX = e.clientX;
 			dragStartY = e.clientY;
-			startPanX = parseFloat(card.dataset.panX) || 0;
-			startPanY = parseFloat(card.dataset.panY) || 0;
+			startPanNormX = parseFloat(card.dataset.panX) || 0;
+			startPanNormY = parseFloat(card.dataset.panY) || 0;
+			// Legacy detection
+			if (Math.abs(startPanNormX) > 1.5) startPanNormX = 0;
+			if (Math.abs(startPanNormY) > 1.5) startPanNormY = 0;
 			overlay.classList.add('is-dragging');
 		};
 
@@ -127,7 +130,8 @@ class InlineCardEditor {
 			if (!isDragging) return;
 			const dx = e.clientX - dragStartX;
 			const dy = e.clientY - dragStartY;
-			this.updatePan(card, transformTarget, startPanX + dx, startPanY + dy);
+			// Convert pixel delta → normalized fraction using current overflow
+			this.updatePanFromDelta(card, transformTarget, startPanNormX, startPanNormY, dx, dy);
 		};
 
 		const onMouseUp = () => {
@@ -179,10 +183,12 @@ class InlineCardEditor {
 		});
 	}
 
-	// margin:auto sur position:absolute+inset:0 = centrage CSS garanti sans calcul px.
-	// Même approche que applyCardZoom — cover scale explicite pour que zoom<1 dézoome.
-	applyTransform(card, target, x, y) {
+	// normX, normY = fractions [-1,1] de l'overflow — identiques visuellement à toute résolution
+	applyTransform(card, target, normX, normY) {
 		const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1);
+		// Clamp to [-1, 1]
+		normX = Math.max(-1, Math.min(1, normX));
+		normY = Math.max(-1, Math.min(1, normY));
 		if (target.tagName === 'IMG' && target.naturalWidth) {
 			const container = target.closest('.project-image');
 			const cW = container.offsetWidth;
@@ -194,10 +200,10 @@ class InlineCardEditor {
 			const iH = nH * cs;
 			const overflowX = (iW * zoom - cW) / 2;
 			const overflowY = (iH * zoom - cH) / 2;
-			if (overflowX > 0) x = Math.max(-overflowX, Math.min(overflowX, x)); else x = 0;
-			if (overflowY > 0) y = Math.max(-overflowY, Math.min(overflowY, y)); else y = 0;
-			const centerTx = (cW - iW) / 2 + x;
-			const centerTy = (cH - iH) / 2 + y;
+			const panX = normX * overflowX;
+			const panY = normY * overflowY;
+			const centerTx = (cW - iW) / 2 + panX;
+			const centerTy = (cH - iH) / 2 + panY;
 			target.style.objectFit      = 'none';
 			target.style.position       = 'absolute';
 			target.style.width          = iW + 'px';
@@ -211,14 +217,34 @@ class InlineCardEditor {
 			target.style.transform = `translate(${centerTx}px, ${centerTy}px) scale(${zoom})`;
 		} else {
 			target.style.transformOrigin = '50% 50%';
-			target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
+			target.style.transform = `translate(0px, 0px) scale(${zoom})`;
 		}
-		card.dataset.panX = x;
-		card.dataset.panY = y;
+		// Store normalized values
+		card.dataset.panX = normX;
+		card.dataset.panY = normY;
 	}
 
-	updatePan(card, target, x, y) {
-		this.applyTransform(card, target, x, y);
+	// x, y = normalized fractions [-1, 1] of overflow
+	updatePan(card, target, normX, normY) {
+		this.applyTransform(card, target, normX, normY);
+	}
+
+	// startNormX/Y = normalized fraction at drag start; dx/dy = pixel delta from mouse
+	updatePanFromDelta(card, target, startNormX, startNormY, dx, dy) {
+		const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1);
+		const container = target.closest('.project-image');
+		if (!container || !target.naturalWidth) return;
+		const cW = container.offsetWidth;
+		const cH = container.offsetHeight;
+		const cs = Math.max(cW / target.naturalWidth, cH / target.naturalHeight);
+		const iW = target.naturalWidth * cs;
+		const iH = target.naturalHeight * cs;
+		const overflowX = (iW * zoom - cW) / 2;
+		const overflowY = (iH * zoom - cH) / 2;
+		// Convert pixel delta to normalized fraction and add to start
+		const normX = overflowX > 0 ? startNormX + dx / overflowX : 0;
+		const normY = overflowY > 0 ? startNormY + dy / overflowY : 0;
+		this.applyTransform(card, target, normX, normY);
 	}
 
 	updateZoom(card, target, zoom) {

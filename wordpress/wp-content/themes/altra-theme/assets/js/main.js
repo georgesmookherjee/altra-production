@@ -304,14 +304,18 @@
         // coverScale = échelle pour que l'image remplisse le container (≡ object-fit:cover)
         // zoom < 1 → on voit au-delà du cover ; zoom > 1 → plus zoomé que cover
         function applyCardZoom() {
-            // Pan values are absolute pixels set on desktop — skip on mobile to avoid overcropping
+            // Pan values are normalized fractions [-1, 1] of the overflow — screen-size-independent
             if (window.innerWidth <= 768) return;
             document.querySelectorAll('.project-card[data-has-visual-settings="1"]').forEach(function(card) {
                 const img = card.querySelector('.project-image img');
                 if (!img) return;
-                const panX = parseFloat(card.dataset.panX) || 0;
-                const panY = parseFloat(card.dataset.panY) || 0;
-                // Zoom < 1 letterboxe l'image (fond noir visible) — on force à 1 minimum
+                // Read normalized pan (fraction of overflow). Legacy pixel values (|v|>1.5) reset to 0.
+                let panNormX = parseFloat(card.dataset.panX) || 0;
+                let panNormY = parseFloat(card.dataset.panY) || 0;
+                if (Math.abs(panNormX) > 1.5) panNormX = 0;
+                if (Math.abs(panNormY) > 1.5) panNormY = 0;
+                panNormX = Math.max(-1, Math.min(1, panNormX));
+                panNormY = Math.max(-1, Math.min(1, panNormY));
                 const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0);
 
                 function apply() {
@@ -326,14 +330,15 @@
                     const iW = nW * cs;
                     const iH = nH * cs;
 
+                    // panNorm × overflow = pixel shift proportionnel au container → même position visuelle à toute résolution
                     const overflowX = (iW * zoom - cW) / 2;
                     const overflowY = (iH * zoom - cH) / 2;
-                    const clampedPanX = overflowX > 0 ? Math.max(-overflowX, Math.min(overflowX, panX)) : 0;
-                    const clampedPanY = overflowY > 0 ? Math.max(-overflowY, Math.min(overflowY, panY)) : 0;
+                    const panX = panNormX * overflowX;
+                    const panY = panNormY * overflowY;
 
                     // Centrage en pixels purs — évite calc(% + px) qui pose des problèmes sur Safari
-                    const centerTx = (cW - iW) / 2 + clampedPanX;
-                    const centerTy = (cH - iH) / 2 + clampedPanY;
+                    const centerTx = (cW - iW) / 2 + panX;
+                    const centerTy = (cH - iH) / 2 + panY;
 
                     img.style.objectFit      = 'none';
                     img.style.position       = 'absolute';
