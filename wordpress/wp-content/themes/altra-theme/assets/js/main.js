@@ -311,7 +311,8 @@
                 if (!img) return;
                 const panX = parseFloat(card.dataset.panX) || 0;
                 const panY = parseFloat(card.dataset.panY) || 0;
-                const zoom = parseFloat(card.dataset.zoom) || 1.0;
+                // Zoom < 1 letterboxe l'image (fond noir visible) — on force à 1 minimum
+                const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0);
 
                 function apply() {
                     const container = img.closest('.project-image');

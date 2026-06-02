@@ -152,7 +152,7 @@ class InlineCardEditor {
 		zoomControl.className = 'zoom-control-inline';
 		zoomControl.innerHTML = `
 			<label>Zoom</label>
-			<input type="range" min="0.5" max="2.5" step="0.01" value="${card.dataset.zoom}" class="zoom-slider">
+			<input type="range" min="1.0" max="2.5" step="0.01" value="${Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0)}" class="zoom-slider">
 			<span class="zoom-value">${parseFloat(card.dataset.zoom).toFixed(2)}x</span>
 			<button type="button" class="center-button">Centrer</button>
 		`;
@@ -182,7 +182,7 @@ class InlineCardEditor {
 	// margin:auto sur position:absolute+inset:0 = centrage CSS garanti sans calcul px.
 	// Même approche que applyCardZoom — cover scale explicite pour que zoom<1 dézoome.
 	applyTransform(card, target, x, y) {
-		const zoom = parseFloat(card.dataset.zoom) || 1;
+		const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1);
 		if (target.tagName === 'IMG' && target.naturalWidth) {
 			const container = target.closest('.project-image');
 			const cW = container.offsetWidth;
