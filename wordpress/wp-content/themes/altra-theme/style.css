@@ -68,7 +68,7 @@ Text Domain: altra
     --spacing-md: 2rem;
     --spacing-lg: 4rem;
     --spacing-xl: 8rem;
-    --page-margin: max(145px, 10vw); /* marge latérale — proportionnelle au viewport, min 145px */
+    --page-margin: max(145px, 9vw); /* marge latérale — proportionnelle au viewport, min 145px */
 }
 
 @media (max-width: 1024px) {
@@ -223,7 +223,7 @@ p {
 
 .hero-logo .logo-production {
     font-family: 'SuisseEcalIntl', sans-serif;
-    font-size: max(0.7rem, 0.8vw);
+    font-size: max(0.7rem, 0.85vw);
     -webkit-text-stroke: 0.1px currentColor;
     font-weight: 400;
     letter-spacing: -0.05
@@ -253,7 +253,7 @@ p {
 .hero-nav-left a,
 .hero-nav-right a {
     font-family: 'SuisseEcalIntl', sans-serif;
-    font-size: max(0.7rem, 0.8vw);
+    font-size: max(0.7rem, 0.85vw);
     -webkit-text-stroke: 0.1px currentColor;
     font-weight: 400;
     letter-spacing: -0.02em;
@@ -313,7 +313,7 @@ p {
 /* "Altra" — Catalogue Trial Bold */
 .logo-altra {
     font-family: 'CatalogueTrial', Georgia, serif;
-    font-size: max(2rem, 3.4vw);
+    font-size: max(2rem, 3.5vw);
     font-weight: 500;
     letter-spacing: -0.01em;
     line-height: 1;
@@ -341,7 +341,7 @@ p {
 .nav-left a,
 .nav-right a {
     font-family: 'SuisseEcalIntl', sans-serif;
-    font-size: max(0.7rem, 0.95vw);
+    font-size: max(0.7rem, 1vw);
     -webkit-text-stroke: 0.1px currentColor;
     font-weight: 400;
     letter-spacing: -0.02em;
@@ -491,13 +491,12 @@ p {
     padding: max(1.5rem, 2vw) var(--page-margin) max(1rem, 1.5vw) var(--page-margin); /* ← marge entre photo et métadonnées */
 }
 
+/* Métadonnées galerie — label (bold) + valeur sur la même ligne.
+   font-size : ajuster le vw pour modifier la taille sur grands écrans.
+   À 1440px → 13.6px, à 3840px → 30.7px */
 .project-detail-item {
-    font-size: max(0.75rem, 0.8vw); /* ← taille des métadonnées galerie */
+    font-size: max(0.85rem, 0.8vw); /* ← ajuster le 0.8vw */
     line-height: 1.5;
-}
-
-/* "Label — Valeur" : flex pour que les lignes supplémentaires s'alignent sous la valeur */
-.project-detail-item {
     display: flex;
     align-items: flex-start;
 }
