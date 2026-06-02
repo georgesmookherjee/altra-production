@@ -23,8 +23,8 @@
      * Proportionnel à toute taille d'écran, header et grille naturellement alignés.
      * Toutes les cartes d'une même ligne (portrait ET paysage) ont la même hauteur.
      */
-    /* 395px = 2×145 (marges) + 3×35 (gaps min) — gaps variables introduisent une légère approximation acceptable */
-    grid-auto-rows: calc((100vw - 395px) * 1.655 / 4);
+    /* 2×var(--page-margin) + 3×35px (gaps min) — utilise la vraie valeur de marge pour garder le ratio portrait exact */
+    grid-auto-rows: calc((100vw - 2 * var(--page-margin) - 105px) * 1.655 / 4);
 }
 
 /* CLASSES DE LARGEUR */
@@ -110,7 +110,7 @@
    Multiplicateur = % fixe → même proportion à toute taille d'écran.
    Pour ajuster : changer 0.013 (haut) ou 0.010 (bas). Plus grand = plus d'espace. */
 .project-info {
-    padding: calc((100vw - 395px) * 0.013) 0 calc((100vw - 395px) * 0.010);
+    padding: calc((100vw - 395px) * 0.015) 0 calc((100vw - 395px) * 0.015);
     background: transparent;
     color: #000;
 }

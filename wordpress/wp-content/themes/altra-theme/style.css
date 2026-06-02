@@ -68,7 +68,7 @@ Text Domain: altra
     --spacing-md: 2rem;
     --spacing-lg: 4rem;
     --spacing-xl: 8rem;
-    --page-margin: 145px; /* marge latérale commune : grille, hero navs, header */
+    --page-margin: max(145px, 10vw); /* marge latérale — proportionnelle au viewport, min 145px */
 }
 
 @media (max-width: 1024px) {
