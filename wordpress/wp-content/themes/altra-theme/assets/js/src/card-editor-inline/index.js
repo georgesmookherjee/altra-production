@@ -194,19 +194,21 @@ class InlineCardEditor {
 			const iH = nH * cs;
 			const overflowX = (iW * zoom - cW) / 2;
 			const overflowY = (iH * zoom - cH) / 2;
-			if (overflowX > 0) x = Math.max(-overflowX, Math.min(overflowX, x));
-			if (overflowY > 0) y = Math.max(-overflowY, Math.min(overflowY, y));
+			if (overflowX > 0) x = Math.max(-overflowX, Math.min(overflowX, x)); else x = 0;
+			if (overflowY > 0) y = Math.max(-overflowY, Math.min(overflowY, y)); else y = 0;
+			const centerTx = (cW - iW) / 2 + x;
+			const centerTy = (cH - iH) / 2 + y;
 			target.style.objectFit      = 'none';
 			target.style.position       = 'absolute';
 			target.style.width          = iW + 'px';
 			target.style.height         = iH + 'px';
-			target.style.top            = '50%';
-			target.style.left           = '50%';
+			target.style.top            = '0';
+			target.style.left           = '0';
 			target.style.right          = '';
 			target.style.bottom         = '';
 			target.style.margin         = '0';
 			target.style.transformOrigin = '50% 50%';
-			target.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${zoom})`;
+			target.style.transform = `translate(${centerTx}px, ${centerTy}px) scale(${zoom})`;
 		} else {
 			target.style.transformOrigin = '50% 50%';
 			target.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;

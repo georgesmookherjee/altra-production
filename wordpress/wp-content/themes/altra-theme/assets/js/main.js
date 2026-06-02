@@ -328,22 +328,24 @@
 
                     const overflowX = (iW * zoom - cW) / 2;
                     const overflowY = (iH * zoom - cH) / 2;
-                    const clampedPanX = overflowX > 0 ? Math.max(-overflowX, Math.min(overflowX, panX)) : panX;
-                    const clampedPanY = overflowY > 0 ? Math.max(-overflowY, Math.min(overflowY, panY)) : panY;
+                    const clampedPanX = overflowX > 0 ? Math.max(-overflowX, Math.min(overflowX, panX)) : 0;
+                    const clampedPanY = overflowY > 0 ? Math.max(-overflowY, Math.min(overflowY, panY)) : 0;
 
-                    // left:50%+top:50%+translate(-50%) = centrage universellement fiable
-                    // (Safari a des quirks avec margin:auto sur position:absolute en overflow:hidden)
+                    // Centrage en pixels purs — évite calc(% + px) qui pose des problèmes sur Safari
+                    const centerTx = (cW - iW) / 2 + clampedPanX;
+                    const centerTy = (cH - iH) / 2 + clampedPanY;
+
                     img.style.objectFit      = 'none';
                     img.style.position       = 'absolute';
                     img.style.width          = iW + 'px';
                     img.style.height         = iH + 'px';
-                    img.style.top            = '50%';
-                    img.style.left           = '50%';
+                    img.style.top            = '0';
+                    img.style.left           = '0';
                     img.style.right          = '';
                     img.style.bottom         = '';
                     img.style.margin         = '0';
                     img.style.transformOrigin = '50% 50%';
-                    img.style.transform      = `translate(calc(-50% + ${clampedPanX}px), calc(-50% + ${clampedPanY}px)) scale(${zoom})`;
+                    img.style.transform      = `translate(${centerTx}px, ${centerTy}px) scale(${zoom})`;
                 }
 
                 if (img.complete && img.naturalWidth) {
