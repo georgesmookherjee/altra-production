@@ -118,13 +118,14 @@
 .project-title {
     font-size: max(13px, 0.9vw);   /* ← taille du client (bold) */
     font-weight: 700;
+    margin-right: 0.2em;
 }
 
 .project-photographer {
     font-size: max(13px, 0.9vw);   /* ← taille du photographe (regular) */
     font-weight: 400;
     -webkit-text-stroke: 0.2px currentColor;
-    margin-left: 0.2em; /* ← espace entre client et photographe */
+    /*margin-left: 0.2em;*/ /* ← espace entre client et photographe */
 }
 
 /* ==========================================================================

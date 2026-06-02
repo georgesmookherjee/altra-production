@@ -93,17 +93,31 @@ class InlineCardEditor {
 		};
 
 		const onMouseMove = (e) => {
-			if (!isDragging || !img || !img.naturalWidth) return;
+			if (!isDragging) return;
 			const zoom      = Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0);
-			const container = img.closest('.project-image');
-			const cs        = Math.max(container.offsetWidth / img.naturalWidth, container.offsetHeight / img.naturalHeight);
-			const iW        = img.naturalWidth  * cs;
-			const iH        = img.naturalHeight * cs;
-			// Dragging right shifts image right → focal point (what's centered) moves left
-			// 1 px screen drag = 1/(iW*zoom) focal fraction change
-			const newFocalX = startFocalX - (e.clientX - dragStartX) / (iW * zoom) * 100;
-			const newFocalY = startFocalY - (e.clientY - dragStartY) / (iH * zoom) * 100;
-			this.applyTransform(card, transformTarget, newFocalX, newFocalY);
+			const dx        = e.clientX - dragStartX;
+			const dy        = e.clientY - dragStartY;
+
+			if (img && img.naturalWidth) {
+				// — Image : déplacement relatif à la taille de l'image zoomée —
+				const container = img.closest('.project-image');
+				const cs = Math.max(container.offsetWidth / img.naturalWidth, container.offsetHeight / img.naturalHeight);
+				const iW = img.naturalWidth  * cs;
+				const iH = img.naturalHeight * cs;
+				const newFocalX = startFocalX - dx / (iW * zoom) * 100;
+				const newFocalY = startFocalY - dy / (iH * zoom) * 100;
+				this.applyTransform(card, transformTarget, newFocalX, newFocalY);
+
+			} else if (videoWrapper && zoom > 1) {
+				// — Vidéo : déplacement relatif à la taille du container × (zoom-1) —
+				// Avec transform-origin, décaler focalX d'un pixel écran = 1/(cW*(zoom-1)) en %
+				const container = videoWrapper.closest('.project-image');
+				const cW = container.offsetWidth;
+				const cH = container.offsetHeight;
+				const newFocalX = startFocalX - dx * 100 / (cW * (zoom - 1));
+				const newFocalY = startFocalY - dy * 100 / (cH * (zoom - 1));
+				this.applyTransform(card, transformTarget, newFocalX, newFocalY);
+			}
 		};
 
 		const onMouseUp = () => {
