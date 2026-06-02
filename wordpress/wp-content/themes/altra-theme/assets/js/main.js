@@ -312,6 +312,10 @@
                 const panY = parseFloat(card.dataset.panY) || 0;
                 const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0);
 
+                // Si pas de customisation réelle, laisser CSS (object-fit:cover) gérer —
+                // identique partout sans aucun calcul JS susceptible de varier entre browsers.
+                if (zoom === 1.0 && panX === 0 && panY === 0) return;
+
                 function apply() {
                     const container = img.closest('.project-image');
                     const cW = container.offsetWidth;
