@@ -300,21 +300,21 @@
             }
         }
 
-        // Zoom/focal point avec cover-base : scale(coverScale × zoom)
-        // coverScale = échelle pour que l'image remplisse le container (≡ object-fit:cover)
-        // zoom < 1 → on voit au-delà du cover ; zoom > 1 → plus zoomé que cover
+        // Focal point + zoom, résolution-indépendant.
+        // Image dimensionnée à la taille cover (iW×iH), puis translate+scale.
+        // Le focal point (0-100 %) indique quelle partie de l'image centrer dans le container.
+        // La même valeur produit le même cadrage à toute résolution d'écran.
         function applyCardZoom() {
             if (window.innerWidth <= 768) return;
             document.querySelectorAll('.project-card[data-has-visual-settings="1"]').forEach(function(card) {
                 const img = card.querySelector('.project-image img');
                 if (!img) return;
-                const panX = parseFloat(card.dataset.panX) || 0;
-                const panY = parseFloat(card.dataset.panY) || 0;
-                const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0);
+                const focalX = parseFloat(card.dataset.focalX != null ? card.dataset.focalX : 50) / 100;
+                const focalY = parseFloat(card.dataset.focalY != null ? card.dataset.focalY : 50) / 100;
+                const zoom   = Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0);
 
-                // Si pas de customisation réelle, laisser CSS (object-fit:cover) gérer —
-                // identique partout sans aucun calcul JS susceptible de varier entre browsers.
-                if (zoom === 1.0 && panX === 0 && panY === 0) return;
+                // Centre exact + pas de zoom → object-fit:cover CSS suffit (identique partout)
+                if (zoom === 1.0 && Math.abs(focalX - 0.5) < 0.001 && Math.abs(focalY - 0.5) < 0.001) return;
 
                 function apply() {
                     const container = img.closest('.project-image');
@@ -324,18 +324,20 @@
                     const nH = img.naturalHeight;
                     if (!nW || !nH || !cW || !cH) return;
 
+                    // Taille cover (sans zoom — le scale() dans transform gère le zoom)
                     const cs = Math.max(cW / nW, cH / nH);
                     const iW = nW * cs;
                     const iH = nH * cs;
 
-                    const overflowX = (iW * zoom - cW) / 2;
-                    const overflowY = (iH * zoom - cH) / 2;
-                    const clampedPanX = overflowX > 0 ? Math.max(-overflowX, Math.min(overflowX, panX)) : 0;
-                    const clampedPanY = overflowY > 0 ? Math.max(-overflowY, Math.min(overflowY, panY)) : 0;
-                    const centerTx = (cW - iW) / 2 + clampedPanX;
-                    const centerTy = (cH - iH) / 2 + clampedPanY;
+                    // translate pour centrer le focal point, puis scale(zoom) autour du centre de l'image
+                    const txIdeal = (cW - iW) / 2 - iW * zoom * (focalX - 0.5);
+                    const tyIdeal = (cH - iH) / 2 - iH * zoom * (focalY - 0.5);
+                    const tx = Math.max(cW - (1 + zoom) * iW / 2, Math.min((zoom - 1) * iW / 2, txIdeal));
+                    const ty = Math.max(cH - (1 + zoom) * iH / 2, Math.min((zoom - 1) * iH / 2, tyIdeal));
 
-                    img.style.objectFit      = 'none';
+                    // object-fit: cover (CSS) + dimensions cover-scale = image remplit le box
+                    // sans distorsion (iW/iH === nW/nH). N'utilise PAS object-fit:none car
+                    // Safari rend l'image à sa taille naturelle avec none, ce qui donne un zoom brutal.
                     img.style.position       = 'absolute';
                     img.style.width          = iW + 'px';
                     img.style.height         = iH + 'px';
@@ -345,11 +347,15 @@
                     img.style.bottom         = '';
                     img.style.margin         = '0';
                     img.style.transformOrigin = '50% 50%';
-                    img.style.transform      = `translate(${centerTx}px, ${centerTy}px) scale(${zoom})`;
+                    img.style.transform      = `translate(${tx}px, ${ty}px) scale(${zoom})`;
                 }
 
                 if (img.complete && img.naturalWidth) {
                     apply();
+                } else if ('decode' in img) {
+                    // img.decode() attend le chargement ET le décodage — nécessaire sur Safari
+                    // où naturalWidth peut être 0 même si img.complete est true (decoding=async)
+                    img.decode().then(() => { if (img.naturalWidth) apply(); }).catch(() => { if (img.naturalWidth) apply(); });
                 } else {
                     img.addEventListener('load', apply);
                 }
@@ -360,17 +366,17 @@
             document.querySelectorAll('.project-card[data-has-visual-settings="1"]').forEach(function(card) {
                 const img = card.querySelector('.project-image img');
                 if (!img) return;
-                img.style.objectFit = '';
-                img.style.position  = '';
-                img.style.width     = '';
-                img.style.height    = '';
-                img.style.top       = '';
-                img.style.left      = '';
-                img.style.right     = '';
-                img.style.bottom    = '';
-                img.style.margin    = '';
+                img.style.objectFit      = '';
+                img.style.position       = '';
+                img.style.width          = '';
+                img.style.height         = '';
+                img.style.top            = '';
+                img.style.left           = '';
+                img.style.right          = '';
+                img.style.bottom         = '';
+                img.style.margin         = '';
                 img.style.transformOrigin = '';
-                img.style.transform = '';
+                img.style.transform      = '';
             });
         }
 

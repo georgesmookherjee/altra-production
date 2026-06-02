@@ -495,7 +495,7 @@ p {
    font-size : ajuster le vw pour modifier la taille sur grands écrans.
    À 1440px → 13.6px, à 3840px → 30.7px */
 .project-detail-item {
-    font-size: max(0.85rem, 0.8vw); /* ← ajuster le 0.8vw */
+    font-size: max(0.85rem, 1vw); /* ← ajuster le 0.8vw */
     line-height: 1.5;
     display: flex;
     align-items: flex-start;

@@ -1,5 +1,8 @@
 /**
  * Inline Card Editor — Alt+Drag to pan, slider to zoom
+ * Uses focal point (0-100 %) for resolution-independent positioning.
+ * Transform formula: translate(tx, ty) scale(zoom) with transformOrigin 50% 50%
+ * — mirrors applyCardZoom() in main.js exactly.
  */
 import './style.scss';
 
@@ -74,26 +77,35 @@ class InlineCardEditor {
 		overlay.innerHTML = `<div class="edit-hint">Alt + Glisser pour cadrer</div>`;
 		imageContainer.appendChild(overlay);
 
-		// Drag state
+		// Drag state — startFocal captured at mousedown, delta accumulated from start
 		let isDragging = false;
-		let dragStartX, dragStartY, startPanX, startPanY;
+		let dragStartX, dragStartY, startFocalX, startFocalY;
 
 		const onMouseDown = (e) => {
 			if (!e.altKey) return;
 			e.preventDefault();
 			isDragging = true;
-			dragStartX = e.clientX;
-			dragStartY = e.clientY;
-			startPanX = parseFloat(card.dataset.panX) || 0;
-			startPanY = parseFloat(card.dataset.panY) || 0;
+			dragStartX  = e.clientX;
+			dragStartY  = e.clientY;
+			startFocalX = parseFloat(card.dataset.focalX) || 50;
+			startFocalY = parseFloat(card.dataset.focalY) || 50;
 			overlay.classList.add('is-dragging');
 		};
+
 		const onMouseMove = (e) => {
-			if (!isDragging) return;
-			this.applyTransform(card, transformTarget,
-				startPanX + (e.clientX - dragStartX),
-				startPanY + (e.clientY - dragStartY));
+			if (!isDragging || !img || !img.naturalWidth) return;
+			const zoom      = Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0);
+			const container = img.closest('.project-image');
+			const cs        = Math.max(container.offsetWidth / img.naturalWidth, container.offsetHeight / img.naturalHeight);
+			const iW        = img.naturalWidth  * cs;
+			const iH        = img.naturalHeight * cs;
+			// Dragging right shifts image right → focal point (what's centered) moves left
+			// 1 px screen drag = 1/(iW*zoom) focal fraction change
+			const newFocalX = startFocalX - (e.clientX - dragStartX) / (iW * zoom) * 100;
+			const newFocalY = startFocalY - (e.clientY - dragStartY) / (iH * zoom) * 100;
+			this.applyTransform(card, transformTarget, newFocalX, newFocalY);
 		};
+
 		const onMouseUp = () => {
 			if (!isDragging) return;
 			isDragging = false;
@@ -127,41 +139,64 @@ class InlineCardEditor {
 		zoomControl.querySelector('.zoom-slider').addEventListener('input', (e) => {
 			card.dataset.zoom = e.target.value;
 			zoomControl.querySelector('.zoom-value').textContent = parseFloat(e.target.value).toFixed(2) + 'x';
-			this.applyTransform(card, transformTarget, parseFloat(card.dataset.panX) || 0, parseFloat(card.dataset.panY) || 0);
+			this.applyTransform(card, transformTarget,
+				parseFloat(card.dataset.focalX) || 50,
+				parseFloat(card.dataset.focalY) || 50);
 			this.trackChange(projectId, card);
 		});
 
 		zoomControl.querySelector('.center-button').addEventListener('click', () => {
-			this.applyTransform(card, transformTarget, 0, 0);
+			this.applyTransform(card, transformTarget, 50, 50);
 			this.trackChange(projectId, card);
 		});
 
-		// Apply initial transform if card already has visual settings
+		// Apply initial transform if the card already has focal settings
 		if (card.dataset.hasVisualSettings === '1') {
-			this.applyTransform(card, transformTarget, parseFloat(card.dataset.panX) || 0, parseFloat(card.dataset.panY) || 0);
+			const fx = parseFloat(card.dataset.focalX) || 50;
+			const fy = parseFloat(card.dataset.focalY) || 50;
+			this.applyTransform(card, transformTarget, fx, fy);
 		}
 	}
 
-	applyTransform(card, target, panX, panY) {
+	/**
+	 * Apply focal point + zoom transform.
+	 * focalX/Y: 0-100 % (unclamped on input; clamped internally).
+	 * Formula mirrors applyCardZoom() in main.js:
+	 *   translate(tx, ty) scale(zoom), transformOrigin 50% 50%
+	 *   where tx = (cW-iW)/2 - iW*zoom*(fx-0.5)  (iW = cover width, no zoom factor)
+	 */
+	applyTransform(card, target, focalX, focalY) {
 		const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0);
 
 		if (target.tagName === 'IMG' && target.naturalWidth) {
 			const container = target.closest('.project-image');
 			const cW = container.offsetWidth;
 			const cH = container.offsetHeight;
-			const cs = Math.max(cW / target.naturalWidth, cH / target.naturalHeight);
-			const iW = target.naturalWidth * cs;
-			const iH = target.naturalHeight * cs;
+			const nW = target.naturalWidth;
+			const nH = target.naturalHeight;
+			if (!cW || !cH) return;
 
-			const overflowX = (iW * zoom - cW) / 2;
-			const overflowY = (iH * zoom - cH) / 2;
-			if (overflowX > 0) panX = Math.max(-overflowX, Math.min(overflowX, panX)); else panX = 0;
-			if (overflowY > 0) panY = Math.max(-overflowY, Math.min(overflowY, panY)); else panY = 0;
+			const cs = Math.max(cW / nW, cH / nH);
+			const iW = nW * cs;  // cover size (zoom applied via scale() in transform)
+			const iH = nH * cs;
 
-			const centerTx = (cW - iW) / 2 + panX;
-			const centerTy = (cH - iH) / 2 + panY;
+			const fx = focalX / 100;  // 0-1
+			const fy = focalY / 100;
 
-			target.style.objectFit      = 'none';
+			// Ideal translate to center the focal point
+			const txIdeal = (cW - iW) / 2 - iW * zoom * (fx - 0.5);
+			const tyIdeal = (cH - iH) / 2 - iH * zoom * (fy - 0.5);
+
+			// Clamp so the (scaled) image always covers the container
+			const tx = Math.max(cW - (1 + zoom) * iW / 2, Math.min((zoom - 1) * iW / 2, txIdeal));
+			const ty = Math.max(cH - (1 + zoom) * iH / 2, Math.min((zoom - 1) * iH / 2, tyIdeal));
+
+			// Write clamped focal back to dataset (for trackChange to read correct value)
+			card.dataset.focalX = (0.5 - (tx - (cW - iW) / 2) / (iW * zoom)) * 100;
+			card.dataset.focalY = (0.5 - (ty - (cH - iH) / 2) / (iH * zoom)) * 100;
+
+			// Pas de object-fit:none — Safari rend l'image à sa taille naturelle avec none.
+			// object-fit:cover (CSS) + dimensions cover-scale = image remplit le box sans distorsion.
 			target.style.position       = 'absolute';
 			target.style.width          = iW + 'px';
 			target.style.height         = iH + 'px';
@@ -171,20 +206,25 @@ class InlineCardEditor {
 			target.style.bottom         = '';
 			target.style.margin         = '0';
 			target.style.transformOrigin = '50% 50%';
-			target.style.transform      = `translate(${centerTx}px, ${centerTy}px) scale(${zoom})`;
-		} else {
-			target.style.transformOrigin = '50% 50%';
-			target.style.transform      = `scale(${zoom})`;
+			target.style.transform      = `translate(${tx}px, ${ty}px) scale(${zoom})`;
+		} else if (target) {
+			// Video wrapper — transform-origin approach
+			const fx = Math.max(0, Math.min(100, focalX));
+			const fy = Math.max(0, Math.min(100, focalY));
+			card.dataset.focalX = fx;
+			card.dataset.focalY = fy;
+			target.style.transformOrigin = `${fx}% ${fy}%`;
+			target.style.transform       = `scale(${zoom})`;
 		}
-
-		card.dataset.panX = panX;
-		card.dataset.panY = panY;
 	}
 
 	trackChange(projectId, card) {
 		this.editedCards.set(parseInt(projectId), {
-			pan:  { x: parseFloat(card.dataset.panX) || 0, y: parseFloat(card.dataset.panY) || 0 },
-			zoom: parseFloat(card.dataset.zoom) || 1.0
+			focalPoint: {
+				x: parseFloat(card.dataset.focalX) || 50,
+				y: parseFloat(card.dataset.focalY) || 50,
+			},
+			zoom: parseFloat(card.dataset.zoom) || 1.0,
 		});
 	}
 
@@ -200,7 +240,7 @@ class InlineCardEditor {
 			promises.push(fetch(`/wp-json/altra/v1/project/${projectId}/visual-settings`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': window.altraCardEditorData?.nonce || '' },
-				body: JSON.stringify({ visualSettings: { pan: settings.pan, zoom: settings.zoom, textLayers: [] } }),
+				body: JSON.stringify({ visualSettings: { focalPoint: settings.focalPoint, zoom: settings.zoom, textLayers: [] } }),
 			}));
 		}
 

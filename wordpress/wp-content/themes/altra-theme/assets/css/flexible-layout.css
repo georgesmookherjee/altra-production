@@ -19,12 +19,10 @@
     margin-top: 0;
     /*
      * grid-auto-rows : hauteur = largeur d'une colonne × 1.655 (ratio portrait)
-     * Formule : (100vw - 2×145 - 3×35) / 4 × 1.655 = (100vw - 395px) × 1.655 / 4
-     * Proportionnel à toute taille d'écran, header et grille naturellement alignés.
-     * Toutes les cartes d'une même ligne (portrait ET paysage) ont la même hauteur.
+     * Utilise clamp() pour le gap exact (identique à la valeur déclarée dans gap:),
+     * ce qui garantit que le ratio portrait est identique à toute résolution.
      */
-    /* 2×var(--page-margin) + 3×35px (gaps min) — utilise la vraie valeur de marge pour garder le ratio portrait exact */
-    grid-auto-rows: calc((100vw - 2 * var(--page-margin) - 105px) * 1.655 / 4);
+    grid-auto-rows: calc((100vw - 2 * var(--page-margin) - 3 * clamp(35px, 2.3vw, 600px)) * 1.655 / 4);
 }
 
 /* CLASSES DE LARGEUR */
@@ -101,36 +99,32 @@
 }
 
 
-.project-card:hover .project-image img {
-    transform: scale(1.02);
-}
-
 /* Info section - fixed below image */
 /* Padding lié à la même formule que la grille : (100vw - 395px) = largeur disponible.
    Multiplicateur = % fixe → même proportion à toute taille d'écran.
    Pour ajuster : changer 0.013 (haut) ou 0.010 (bas). Plus grand = plus d'espace. */
 .project-info {
-    padding: calc((100vw - 395px) * 0.015) 0 calc((100vw - 395px) * 0.015);
+    padding: calc((100vw - 395px) * 0.022) 0 calc((100vw - 395px) * 0.015);
     background: transparent;
     color: #000;
 }
 
 /* Caption : Title (bold) Photographer (regular) — une ligne desktop, deux lignes mobile */
 .project-caption {
-    line-height: 1.4;
+    line-height: 1.5;
     margin: 0;
 }
 
 .project-title {
-    font-size: max(13px, 1vw);   /* ← taille du client (bold) */
+    font-size: max(13px, 0.9vw);   /* ← taille du client (bold) */
     font-weight: 700;
 }
 
 .project-photographer {
-    font-size: max(13px, 1vw);   /* ← taille du photographe (regular) */
+    font-size: max(13px, 0.9vw);   /* ← taille du photographe (regular) */
     font-weight: 400;
     -webkit-text-stroke: 0.2px currentColor;
-    /*margin-left: 0.3em;*/ /* ← espace entre client et photographe */
+    margin-left: 0.2em; /* ← espace entre client et photographe */
 }
 
 /* ==========================================================================

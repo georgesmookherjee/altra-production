@@ -34,6 +34,25 @@ if (!empty($grid_position) && is_array($grid_position)) {
 // Get visual settings from Card Editor
 $visual_settings = get_post_meta(get_the_ID(), '_altra_visual_settings', true);
 
+// Focal point (resolution-independent, 0-100 %). Only the focalPoint format
+// (saved by the admin Card Editor or the new inline editor) is supported.
+// Old pixel-based 'pan' data is ignored — falls back to CSS object-fit:cover.
+$focal_x = 50.0;
+$focal_y = 50.0;
+$has_focal = false;
+$zoom      = 1.0;
+
+if (!empty($visual_settings) && is_array($visual_settings)) {
+    if (isset($visual_settings['focalPoint'])) {
+        $focal_x   = floatval($visual_settings['focalPoint']['x']);
+        $focal_y   = floatval($visual_settings['focalPoint']['y']);
+        $has_focal = true;
+    }
+    if (isset($visual_settings['zoom'])) {
+        $zoom = max(1.0, floatval($visual_settings['zoom']));
+    }
+}
+
 // Determine orientation and CSS class
 if ($media_type === 'video') {
     $orientation_class = $featured_video_orientation === 'landscape' ? 'project-landscape project-video-landscape' : 'project-portrait project-video-portrait';
@@ -70,10 +89,10 @@ if ($media_type === 'video' && $featured_video_url) {
 
 <article class="project-card <?php echo esc_attr($orientation_class); ?>"
          data-project-id="<?php echo get_the_ID(); ?>"
-         data-pan-x="<?php echo isset($visual_settings['pan']['x']) ? esc_attr($visual_settings['pan']['x']) : '0'; ?>"
-         data-pan-y="<?php echo isset($visual_settings['pan']['y']) ? esc_attr($visual_settings['pan']['y']) : '0'; ?>"
-         data-zoom="<?php echo isset($visual_settings['zoom']) ? esc_attr(max(1.0, floatval($visual_settings['zoom']))) : '1.0'; ?>"
-         data-has-visual-settings="<?php echo (!empty($visual_settings) && is_array($visual_settings)) ? '1' : '0'; ?>"
+         data-focal-x="<?php echo esc_attr($focal_x); ?>"
+         data-focal-y="<?php echo esc_attr($focal_y); ?>"
+         data-zoom="<?php echo esc_attr($zoom); ?>"
+         data-has-visual-settings="<?php echo $has_focal ? '1' : '0'; ?>"
          <?php if ($card_styles) echo 'style="' . esc_attr(trim($card_styles)) . '"'; ?>>
 
     <a href="<?php the_permalink(); ?>" class="project-link">

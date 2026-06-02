@@ -1280,11 +1280,11 @@ function altra_save_project_visual_settings($request) {
     // Sanitize values
     $sanitized = array();
 
-    // Pan offset (pixels)
-    if (isset($visual_settings['pan'])) {
-        $sanitized['pan'] = array(
-            'x' => floatval($visual_settings['pan']['x']),
-            'y' => floatval($visual_settings['pan']['y']),
+    // Focal point (0-100 %, resolution-independent) — format canonique
+    if (isset($visual_settings['focalPoint'])) {
+        $sanitized['focalPoint'] = array(
+            'x' => floatval($visual_settings['focalPoint']['x']),
+            'y' => floatval($visual_settings['focalPoint']['y']),
         );
     }
 
