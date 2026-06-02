@@ -13,7 +13,7 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: clamp(35px, 2.3vw, 600px);
-    row-gap: clamp(185px, 7vw, 350px);
+    row-gap: clamp(185px, 13vw, 600px);
     padding: 40px var(--page-margin) 80px;
     padding-bottom: clamp(185px, 7vw, 350px);
     margin-top: 0;
@@ -106,8 +106,11 @@
 }
 
 /* Info section - fixed below image */
+/* Padding lié à la même formule que la grille : (100vw - 395px) = largeur disponible.
+   Multiplicateur = % fixe → même proportion à toute taille d'écran.
+   Pour ajuster : changer 0.013 (haut) ou 0.010 (bas). Plus grand = plus d'espace. */
 .project-info {
-    padding: max(12px, 1vw) 0 max(10px, 0.8vw); /* ← espacement entre image et caption */
+    padding: calc((100vw - 395px) * 0.013) 0 calc((100vw - 395px) * 0.010);
     background: transparent;
     color: #000;
 }
