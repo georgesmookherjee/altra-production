@@ -304,14 +304,12 @@
         // coverScale = échelle pour que l'image remplisse le container (≡ object-fit:cover)
         // zoom < 1 → on voit au-delà du cover ; zoom > 1 → plus zoomé que cover
         function applyCardZoom() {
-            // Point focal [0,1] : 0=gauche/haut, 0.5=centré, 1=droite/bas
-            // centerTx = fpX × (cW - iW) → identique à toute résolution
             if (window.innerWidth <= 768) return;
             document.querySelectorAll('.project-card[data-has-visual-settings="1"]').forEach(function(card) {
                 const img = card.querySelector('.project-image img');
                 if (!img) return;
-                const fpX  = Math.max(0, Math.min(1, parseFloat(card.dataset.focalX) || 0.5));
-                const fpY  = Math.max(0, Math.min(1, parseFloat(card.dataset.focalY) || 0.5));
+                const panX = parseFloat(card.dataset.panX) || 0;
+                const panY = parseFloat(card.dataset.panY) || 0;
                 const zoom = Math.max(1.0, parseFloat(card.dataset.zoom) || 1.0);
 
                 function apply() {
@@ -326,10 +324,12 @@
                     const iW = nW * cs;
                     const iH = nH * cs;
 
-                    // fpX × (cW - iW) : proportion fixe de l'overflow → même cadrage à 1080p et 4K
-                    // transform-origin au point focal : le zoom s'applique depuis ce point
-                    const centerTx = fpX * (cW - iW);
-                    const centerTy = fpY * (cH - iH);
+                    const overflowX = (iW * zoom - cW) / 2;
+                    const overflowY = (iH * zoom - cH) / 2;
+                    const clampedPanX = overflowX > 0 ? Math.max(-overflowX, Math.min(overflowX, panX)) : 0;
+                    const clampedPanY = overflowY > 0 ? Math.max(-overflowY, Math.min(overflowY, panY)) : 0;
+                    const centerTx = (cW - iW) / 2 + clampedPanX;
+                    const centerTy = (cH - iH) / 2 + clampedPanY;
 
                     img.style.objectFit      = 'none';
                     img.style.position       = 'absolute';
@@ -340,7 +340,7 @@
                     img.style.right          = '';
                     img.style.bottom         = '';
                     img.style.margin         = '0';
-                    img.style.transformOrigin = `${fpX * 100}% ${fpY * 100}%`;
+                    img.style.transformOrigin = '50% 50%';
                     img.style.transform      = `translate(${centerTx}px, ${centerTy}px) scale(${zoom})`;
                 }
 
